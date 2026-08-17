@@ -1,0 +1,309 @@
+"""
+Pydantic schemas for all domain entities used across the API.
+
+Separation of concerns:
+  - Domain models (Brand, Product, HistoricalPost) represent stored data.
+  - Request/Response schemas are what the API sends and receives.
+  - The LLM never sees or produces numeric scores — only qualitative signals.
+    All numeric computation happens in ScoringService.
+"""
+from __future__ import annotations
+
+from enum import Enum
+from typing import Any
+from pydantic import BaseModel, Field
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Enumerations
+# ──────────────────────────────────────────────────────────────────────────────
+
+class Platform(str, Enum):
+    INSTAGRAM = "Instagram"
+    LINKEDIN = "LinkedIn"
+    X = "X"
+
+
+class PostFormat(str, Enum):
+    CAROUSEL = "Carousel"
+    REEL = "Reel"
+    STATIC = "Static Post"
+
+
+class Objective(str, Enum):
+    ENGAGEMENT = "Engagement"
+    PRODUCT_DISCOVERY = "Product Discovery"
+    ENGAGEMENT_DISCOVERY = "Engagement + Product Discovery"
+    CONVERSION = "Conversion"
+    EDUCATION = "Education"
+
+
+class InventoryStatus(str, Enum):
+    IN_STOCK = "In Stock"
+    OUT_OF_STOCK = "Out of Stock"
+    LOW_STOCK = "Low Stock"
+
+
+class ContentStatus(str, Enum):
+    DRAFT = "draft"
+    APPROVED = "approved"
+    SCHEDULED = "scheduled"
+    PUBLISHED = "published"
+
+
+class Confidence(str, Enum):
+    HIGH = "High"
+    MEDIUM = "Medium"
+    LOW = "Low"
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Domain Models
+# ──────────────────────────────────────────────────────────────────────────────
+
+class BrandAudience(BaseModel):
+    age_range: str
+    location: str
+    interests: list[str]
+    shopping_behavior: list[str]
+
+
+class Brand(BaseModel):
+    id: str
+    name: str
+    description: str
+    tone: list[str]
+    audience: BrandAudience
+    campaign: str  # Active campaign, e.g. "Summer 2026"
+
+
+class Product(BaseModel):
+    id: str
+    name: str
+    category: str
+    price_inr: int
+    description: str
+    features: list[str]
+    season: str
+    target_audience: str
+    inventory_status: InventoryStatus
+    views: int
+    sales: int
+
+
+class HistoricalPost(BaseModel):
+    id: str
+    platform: str
+    format: str
+    caption: str
+    product_id: str | None
+    category: str
+    audience: str
+    objective: str
+    posted_date: str
+    impressions: int
+    likes: int
+    comments: int
+    shares: int
+    saves: int
+    clicks: int
+    conversions: int
+
+    @property
+    def engagement_rate(self) -> float:
+        """Engagement Rate = (likes + comments + shares + saves) / impressions * 100"""
+        if self.impressions == 0:
+            return 0.0
+        return round(
+            (self.likes + self.comments + self.shares + self.saves)
+            / self.impressions
+            * 100,
+            2,
+        )
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Performance Aggregates
+# ──────────────────────────────────────────────────────────────────────────────
+
+class FormatPerformance(BaseModel):
+    format: str
+    avg_engagement_rate: float
+    post_count: int
+
+
+class AudiencePerformance(BaseModel):
+    audience: str
+    avg_engagement_rate: float
+    post_count: int
+
+
+class PerformanceSummary(BaseModel):
+    brand_avg_engagement_rate: float
+    total_posts: int
+    by_format: list[FormatPerformance]
+    by_audience: list[AudiencePerformance]
+    top_performing_format: str
+    top_performing_audience: str
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Opportunity Scoring
+# ──────────────────────────────────────────────────────────────────────────────
+
+class ScoreBreakdown(BaseModel):
+    historical: int = Field(..., ge=0, le=25, description="Historical performance score /25")
+    product: int = Field(..., ge=0, le=25, description="Product relevance score /25")
+    audience: int = Field(..., ge=0, le=20, description="Audience fit score /20")
+    seasonal: int = Field(..., ge=0, le=15, description="Seasonal relevance score /15")
+    objective: int = Field(..., ge=0, le=15, description="Business objective fit score /15")
+
+    @property
+    def total(self) -> int:
+        return self.historical + self.product + self.audience + self.seasonal + self.objective
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# AI Strategist Output Schema (LLM must conform to this — no numeric scores)
+# ──────────────────────────────────────────────────────────────────────────────
+
+class AIOpportunityRaw(BaseModel):
+    """
+    Strictly validated schema for the LLM's raw opportunity output.
+    The LLM provides qualitative signals only.
+    Numeric scores are calculated separately by ScoringService.
+    """
+    title: str
+    content_angle: str
+    audience: str
+    objective: str
+    platform: str
+    format: str
+    suggested_product_id: str
+    why: str
+    historical_signal: str
+    product_signal: str
+    audience_signal: str
+    seasonal_signal: str
+    business_signal: str
+
+
+class AIOpportunitiesResponse(BaseModel):
+    opportunities: list[AIOpportunityRaw]
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Full Opportunity (AI signals + computed score)
+# ──────────────────────────────────────────────────────────────────────────────
+
+class Opportunity(BaseModel):
+    id: str
+    title: str
+    content_angle: str
+    audience: str
+    objective: str
+    platform: str
+    format: str
+    suggested_product_id: str
+    suggested_product_name: str
+    why: str
+    historical_signal: str
+    product_signal: str
+    audience_signal: str
+    seasonal_signal: str
+    business_signal: str
+    score: int
+    score_breakdown: ScoreBreakdown
+    confidence: Confidence
+    confidence_reason: str
+    created_at: str
+    is_demo: bool = False
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Content Generation
+# ──────────────────────────────────────────────────────────────────────────────
+
+class CarouselSlide(BaseModel):
+    slide_number: int
+    headline: str
+    body: str
+    visual_cue: str
+
+
+class AIContentRaw(BaseModel):
+    """Strictly validated schema for the LLM's content generation output."""
+    slides: list[CarouselSlide]
+    caption: str
+    cta: str
+    hashtags: list[str]
+
+
+class GenerateContentRequest(BaseModel):
+    opportunity_id: str
+    platform: Platform = Platform.INSTAGRAM
+    format: PostFormat = PostFormat.CAROUSEL
+    audience: str
+    objective: Objective
+
+
+class ContentDraft(BaseModel):
+    id: str
+    opportunity_id: str
+    platform: str
+    format: str
+    audience: str
+    objective: str
+    slides: list[CarouselSlide]
+    caption: str
+    cta: str
+    hashtags: list[str]
+    status: ContentStatus
+    scheduled_date: str | None
+    scheduled_time: str | None
+    created_at: str
+    updated_at: str
+    is_demo: bool = False
+
+
+class UpdateDraftRequest(BaseModel):
+    slides: list[CarouselSlide] | None = None
+    caption: str | None = None
+    cta: str | None = None
+    hashtags: list[str] | None = None
+
+
+class ScheduleRequest(BaseModel):
+    scheduled_date: str = Field(..., description="e.g. 2026-08-25")
+    scheduled_time: str = Field(..., description="e.g. 19:30")
+    platform: Platform = Platform.INSTAGRAM
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Calendar
+# ──────────────────────────────────────────────────────────────────────────────
+
+class CalendarEntry(BaseModel):
+    id: str
+    draft_id: str
+    title: str
+    platform: str
+    format: str
+    status: ContentStatus
+    scheduled_datetime: str
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# API Response Wrappers
+# ──────────────────────────────────────────────────────────────────────────────
+
+class ApiResponse(BaseModel):
+    success: bool = True
+    message: str = "OK"
+    data: Any = None
+
+
+class AnalyzeResponse(BaseModel):
+    opportunities: list[Opportunity]
+    performance_summary: PerformanceSummary
+    is_demo: bool = False
