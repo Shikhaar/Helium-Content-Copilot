@@ -95,7 +95,6 @@ Detailed documentation is available in the [`docs/`](./docs) directory:
 - [**Technical Architecture**](./docs/ARCHITECTURE.md) — System design, data flow, and repository layer patterns.
 - [**Scoring Model & Formulas**](./docs/SCORING_MODEL.md) — Complete mathematical derivations, constants, and the 92/100 hero score walkthrough.
 - [**AI Prompts & CO-STAR Framework**](./docs/AI_PROMPTS.md) — System and user prompts with schema validation rules.
-- [**Interview & Demo Script**](./docs/INTERVIEW_DEMO_SCRIPT.md) — 3-minute live walkthrough script and anticipated questions.
 
 ---
 ## License
