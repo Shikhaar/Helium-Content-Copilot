@@ -4,7 +4,7 @@
 
 **Helium Content Copilot** is an AI-powered content strategist for D2C brands that identifies high-value content opportunities, explains why they matter, and turns them into ready-to-review social content.
 
-[Architecture](docs/ARCHITECTURE.md) · [Scoring Model](docs/SCORING_MODEL.md) · [AI Prompts](docs/AI_PROMPTS.md) · [Product Thinking](docs/PRODUCT_THINKING.md) · [Roadmap](docs/FUTURE_SCOPE_ROADMAP.md)
+🚀 **[Live App Demo](https://helium-content-copilot.onrender.com)** · [Architecture](docs/ARCHITECTURE.md) · [Scoring Model](docs/SCORING_MODEL.md) · [AI Prompts](docs/AI_PROMPTS.md) · [Product Thinking](docs/PRODUCT_THINKING.md) · [Roadmap](docs/FUTURE_SCOPE_ROADMAP.md)
 
 ---
 
