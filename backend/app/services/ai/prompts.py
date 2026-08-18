@@ -240,7 +240,7 @@ GENERATION PARAMETERS:
   Platform: {request.platform.value}
   Format: {request.format.value}
   Target Audience: {request.audience}
-  Objective: {request.objective.value}
+  Objective: {request.objective}
   Brand Tone: {", ".join(brand.tone)}
 
 Generate the Instagram Carousel content now. Return valid JSON only.

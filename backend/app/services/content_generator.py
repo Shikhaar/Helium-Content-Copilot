@@ -80,7 +80,7 @@ class ContentGeneratorService:
             platform=request.platform.value,
             format=request.format.value,
             audience=request.audience,
-            objective=request.objective.value,
+            objective=request.objective,
             slides=raw_content.slides,
             caption=raw_content.caption,
             cta=raw_content.cta,
