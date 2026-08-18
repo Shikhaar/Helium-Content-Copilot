@@ -30,10 +30,10 @@ The system is built on a clean, decoupled architecture:
 ## System Architecture Diagram
 
 ```mermaid
-graph TD
-    Client["Next.js Frontend (App Router)"] -->|REST API (JSON)| API["FastAPI Application (app.main)"]
+flowchart TD
+    Client["Next.js Frontend (App Router)"] -->|"REST API (JSON)"| API["FastAPI Application (app.main)"]
     
-    subgraph "FastAPI Backend (Poetry / Python 3.11)"
+    subgraph Backend ["FastAPI Backend (Poetry / Python 3.11)"]
         API --> Routes["API Routers (/api/*)"]
         Routes --> StratSvc["StrategistService"]
         Routes --> ContSvc["ContentGeneratorService"]
@@ -44,10 +44,10 @@ graph TD
         
         ContSvc --> AIProv
         
-        StratSvc --> Repos["Repository Layer (BaseRepository[T])"]
+        StratSvc --> Repos["Repository Layer (BaseRepository)"]
         ContSvc --> Repos
         
-        Repos --> DB[("SQLite Database (helium.db via aiosqlite)")]
+        Repos --> DB[("SQLite Database (helium.db)")]
     end
 ```
 
