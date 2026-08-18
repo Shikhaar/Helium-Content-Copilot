@@ -1,7 +1,7 @@
 'use client';
 import { LayoutDashboard, Lightbulb, Wand2, Calendar, Building2 } from 'lucide-react';
 
-type Tab = 'dashboard' | 'opportunities' | 'create' | 'calendar' | 'brand';
+type Tab = 'opportunities' | 'create' | 'calendar' | 'brand';
 
 interface SidebarProps {
   activeTab: Tab;
@@ -10,11 +10,10 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { id: 'dashboard' as Tab, label: 'Dashboard', icon: LayoutDashboard },
   { id: 'opportunities' as Tab, label: 'Opportunities', icon: Lightbulb },
-  { id: 'create' as Tab, label: 'Create Content', icon: Wand2 },
+  { id: 'create' as Tab, label: 'Content Studio', icon: Wand2 },
   { id: 'calendar' as Tab, label: 'Calendar', icon: Calendar },
-  { id: 'brand' as Tab, label: 'Brand', icon: Building2 },
+  { id: 'brand' as Tab, label: 'Brand & Catalog', icon: Building2 },
 ];
 
 export default function Sidebar({ activeTab, onTabChange, onHome }: SidebarProps) {

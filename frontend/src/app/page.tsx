@@ -25,7 +25,7 @@ import ContentStudio from '@/components/ContentStudio';
 import CalendarView from '@/components/CalendarView';
 import BrandView from '@/components/BrandView';
 
-type Tab = 'dashboard' | 'opportunities' | 'create' | 'calendar' | 'brand';
+type Tab = 'opportunities' | 'create' | 'calendar' | 'brand';
 type Screen =
   | { name: 'dashboard' }
   | { name: 'opportunity'; id: string }
@@ -34,7 +34,7 @@ type Screen =
   | { name: 'brand' };
 
 export default function Home() {
-  const [activeTab, setActiveTab] = React.useState<Tab>('dashboard');
+  const [activeTab, setActiveTab] = React.useState<Tab>('opportunities');
   const [screen, setScreen] = React.useState<Screen>({ name: 'dashboard' });
 
   // Data state
@@ -92,10 +92,13 @@ export default function Home() {
   const navigate = (s: Screen) => {
     setScreen(s);
     const tabMap: Record<string, Tab> = {
-      dashboard: 'dashboard', opportunity: 'opportunities',
-      create: 'create', calendar: 'calendar', brand: 'brand',
+      dashboard: 'opportunities',
+      opportunity: 'opportunities',
+      create: 'create',
+      calendar: 'calendar',
+      brand: 'brand',
     };
-    setActiveTab(tabMap[s.name] || 'dashboard');
+    setActiveTab(tabMap[s.name] || 'opportunities');
     setError(null);
   };
 
@@ -103,10 +106,8 @@ export default function Home() {
     setActiveTab(tab);
     setError(null);
 
-    if (tab === 'dashboard') {
-      setScreen({ name: 'dashboard' });
-    } else if (tab === 'opportunities') {
-      // Always go to the dashboard list view ("Your Top Content Opportunities")
+    if (tab === 'opportunities') {
+      // Go to the main opportunities list hub
       setScreen({ name: 'dashboard' });
     } else if (tab === 'create') {
       // If we have a draft already, go straight to the studio
