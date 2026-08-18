@@ -57,5 +57,7 @@ frontend/build/
 .DS_Store
 Thumbs.db
 
-# Internal / Private demo notes
+# Internal / Private demo notes & PDFs
 docs/INTERVIEW_DEMO_SCRIPT.md
+*.pdf
+AI Product Engineer Assignment_Helium.pdf
