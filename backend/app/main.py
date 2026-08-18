@@ -31,6 +31,9 @@ async def lifespan(app: FastAPI):
     async with aiosqlite.connect(settings.database_url) as db:
         db.row_factory = aiosqlite.Row
         await seed_database(db)
+        if settings.ai_enabled:
+            await db.execute("DELETE FROM opportunities WHERE is_demo = 1")
+            await db.commit()
 
     logger.info("Startup complete — ready to serve requests")
     yield
