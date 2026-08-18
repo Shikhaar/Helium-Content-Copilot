@@ -47,9 +47,13 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+import os
+from pathlib import Path
+from fastapi.staticfiles import StaticFiles
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.frontend_origin, "http://localhost:3000", "http://localhost:3001"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -57,6 +61,20 @@ app.add_middleware(
 
 app.include_router(router, prefix="/api")
 
+# Mount static frontend build if present (for unified Docker / Render deployment)
+static_candidates = [
+    Path("/app/static"),
+    Path(__file__).parent.parent.parent / "frontend" / "out",
+    Path(__file__).parent.parent / "static",
+]
+
+for static_dir in static_candidates:
+    if static_dir.exists() and (static_dir / "index.html").exists():
+        logger.info("Serving static frontend from %s", static_dir)
+        app.mount("/", StaticFiles(directory=str(static_dir), html=True), name="frontend")
+        break
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("app.main:app", host=settings.host, port=settings.port, reload=True)
+
