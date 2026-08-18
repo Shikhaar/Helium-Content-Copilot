@@ -213,6 +213,7 @@ export default function Home() {
         return (
           <Dashboard
             brand={brand}
+            productsCount={products.length}
             performance={performance}
             analyzeResult={analyzeResult}
             isAnalyzing={isAnalyzing}

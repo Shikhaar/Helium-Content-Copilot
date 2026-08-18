@@ -44,8 +44,10 @@ function SlidePreview({ slide, isActive, onClick }: {
   );
 }
 
-function BigSlideCard({ slide }: {
+function BigSlideCard({ slide, totalSlides = 4, brandName = 'SNITCH' }: {
   slide: { slide_number: number; headline: string; body: string; visual_cue: string };
+  totalSlides?: number;
+  brandName?: string;
 }) {
   return (
     <div className="ig-card" style={{ width: 300, aspectRatio: '4/5', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', position: 'relative', overflow: 'hidden' }}>
@@ -60,15 +62,15 @@ function BigSlideCard({ slide }: {
         fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.5)',
         background: 'rgba(255,255,255,0.08)', borderRadius: 4, padding: '3px 7px',
       }}>
-        {slide.slide_number}/{4}
+        {slide.slide_number}/{totalSlides}
       </div>
-      {/* SNITCH watermark */}
+      {/* Brand watermark */}
       <div style={{
         position: 'absolute', top: 14, left: 14,
         fontSize: 13, fontWeight: 800, color: 'rgba(255,255,255,0.9)',
         letterSpacing: '0.08em',
       }}>
-        SNITCH
+        {brandName}
       </div>
       {/* Content */}
       <div style={{ position: 'relative', padding: '24px 20px 20px' }}>
@@ -149,7 +151,7 @@ export default function ContentStudio({
         {/* Left: Preview */}
         <div>
           <div className="label" style={{ marginBottom: 14 }}>Instagram Preview</div>
-          <BigSlideCard slide={draft.slides[activeSlide]} />
+          <BigSlideCard slide={draft.slides[activeSlide]} totalSlides={draft.slides.length} />
           {/* Slide strip */}
           <div style={{ display: 'flex', gap: 8, marginTop: 14, overflowX: 'auto' }}>
             {draft.slides.map((s, i) => (

@@ -1,9 +1,11 @@
 'use client';
+import React from 'react';
 import { TrendingUp, FileText, BarChart2, Calendar } from 'lucide-react';
 import type { AnalyzeResponse, Brand, PerformanceSummary } from '@/lib/types';
 
 interface DashboardProps {
   brand: Brand | null;
+  productsCount?: number;
   performance: PerformanceSummary | null;
   analyzeResult: AnalyzeResponse | null;
   isAnalyzing: boolean;
@@ -14,59 +16,55 @@ interface DashboardProps {
 }
 
 function MetricCard({ label, value, icon: Icon, subtitle }: {
-  label: string; value: string | number; icon: React.ElementType; subtitle?: string;
+  label: string; value: string | number; icon: React.ElementType; subtitle: string;
 }) {
   return (
-    <div className="card" style={{ padding: '20px 22px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <div>
-          <div className="label" style={{ marginBottom: 8 }}>{label}</div>
-          <div style={{ fontSize: 28, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1 }}>
-            {value}
-          </div>
-          {subtitle && (
-            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>{subtitle}</div>
-          )}
-        </div>
+    <div className="card" style={{ padding: '18px 20px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+        <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 500 }}>{label}</span>
         <div style={{
-          width: 36, height: 36, borderRadius: 8,
+          width: 28, height: 28, borderRadius: 6,
           background: 'var(--accent-subtle)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          <Icon size={16} color="var(--accent-light)" strokeWidth={1.8} />
+          <Icon size={14} color="var(--accent-light)" />
         </div>
       </div>
+      <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+        {value}
+      </div>
+      <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>{subtitle}</div>
     </div>
   );
 }
 
 function ScorePill({ score }: { score: number }) {
-  const color = score >= 90 ? '#22c55e' : score >= 75 ? '#f59e0b' : '#9090b0';
+  const color = score >= 90 ? '#22c55e' : score >= 75 ? '#f59e0b' : '#6c63ff';
+  const label = score >= 90 ? 'HIGH' : score >= 75 ? 'GOOD' : 'MODERATE';
   return (
     <div style={{
-      display: 'inline-flex', alignItems: 'center', gap: 4,
-      background: score >= 90 ? 'rgba(34,197,94,0.1)' : score >= 75 ? 'rgba(245,158,11,0.1)' : 'rgba(144,144,176,0.1)',
-      border: `1px solid ${score >= 90 ? 'rgba(34,197,94,0.25)' : score >= 75 ? 'rgba(245,158,11,0.25)' : 'rgba(144,144,176,0.25)'}`,
-      borderRadius: 999, padding: '3px 10px',
+      display: 'inline-flex', alignItems: 'center', gap: 6,
+      padding: '4px 10px', borderRadius: 6,
+      background: score >= 90 ? 'rgba(34,197,94,0.1)' : 'rgba(245,158,11,0.1)',
+      border: `1px solid ${score >= 90 ? 'rgba(34,197,94,0.25)' : 'rgba(245,158,11,0.25)'}`,
     }}>
-      <div style={{ width: 6, height: 6, borderRadius: '50%', background: color }} />
-      <span style={{ fontSize: 13, fontWeight: 700, color }}>{score}/100</span>
+      <span style={{ fontSize: 13, fontWeight: 800, color }}>{score}</span>
+      <span style={{ fontSize: 9, fontWeight: 700, color, letterSpacing: '0.05em' }}>{label}</span>
     </div>
   );
 }
 
 function LoadingStep({ steps, currentStep }: { steps: string[]; currentStep: number }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxWidth: 380 }}>
       {steps.map((step, i) => (
-        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{
             width: 20, height: 20, borderRadius: '50%',
-            background: i < currentStep ? 'var(--accent)' : i === currentStep ? 'var(--accent-subtle)' : 'var(--border)',
-            border: i === currentStep ? '2px solid var(--accent)' : 'none',
+            background: i < currentStep ? 'var(--accent)' : i === currentStep ? 'var(--accent-subtle)' : 'var(--bg-secondary)',
+            border: `1px solid ${i <= currentStep ? 'var(--accent)' : 'var(--border)'}`,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             transition: 'all 0.3s ease',
-            flexShrink: 0,
           }}>
             {i < currentStep && <span style={{ fontSize: 10, color: '#fff' }}>✓</span>}
             {i === currentStep && (
@@ -99,7 +97,7 @@ const LOADING_STEPS = [
 ];
 
 export default function Dashboard({
-  brand, performance, analyzeResult, isAnalyzing, onAnalyze, onViewOpportunity, onViewCalendar, scheduledCount,
+  brand, productsCount, performance, analyzeResult, isAnalyzing, onAnalyze, onViewOpportunity, onViewCalendar, scheduledCount,
 }: DashboardProps) {
   const [loadingStep, setLoadingStep] = React.useState(0);
 
@@ -146,8 +144,8 @@ export default function Dashboard({
 
       {/* Metrics */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 36 }}>
-        <MetricCard label="Products" value={8} icon={TrendingUp} subtitle="In catalog" />
-        <MetricCard label="Historical Posts" value={25} icon={FileText} subtitle="Analysed" />
+        <MetricCard label="Products" value={productsCount ?? 8} icon={TrendingUp} subtitle="In catalog" />
+        <MetricCard label="Historical Posts" value={performance?.total_posts ?? 25} icon={FileText} subtitle="Analysed" />
         <MetricCard
           label="Avg Engagement"
           value={performance ? `${performance.brand_avg_engagement_rate.toFixed(1)}%` : '4.8%'}
@@ -244,6 +242,3 @@ export default function Dashboard({
     </div>
   );
 }
-
-// Needed for useEffect and useState
-import React from 'react';
