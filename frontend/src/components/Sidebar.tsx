@@ -6,6 +6,7 @@ type Tab = 'dashboard' | 'opportunities' | 'create' | 'calendar' | 'brand';
 interface SidebarProps {
   activeTab: Tab;
   onTabChange: (tab: Tab) => void;
+  onHome: () => void;
 }
 
 const navItems = [
@@ -16,7 +17,7 @@ const navItems = [
   { id: 'brand' as Tab, label: 'Brand', icon: Building2 },
 ];
 
-export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
+export default function Sidebar({ activeTab, onTabChange, onHome }: SidebarProps) {
   return (
     <aside style={{
       width: 220,
@@ -29,23 +30,45 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
       flexShrink: 0,
     }}>
       {/* Logo */}
-      <div style={{ padding: '24px 20px 20px', borderBottom: '1px solid var(--border)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{
-            width: 32, height: 32, borderRadius: 8,
-            background: 'var(--accent)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 16, fontWeight: 700,
-          }}>H</div>
-          <div>
-            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
+      <div style={{ padding: '20px 16px 18px', borderBottom: '1px solid var(--border)' }}>
+        <button
+          onClick={onHome}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 10,
+            background: 'none', border: 'none', cursor: 'pointer',
+            padding: '4px 6px', borderRadius: 8, width: '100%',
+            transition: 'background 0.15s ease',
+          }}
+          onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.04)')}
+          onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+        >
+          {/* Brand mark — stylised H letterform using two vertical bars + connector */}
+          <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="30" height="30" rx="7" fill="url(#logoGrad)" />
+            {/* Left pillar */}
+            <rect x="7" y="7" width="4" height="16" rx="1.5" fill="white" />
+            {/* Right pillar */}
+            <rect x="19" y="7" width="4" height="16" rx="1.5" fill="white" />
+            {/* Cross bar — offset upward for a modern, asymmetric feel */}
+            <rect x="7" y="12.5" width="16" height="3.5" rx="1.5" fill="white" fillOpacity="0.85" />
+            {/* Accent dot */}
+            <circle cx="23" cy="8.5" r="2.5" fill="#a78bfa" />
+            <defs>
+              <linearGradient id="logoGrad" x1="0" y1="0" x2="30" y2="30" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#6c63ff" />
+                <stop offset="1" stopColor="#4f46e5" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <div style={{ textAlign: 'left' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.01em', lineHeight: 1.2 }}>
               Content Copilot
             </div>
-            <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 1 }}>
+            <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>
               by Helium
             </div>
           </div>
-        </div>
+        </button>
       </div>
 
       {/* Nav */}
