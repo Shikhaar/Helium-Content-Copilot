@@ -36,6 +36,8 @@ class Objective(str, Enum):
     ENGAGEMENT_DISCOVERY = "Engagement + Product Discovery"
     CONVERSION = "Conversion"
     EDUCATION = "Education"
+    EDUCATION_ENGAGEMENT = "Education + Engagement"
+    AWARENESS = "Awareness"
 
 
 class InventoryStatus(str, Enum):
@@ -244,7 +246,7 @@ class GenerateContentRequest(BaseModel):
     platform: Platform = Platform.INSTAGRAM
     format: PostFormat = PostFormat.CAROUSEL
     audience: str
-    objective: Objective
+    objective: str  # plain str — AI may generate objectives outside the enum
 
 
 class ContentDraft(BaseModel):

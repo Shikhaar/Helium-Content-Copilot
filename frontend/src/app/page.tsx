@@ -7,8 +7,11 @@ import type {
   CalendarEntry,
   ContentDraft,
   GenerateContentRequest,
+  Objective,
   Opportunity,
   PerformanceSummary,
+  Platform,
+  PostFormat,
   Product,
   ScheduleRequest,
 } from '@/lib/types';
@@ -138,10 +141,10 @@ export default function Home() {
 
     const req: GenerateContentRequest = {
       opportunity_id: oppId,
-      platform: 'Instagram',
-      format: 'Carousel',
+      platform: selectedOpportunity.platform as Platform,
+      format: selectedOpportunity.format as PostFormat,
       audience: selectedOpportunity.audience,
-      objective: selectedOpportunity.objective as any,
+      objective: selectedOpportunity.objective as Objective,
     };
     setGenerateRequest(req);
     setIsGenerating(true);
