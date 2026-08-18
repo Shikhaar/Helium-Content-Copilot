@@ -56,10 +56,10 @@ Approve & Schedule to Calendar
 
 | Step | Core Screen | Description | Visual |
 | :--- | :--- | :--- | :---: |
-| **01 — Discover** | **Opportunities Hub** | Live-ranked recommendations grounded in catalog demand and brand baseline | [📸 View Screenshot](docs/screenshots/dashboard.png) |
-| **02 — Evaluate** | **"Why This Opportunity?"** | 5-signal evidence breakdown & deterministic score gauge (Decision Screen) | [📸 View Screenshot](docs/screenshots/opportunity.png) |
-| **03 — Create & Edit** | **AI Content Studio** | Platform-tailored copy, lifestyle visual mockups, and inline scene editor | [📸 View Screenshot](docs/screenshots/content_studio.png) |
-| **04 — Schedule** | **Publishing Calendar** | Weekly interactive schedule with confirmed time slots | [📸 View Screenshot](docs/screenshots/calendar.png) |
+| **01 — Discover** | **Opportunities Hub** | Live-ranked recommendations grounded in catalog demand and brand baseline | [ View Screenshot](docs/screenshots/dashboard.png) |
+| **02 — Evaluate** | **"Why This Opportunity?"** | 5-signal evidence breakdown & deterministic score gauge (Decision Screen) | [ View Screenshot](docs/screenshots/opportunity.png) |
+| **03 — Create & Edit** | **AI Content Studio** | Platform-tailored copy, lifestyle visual mockups, and inline scene editor | [ View Screenshot](docs/screenshots/content_studio.png) |
+| **04 — Schedule** | **Publishing Calendar** | Weekly interactive schedule with confirmed time slots | [ View Screenshot](docs/screenshots/calendar.png) |
 
 ---
 
