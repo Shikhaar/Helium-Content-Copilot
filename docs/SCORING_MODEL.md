@@ -49,6 +49,30 @@ Think of the 100-point opportunity score like a **5-subject report card** where 
 $$\mathbf{\text{Total Score}} = \mathbf{25} + \mathbf{20} + \mathbf{18} + \mathbf{15} + \mathbf{15} = \mathbf{93 / 100}$$
 
 ---
+## How Engagement Rate (ER) is Calculated from Raw Post Data
+
+Before any opportunity scoring occurs, `AnalyticsService` calculates engagement rates dynamically from the raw post data in SQLite:
+
+### 1. Individual Post Engagement Rate
+For every single post in history:
+```text
+Post ER (%) = [(Likes + Comments + Shares + Saves) / Impressions] * 100
+```
+- **Example:** A post with 1,400 likes, 120 comments, 85 shares, 340 saves, and 25,000 impressions:
+  $$\text{Post ER} = \frac{1,400 + 120 + 85 + 340}{25,000} \times 100 = \frac{1,945}{25,000} \times 100 = \mathbf{7.78\%}$$
+
+### 2. Brand Baseline Engagement Rate (4.80%)
+The average engagement rate across all standard feed posts (Carousels and Images):
+```text
+Brand Feed Average = (Sum of all Feed Post ERs) / (Total Feed Posts) = 4.80%
+```
+*(Reels are excluded from the feed baseline because algorithmic reach can inflate averages and skew format comparisons).*
+
+### 3. Format & Audience Aggregations
+- **Format Average:** e.g. **Reels** average **8.80%**, **Carousels** average **6.45%**, **Single Images** average **3.80%**.
+- **Audience Average:** e.g. **Young Millennials** average **5.83%**, **Gen-Z** averages **5.74%**, **Metro Men** averages **4.52%**.
+
+---
 ## The 5 Factors & Weights
 
 | Factor | Weight | Evaluation Method | Primary Signal Source |
