@@ -6,6 +6,7 @@ import type { CalendarEntry } from '@/lib/types';
 interface CalendarViewProps {
   entries: CalendarEntry[];
   onDeleteEntry?: (id: string) => void;
+  onSelectDraft?: (draftId: string) => void;
 }
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -27,7 +28,7 @@ const STATUS_COLORS: Record<string, string> = {
   draft: 'var(--text-muted)',
 };
 
-export default function CalendarView({ entries, onDeleteEntry }: CalendarViewProps) {
+export default function CalendarView({ entries, onDeleteEntry, onSelectDraft }: CalendarViewProps) {
   const today = new Date();
   const [year, setYear] = React.useState(today.getFullYear());
   const [month, setMonth] = React.useState(today.getMonth());
@@ -66,7 +67,7 @@ export default function CalendarView({ entries, onDeleteEntry }: CalendarViewPro
           Content Calendar
         </h1>
         <p style={{ fontSize: 14, color: 'var(--text-secondary)' }}>
-          {entries.length} post{entries.length !== 1 ? 's' : ''} scheduled
+          {entries.length} post{entries.length !== 1 ? 's' : ''} scheduled · Click any post to view or edit in Content Studio
         </p>
       </div>
 
@@ -112,13 +113,27 @@ export default function CalendarView({ entries, onDeleteEntry }: CalendarViewPro
                   {day}
                 </div>
                 {dayEntries.map(entry => (
-                  <div key={entry.id} style={{
-                    fontSize: 10, fontWeight: 500,
-                    background: STATUS_COLORS[entry.status] || 'var(--accent)',
-                    color: '#fff', borderRadius: 3, padding: '2px 5px',
-                    marginBottom: 2, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
-                    opacity: 0.9,
-                  }}>
+                  <div
+                    key={entry.id}
+                    onClick={() => entry.draft_id && onSelectDraft?.(entry.draft_id)}
+                    style={{
+                      fontSize: 10, fontWeight: 500,
+                      background: STATUS_COLORS[entry.status] || 'var(--accent)',
+                      color: '#fff', borderRadius: 3, padding: '2px 5px',
+                      marginBottom: 2, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
+                      opacity: 0.9, cursor: entry.draft_id ? 'pointer' : 'default',
+                      transition: 'all 0.15s ease',
+                    }}
+                    onMouseEnter={e => {
+                      (e.currentTarget as HTMLElement).style.opacity = '1';
+                      (e.currentTarget as HTMLElement).style.transform = 'scale(1.02)';
+                    }}
+                    onMouseLeave={e => {
+                      (e.currentTarget as HTMLElement).style.opacity = '0.9';
+                      (e.currentTarget as HTMLElement).style.transform = 'none';
+                    }}
+                    title={entry.draft_id ? `Click to open in Studio: ${entry.title}` : entry.title}
+                  >
                     {entry.title.split(' ').slice(0, 3).join(' ')}…
                   </div>
                 ))}
@@ -137,7 +152,28 @@ export default function CalendarView({ entries, onDeleteEntry }: CalendarViewPro
               const dt = new Date(entry.scheduled_datetime);
               const isDeleting = deletingId === entry.id;
               return (
-                <div key={entry.id} className="card" style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16 }}>
+                <div
+                  key={entry.id}
+                  className="card"
+                  style={{
+                    padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16,
+                    cursor: entry.draft_id ? 'pointer' : 'default',
+                    transition: 'all 0.15s ease',
+                  }}
+                  onClick={() => entry.draft_id && onSelectDraft?.(entry.draft_id)}
+                  onMouseEnter={e => {
+                    if (entry.draft_id) {
+                      (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent-border)';
+                      (e.currentTarget as HTMLElement).style.background = 'var(--bg-card-hover)';
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (entry.draft_id) {
+                      (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
+                      (e.currentTarget as HTMLElement).style.background = 'var(--bg-card)';
+                    }
+                  }}
+                >
                   <div style={{
                     width: 48, height: 48, borderRadius: 8, background: 'var(--accent-subtle)',
                     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
@@ -162,7 +198,10 @@ export default function CalendarView({ entries, onDeleteEntry }: CalendarViewPro
                   </div>
                   {onDeleteEntry && (
                     <button
-                      onClick={() => handleDelete(entry.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(entry.id);
+                      }}
                       disabled={isDeleting}
                       style={{
                         background: 'none',

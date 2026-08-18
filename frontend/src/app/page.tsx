@@ -237,6 +237,24 @@ export default function Home() {
     }
   };
 
+  // View Draft from Calendar
+  const handleViewDraft = async (draftId: string) => {
+    try {
+      const draft = await api.getDraft(draftId);
+      if (draft) {
+        setCurrentDraft(draft);
+        const opp = analyzeResult?.opportunities.find(o => o.id === draft.opportunity_id)
+          || await api.getOpportunity(draft.opportunity_id).catch(() => null);
+        if (opp) {
+          setSelectedOpportunity(opp);
+        }
+        navigate({ name: 'create', opportunityId: draft.opportunity_id });
+      }
+    } catch (e: any) {
+      setError(e.message || 'Failed to load post draft.');
+    }
+  };
+
   // Render current screen
   const renderScreen = () => {
     switch (screen.name) {
@@ -281,7 +299,13 @@ export default function Home() {
         );
 
       case 'calendar':
-        return <CalendarView entries={calendarEntries} onDeleteEntry={handleDeleteCalendarEntry} />;
+        return (
+          <CalendarView
+            entries={calendarEntries}
+            onDeleteEntry={handleDeleteCalendarEntry}
+            onSelectDraft={handleViewDraft}
+          />
+        );
 
       case 'brand':
         return <BrandView brand={brand} products={products} performance={performance} />;
