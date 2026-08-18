@@ -1,43 +1,43 @@
 # Helium Content Copilot
 
-> **Turn brand data into content worth creating.**
->
-> An AI-native content strategist for D2C brands that identifies high-value content opportunities, explains why they matter, and turns them into ready-to-review social content.
+> ## Turn brand data into content worth creating.
 
-[![Backend](https://img.shields.io/badge/Backend-FastAPI-009688)](https://fastapi.tiangolo.com/)
-[![Frontend](https://img.shields.io/badge/Frontend-Next.js-000000)](https://nextjs.org/)
-[![AI](https://img.shields.io/badge/AI-OpenAI%20%2F%20OpenRouter-412991)](https://openai.com/)
-[![Tests](https://img.shields.io/badge/Tests-35%20passing-brightgreen)](#testing)
-[![License](https://img.shields.io/badge/License-MIT-blue)](#license)
+**Helium Content Copilot** is an AI-powered content strategist for D2C brands that identifies high-value content opportunities, explains why they matter, and turns them into ready-to-review social content.
+
+[Architecture](docs/ARCHITECTURE.md) · [Scoring Model](docs/SCORING_MODEL.md) · [AI Prompts](docs/AI_PROMPTS.md) · [Product Thinking](docs/PRODUCT_THINKING.md) · [Roadmap](docs/FUTURE_SCOPE_ROADMAP.md)
 
 ---
 
-## Why I Built This
+> [!NOTE]
+> **Dataset Note:**  
+> This MVP uses a synthetic demo dataset inspired by the product categories, pricing, and visual style of [SNITCH](https://snitch.co.in/) (an Indian men's fashion D2C brand). It is an independent prototype and is **not affiliated with, endorsed by, or representative of SNITCH or its actual business metrics**.
+
+---
+
+## The Problem
 
 Most AI content tools start with:
 > **"What should I write?"**
 
-Helium Content Copilot starts one step earlier:
+Helium starts one step earlier:
 > **"What is actually worth creating — and why?"**
 
-For a D2C marketing team, generating another caption is rarely the hardest problem. The harder problem is **deciding which product, audience, format, and content angle deserves attention**.
+For D2C marketers, generating another caption is easy. Deciding **which product, audience, format, and content angle deserves creative effort** is harder.
 
-Helium analyzes brand context, product signals, historical content performance, audience behavior, seasonality, and business objectives to surface the strongest content opportunities.
+Helium combines **Brand Context + Product Velocity + Historical Performance + Audience Signals + Seasonality + Business Objectives** to identify the strongest content opportunities.
 
-The workflow is intentionally:
+---
+
+## The Core Workflow
 
 ```text
-Brand Context & Catalog
+Brand Context & Data
         ↓
-Historical Performance Analysis
+Opportunity Detection
         ↓
-AI Content Strategist (CO-STAR Reasoning)
+"Why This Opportunity?" (5-Signal Evidence)
         ↓
-Ranked Content Opportunities
-        ↓
-"Why this?" (5-Signal Evidence Breakdown)
-        ↓
-Deterministic Opportunity Score (0–100)
+Deterministic 100-Point Score
         ↓
 AI Content Generation (Platform-Specific Studio)
         ↓
@@ -46,58 +46,41 @@ Human Review & Inline Scene Editing
 Approve & Schedule to Calendar
 ```
 
-The product does not ask AI to generate content blindly.  
-**It first helps the marketer decide what content is worth creating.**
+> **The key product decision:**  
+> AI does not decide the numerical score. The scoring engine calculates recommendations deterministically in Python. The LLM handles qualitative reasoning and content generation.  
+> **AI interprets. Application logic calculates.**
 
 ---
 
-## The Product
+## Product Walkthrough
 
-### "What should this brand post next?"
-The dashboard surfaces the strongest content opportunities for the brand.
+### 1. Discover Opportunities
+Marketer views live-ranked opportunities grounded in catalog velocity and historical performance.
+![Dashboard](docs/screenshots/dashboard.png)
 
-For example:
-```text
-┌─────────────────────────────────────────────────────────┐
-│ 3 Ways to Style the Oversized Linen Shirt               │
-│                                                         │
-│ Instagram · Reel / Carousel · Product Discovery         │
-│                                                         │
-│ Opportunity Score                                       │
-│ 92 / 100                                                │
-│                                                         │
-│ Styling content has historically generated              │
-│ significantly higher engagement for this brand.         │
-│                                                         │
-│ [ Why this? ] [ Create content ]                        │
-└─────────────────────────────────────────────────────────┘
-```
+### 2. "Why This Opportunity?" — The Core Decision Screen
+Marketer inspects the 5-signal evidence breakdown before generating any copy.
+![Opportunity Detail](docs/screenshots/opportunity.png)
 
-Instead of returning generic prompts like:
-- *"Create educational content"*
-- *"Post social proof"*
-- *"Create a product post"*
+### 3. AI Content Studio
+Platform-tailored visual storyboard frames, captions, and inline scene editing.
+![Content Studio](docs/screenshots/content_studio.png)
 
-The system produces **specific, actionable opportunities grounded in the brand's data**.
+### 4. Interactive Publishing Calendar
+Weekly visual schedule with confirmed time slots.
+![Calendar](docs/screenshots/calendar.png)
 
 ---
 
 ## What Makes It Different
 
 ### 1. Opportunity Before Generation
-Traditional AI content workflows often look like:
-```text
-Prompt  →  Caption
-```
-Helium uses:
 ```text
 Brand Data + Signals  →  Opportunity  →  Why Reasoning  →  Content
 ```
 This changes AI from a copywriting utility into a **decision-support system for marketers**.
 
 ### 2. Deterministic Opportunity Scoring
-**The AI does not decide the numerical score.**
-
 Every opportunity is evaluated across five deterministic signals:
 
 | Signal | Max Points | Evaluation Method |
@@ -109,41 +92,21 @@ Every opportunity is evaluated across five deterministic signals:
 | **Business Objective Fit** | 15 | Format efficiency ratio for the target goal |
 | **Total** | **100** | **Sum of all 5 factors** |
 
-The score is calculated entirely in Python from the underlying dataset. The LLM provides qualitative reasoning.
+👉 [Read the full scoring formulas and math derivations](docs/SCORING_MODEL.md)
 
-```text
-       AI
-       │ Qualitative reasoning
-       ▼
-┌─────────────┐
-│ Opportunity │
-└──────┬──────┘
-       │
-       ▼
- Scoring Engine
-       │ Deterministic Math
-       ▼
-   92 / 100
-```
-
-> **AI interprets. Application logic calculates.**  
-> This makes recommendations reproducible, testable, and explainable.
-
-👉 [Read the full scoring model & formulas](docs/SCORING_MODEL.md)
-
-### 3. "Why This Opportunity?" (The Star Screen)
+### 3. "Why This Opportunity?" — The Core Decision Screen
 Every recommendation has an evidence-backed explanation. The marketer can see:
 
 ```text
-WHY THIS OPPORTUNITY?
-─────────────────────────────────────────────────
-Historical Performance       24 / 25  (8.2% ER vs 4.8% baseline)
-Product Relevance            20 / 25  (8,400 views · In Stock)
+WHY THIS OPPORTUNITY? *(Illustrative example from calibrated benchmark demo)*
+─────────────────────────────────────────────────────────────────────────────
+Historical Performance       24 / 25  (8.2% ER vs 4.8% baseline · 1.71×)
+Product Relevance            20 / 25  (8,400 views · 410 sales · In Stock)
 Audience Fit                 18 / 20  (Young Millennial match)
 Seasonal Alignment           15 / 15  (Summer 2026 campaign)
-Business Objective           15 / 15  (Strong discovery format)
-─────────────────────────────────────────────────
-TOTAL SCORE                  92 / 100
+Business Objective           15 / 15  (High-velocity discovery format)
+─────────────────────────────────────────────────────────────────────────────
+TOTAL OPPORTUNITY SCORE      92 / 100
 ```
 
 Alongside the score, the UI explains the underlying signals in plain marketing language:
@@ -153,108 +116,80 @@ Alongside the score, the UI explains the underlying signals in plain marketing l
 
 This makes the recommendation **defensible in a marketing meeting**, rather than simply *"AI-generated."*
 
-### 4. AI Content Studio
+### 4. AI Content Studio & Storyboard Frames
 Once an opportunity is selected, Helium turns the strategy into platform-specific content with rich visual frame mockups:
 - **Slide / Scene 1:** The Hook (*0:00 - 0:03*)
 - **Slide / Scene 2:** Fabric & Story (*0:03 - 0:07*)
 - **Slide / Scene 3:** Styling & Fit (*0:07 - 0:11*)
 - **Slide / Scene 4:** Call to Action (*0:11 - 0:15*)
 - **Caption & CTA:** Conversational copy with CTA buttons
-- **Hashtags:** Platform-normalized hashtags
-- **Dynamic Scheduling:** Algorithmically recommends the best posting slot (*e.g., Today 7:30 PM IST*)
-
-The marketer can:
-- Edit generated headlines, narration scripts, or visual cues directly
-- Edit captions, CTAs, and hashtags inline
-- Regenerate content
-- Approve before scheduling
+- **Dynamic Scheduling:** Algorithmically recommends optimal posting slots based on audience demographics (*e.g., Today 7:30 PM IST*)
 
 ### 5. Human-in-the-Loop
 ```text
 AI Recommendation  →  AI Generation  →  Human Review & Edit  →  Approve  →  Schedule
 ```
-The goal is not to remove the marketer from the process. The goal is to give the marketer a **better starting point and defensible decision support**.
+The system assists creative decisions; it does not silently publish on behalf of the marketer.
 
 ---
 
-## Product Workflow
+## Product Decisions
 
-1. **Discover:** The system analyzes brand context and historical data.
-2. **Evaluate:** Marketer reviews ranked opportunities with scores.
-3. **Understand:** *"Why this opportunity?"* provides the 5-signal evidence and score breakdown.
-4. **Create:** Generate platform-specific content in the studio.
-5. **Review & Edit:** Edit slide headlines, captions, CTAs, or scene cues.
-6. **Approve:** Marketer explicitly approves the content.
-7. **Schedule:** The approved post is queued for publication.
-8. **Calendar:** Scheduled content appears in the interactive weekly calendar.
+### Why opportunity-first?
+Generating content is cheap. Choosing what deserves creative effort is harder.
+
+### Why deterministic scoring?
+A marketer should be able to understand and reproduce why an opportunity received its score.
+
+### Why human approval?
+The system assists creative decisions; it does not silently publish on behalf of the marketer.
+
+### Why synthetic data?
+Real brand performance data was unavailable for the assignment, so I created a transparent synthetic dataset rather than presenting fabricated metrics as real business data.
 
 ---
 
 ## AI Architecture
 
 ```text
-┌───────────────────┐
-│   Brand Context   │
-└─────────┬─────────┘
-          │
-┌─────────▼─────────┘
-│ Historical Posts  │
-│  & Performance    │
-└─────────┬─────────┘
-          │
-          ▼
-┌───────────────────┐
-│ Analytics Engine  │
-│                   │
-│ Engagement rates  │
-│   Aggregations    │
-└─────────┬─────────┘
-          │
-     ┌────┴───────────────────────────┐
-     │                                │
-     ▼                                ▼
-┌─────────────────┐          ┌─────────────────┐
-│ Scoring Engine  │          │  AI Strategist  │
-│                 │          │                 │
-│  Deterministic  │          │     CO-STAR     │
-│  5-factor math  │          │    reasoning    │
-└────────┬────────┘          └────────┬────────┘
-         │                            │
-         └─────────────┬──────────────┘
-                       ▼
-          ┌───────────────────┐
-          │    Opportunity    │
-          │  Recommendation   │
-          └─────────┬─────────┘
-                    │
-                    ▼
-          ┌───────────────────┐
-          │ Content Generator │
-          │                   │
-          │ Platform + Format │
-          └─────────┬─────────┘
-                    │
-                    ▼
-          ┌───────────────────┐
-          │ Human Review/Edit │
-          └─────────┬─────────┘
-                    │
-                    ▼
-          ┌───────────────────┐
-          │ Approval/Schedule │
-          └─────────┬─────────┘
+                    Brand + Historical Data
+                             │
+                 ┌───────────┴───────────┐
+                 ▼                       ▼
+          Analytics Engine         AI Strategist
+                 │                       │
+                 │                 Qualitative
+                 │                  reasoning
+                 ▼                       │
+          Scoring Engine                 │
+          Deterministic                  │
+             Math                        │
+                 │                       │
+                 └───────────┬───────────┘
+                             ▼
+                        Opportunity
+                             │
+                             ▼
+                      Content Generator
+                             │
+                             ▼
+                    Human Review & Edit
+                             │
+                             ▼
+                     Approve & Schedule
 ```
 
 ---
 
-## Evaluation & Test Metrics
+## Evaluation
 
-| Metric | Result | Notes |
-| :--- | :--- | :--- |
+| Component | Result | Notes |
+| :--- | :---: | :--- |
 | **Backend Test Suite** | **35 / 35 passed** | 100% pass rate in `pytest` (0.35s) |
-| **Scoring Formula Coverage** | **100%** | All 5 factors, ranges, bounds & multipliers tested |
-| **Pydantic Schema Validation** | **100%** | Strict JSON response & request validation |
-| **AI Fallback Reliability** | **100%** | Zero-crash fallback when LLM API is unavailable |
+| **Scoring Boundary Tests** | **Passed** | Factor bounds (0–25, 0–20, 0–15) and stock multipliers verified |
+| **Pydantic Validation Tests** | **Passed** | Strict JSON schema validation for all requests and responses |
+| **Opportunity Ranking Tests** | **Passed** | Opportunities reliably sorted by deterministic total score |
+| **AI Fallback Reliability** | **Passed** | Calibrated fallback executes seamlessly when LLM API key is absent |
 | **Frontend Production Build** | **Clean** | 0 TypeScript / SSR compilation errors |
 
 ---
@@ -265,35 +200,6 @@ The goal is not to remove the marketer from the process. The goal is to give the
 - **Frontend:** Next.js (Turbopack) / React 19 / TypeScript / Lucide Icons / Vanilla CSS
 - **AI Engine:** OpenAI (`gpt-4o-mini`) / OpenRouter + CO-STAR structured prompting + JSON mode validation
 - **Testing:** `pytest` + `pytest-asyncio` (35 unit tests)
-
----
-
-## Data
-
-The MVP uses a synthetic demo dataset inspired by the visual style and product categories of **SNITCH**, an Indian men's fashion D2C brand.
-
-> [!NOTE]
-> **Synthetic Demo Disclaimer:**  
-> This project is independently built and is not affiliated with, endorsed by, or representative of SNITCH or its actual business metrics.
-
-The synthetic dataset contains:
-- **8 representative products** (with views, sales, prices, inventory status, and seasons)
-- **25 historical social posts** (impressions, likes, comments, shares, saves, formats, and audiences)
-- **Brand guidelines** (active campaign, tone of voice, and audience demographics)
-
-The data is designed so that recommendations emerge from **measurable signals rather than hardcoded outputs**.
-
----
-
-## Engineering Decisions
-
-| Decision | Trade-Off & Rationale |
-| :--- | :--- |
-| **Why SQLite?** | The product requires persistence and transactions, but not distributed cluster infrastructure. SQLite provides durability and zero-config portability for evaluators. |
-| **Why Deterministic Scoring?** | Marketing recommendations should be explainable and reproducible. The LLM is better suited to creative synthesis than inventing numerical metrics. |
-| **Why No RAG?** | The dataset is structured and fits in memory. Introducing vector databases or embeddings would add operational complexity without improving retrieval quality. |
-| **Why No Autonomous Publishing?** | Publishing marketing copy is a brand-sensitive action. The MVP enforces human review, inline editing, and explicit approval before scheduling. |
-| **Why Simulated Publishing?** | Real social platform integrations would shift engineering effort toward OAuth tokens and Meta App reviews rather than solving the core product challenge: **deciding what content is worth creating**. |
 
 ---
 
