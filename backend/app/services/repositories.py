@@ -61,7 +61,7 @@ class BaseRepository(Generic[T]):
 # ──────────────────────────────────────────────────────────────────────────────
 
 class BrandRepository(BaseRepository[Brand]):
-    """Read-only access to the single pre-seeded brand record."""
+    """Access to the brand guidelines and profile record."""
 
     async def get(self) -> Brand | None:
         logger.debug("BrandRepository.get()")
@@ -77,6 +77,25 @@ class BrandRepository(BaseRepository[Brand]):
             audience=BrandAudience(**json.loads(row["audience"])),
             campaign=row["campaign"],
         )
+
+    async def update(self, brand: Brand) -> Brand:
+        logger.info("Updating brand id=%s campaign='%s'", brand.id, brand.campaign)
+        await self._db.execute(
+            """UPDATE brand SET
+                name=:name, description=:description, tone=:tone,
+                audience=:audience, campaign=:campaign
+            WHERE id=:id""",
+            {
+                "id": brand.id,
+                "name": brand.name,
+                "description": brand.description,
+                "tone": json.dumps(brand.tone),
+                "audience": json.dumps(brand.audience.model_dump()),
+                "campaign": brand.campaign,
+            },
+        )
+        await self._db.commit()
+        return brand
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -96,6 +115,38 @@ class ProductRepository(BaseRepository[Product]):
         ) as cursor:
             row = await cursor.fetchone()
         return self._row_to_product(row) if row else None
+
+    async def create(self, product: Product) -> Product:
+        logger.info("Creating product id=%s name='%s'", product.id, product.name)
+        await self._db.execute(
+            """INSERT INTO products (
+                id, name, category, price_inr, description, features,
+                season, target_audience, inventory_status, views, sales
+            ) VALUES (
+                :id, :name, :category, :price_inr, :description, :features,
+                :season, :target_audience, :inventory_status, :views, :sales
+            )""",
+            {
+                "id": product.id,
+                "name": product.name,
+                "category": product.category,
+                "price_inr": product.price_inr,
+                "description": product.description,
+                "features": json.dumps(product.features),
+                "season": product.season,
+                "target_audience": product.target_audience,
+                "inventory_status": product.inventory_status.value,
+                "views": product.views,
+                "sales": product.sales,
+            },
+        )
+        await self._db.commit()
+        return product
+
+    async def delete(self, product_id: str) -> None:
+        logger.info("Deleting product id=%s", product_id)
+        await self._db.execute("DELETE FROM products WHERE id = ?", (product_id,))
+        await self._db.commit()
 
     @staticmethod
     def _row_to_product(row: aiosqlite.Row) -> Product:

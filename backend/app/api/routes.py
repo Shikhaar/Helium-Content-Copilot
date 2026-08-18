@@ -13,13 +13,16 @@ from app.core.logging_config import get_logger
 from app.models.schemas import (
     AnalyzeResponse,
     ApiResponse,
+    Brand,
     CalendarEntry,
     ContentDraft,
     ContentStatus,
+    CreateProductRequest,
     GenerateContentRequest,
     Opportunity,
     Product,
     ScheduleRequest,
+    UpdateBrandRequest,
     UpdateDraftRequest,
 )
 from app.services.ai.providers import get_ai_provider
@@ -78,7 +81,7 @@ def _make_content_service(db: aiosqlite.Connection) -> ContentGeneratorService:
 
 # ── Brand & Data Endpoints ─────────────────────────────────────────────────────
 
-@router.get("/brand")
+@router.get("/brand", response_model=Brand)
 async def get_brand(db: aiosqlite.Connection = Depends(get_db_conn)):
     brand = await BrandRepository(db).get()
     if not brand:
@@ -87,10 +90,75 @@ async def get_brand(db: aiosqlite.Connection = Depends(get_db_conn)):
     return brand
 
 
+@router.patch("/brand", response_model=Brand)
+async def update_brand(
+    updates: UpdateBrandRequest,
+    db: aiosqlite.Connection = Depends(get_db_conn),
+):
+    logger.info("PATCH /api/brand")
+    repo = BrandRepository(db)
+    brand = await repo.get()
+    if not brand:
+        raise HTTPException(status_code=404, detail="Brand not found")
+
+    update_dict = {}
+    if updates.name is not None:
+        update_dict["name"] = updates.name
+    if updates.description is not None:
+        update_dict["description"] = updates.description
+    if updates.tone is not None:
+        update_dict["tone"] = updates.tone
+    if updates.campaign is not None:
+        update_dict["campaign"] = updates.campaign
+    if updates.audience is not None:
+        update_dict["audience"] = updates.audience
+
+    updated_brand = brand.model_copy(update=update_dict)
+    return await repo.update(updated_brand)
+
+
 @router.get("/products", response_model=list[Product])
 async def get_products(db: aiosqlite.Connection = Depends(get_db_conn)):
     logger.info("GET /api/products")
     return await ProductRepository(db).list_all()
+
+
+@router.post("/products", response_model=Product, status_code=status.HTTP_201_CREATED)
+async def create_product(
+    req: CreateProductRequest,
+    db: aiosqlite.Connection = Depends(get_db_conn),
+):
+    logger.info("POST /api/products | name='%s'", req.name)
+    import uuid
+    product_id = f"prod_{uuid.uuid4().hex[:8]}"
+    product = Product(
+        id=product_id,
+        name=req.name,
+        category=req.category,
+        price_inr=req.price_inr,
+        description=req.description,
+        features=req.features,
+        season=req.season,
+        target_audience=req.target_audience,
+        inventory_status=req.inventory_status,
+        views=req.views or 1200,
+        sales=req.sales or 45,
+    )
+    return await ProductRepository(db).create(product)
+
+
+@router.delete("/products/{product_id}")
+async def delete_product(
+    product_id: str,
+    db: aiosqlite.Connection = Depends(get_db_conn),
+):
+    logger.info("DELETE /api/products/%s", product_id)
+    repo = ProductRepository(db)
+    prod = await repo.get_by_id(product_id)
+    if not prod:
+        raise HTTPException(status_code=404, detail="Product not found")
+    await repo.delete(product_id)
+    return {"status": "ok", "message": f"Product {product_id} deleted"}
 
 
 @router.get("/posts")

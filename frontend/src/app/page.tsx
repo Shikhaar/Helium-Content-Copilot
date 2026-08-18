@@ -6,6 +6,7 @@ import type {
   Brand,
   CalendarEntry,
   ContentDraft,
+  CreateProductRequest,
   GenerateContentRequest,
   Objective,
   Opportunity,
@@ -14,6 +15,7 @@ import type {
   PostFormat,
   Product,
   ScheduleRequest,
+  UpdateBrandRequest,
 } from '@/lib/types';
 
 import Sidebar from '@/components/Sidebar';
@@ -255,6 +257,36 @@ export default function Home() {
     }
   };
 
+  // Brand Guidelines Update
+  const handleUpdateBrand = async (updates: UpdateBrandRequest) => {
+    try {
+      const updated = await api.updateBrand(updates);
+      setBrand(updated);
+    } catch (e: any) {
+      setError(e.message || 'Failed to update brand guidelines.');
+    }
+  };
+
+  // Create Product in Catalog
+  const handleCreateProduct = async (req: CreateProductRequest) => {
+    try {
+      const newProd = await api.createProduct(req);
+      setProducts(prev => [newProd, ...prev]);
+    } catch (e: any) {
+      setError(e.message || 'Failed to add product to catalog.');
+    }
+  };
+
+  // Delete Product from Catalog
+  const handleDeleteProduct = async (id: string) => {
+    try {
+      await api.deleteProduct(id);
+      setProducts(prev => prev.filter(p => p.id !== id));
+    } catch (e: any) {
+      setError(e.message || 'Failed to delete product.');
+    }
+  };
+
   // Render current screen
   const renderScreen = () => {
     switch (screen.name) {
@@ -308,7 +340,16 @@ export default function Home() {
         );
 
       case 'brand':
-        return <BrandView brand={brand} products={products} performance={performance} />;
+        return (
+          <BrandView
+            brand={brand}
+            products={products}
+            performance={performance}
+            onUpdateBrand={handleUpdateBrand}
+            onCreateProduct={handleCreateProduct}
+            onDeleteProduct={handleDeleteProduct}
+          />
+        );
 
       default:
         return null;

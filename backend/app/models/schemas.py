@@ -309,3 +309,28 @@ class AnalyzeResponse(BaseModel):
     opportunities: list[Opportunity]
     performance_summary: PerformanceSummary
     is_demo: bool = False
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Management Requests
+# ──────────────────────────────────────────────────────────────────────────────
+
+class UpdateBrandRequest(BaseModel):
+    name: str | None = None
+    description: str | None = None
+    tone: list[str] | None = None
+    campaign: str | None = None
+    audience: BrandAudience | None = None
+
+
+class CreateProductRequest(BaseModel):
+    name: str
+    category: str
+    price_inr: int
+    description: str = ""
+    features: list[str] = Field(default_factory=list)
+    season: str = "All Season"
+    target_audience: str = "Young Millennial"
+    inventory_status: InventoryStatus = InventoryStatus.IN_STOCK
+    views: int = 0
+    sales: int = 0
