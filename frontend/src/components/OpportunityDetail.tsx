@@ -176,12 +176,9 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
 
       {/* Score Breakdown */}
       <div className="card" style={{ padding: 28, marginBottom: 24 }}>
-        <h2 style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>
+        <h2 style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 20 }}>
           Score Breakdown
         </h2>
-        <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 20 }}>
-          100% deterministic math. No AI involvement in scoring.
-        </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <BreakdownBar label="Historical" score={bd.historical} max={25} color="var(--accent)" />
           <BreakdownBar label="Product" score={bd.product} max={25} color="#22c55e" />

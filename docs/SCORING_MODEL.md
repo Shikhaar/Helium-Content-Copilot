@@ -7,6 +7,47 @@ The Helium Content Copilot uses a **100% deterministic 5-factor scoring engine**
 > [!IMPORTANT]
 > The LLM provides qualitative strategic reasoning (the *"Why"*). All numeric scores are computed in pure Python by `ScoringService`. The LLM never computes or hallucinates numeric scores.
 
+## Simple Plain-English Explanation (The "Report Card" Analogy)
+
+Think of the 100-point opportunity score like a **5-subject report card** where each subject grades a different part of the e-commerce business:
+
+### 1. Historical Performance (`25 / 25`)
+- **The Question:** *"Does this format (e.g. Styling Reel) perform better than our regular feed posts?"*
+- **In Simple Terms:** 
+  - SNITCH’s average Instagram post gets **4.8%** engagement.
+  - But whenever SNITCH posts a **Styling Reel**, it gets **8.8%** engagement ($1.8\times$ better than average).
+  - Because it performs $1.8\times$ above baseline, it earns full marks: **25 out of 25**.
+
+### 2. Product Relevance & Inventory (`20 / 25`)
+- **The Question:** *"Are customers actually viewing/buying this item, and is it in stock?"*
+- **In Simple Terms:**
+  - The most popular item in the store has 10,000 views and 500 sales.
+  - The **Oversized Linen Shirt** has **8,400 views** and **410 sales** (about 83% as popular as the top item).
+  - $83\% \times 25\text{ points} = \mathbf{20.7 \approx 20\text{ points}}$.
+  - **Stock Check:** Because it is **In Stock**, it keeps its full **20 / 25** points. *(If it were Out of Stock, the algorithm automatically cuts the score to 8/25 to prevent wasting marketing budget on unfulfillable items).*
+
+### 3. Audience Fit (`18 / 20`)
+- **The Question:** *"Do the people we are targeting (e.g. Young Millennials / Gen-Z) actually engage with this content?"*
+- **In Simple Terms:**
+  - Average audience engagement across all segments is **4.9%**.
+  - But **Young Millennials** engage at **5.8%** on streetwear and styling content.
+  - Because this audience interacts significantly above median, it earns **18 out of 20**.
+
+### 4. Seasonal & Campaign Alignment (`15 / 15`)
+- **The Question:** *"Is this the right product for the active campaign season?"*
+- **In Simple Terms:**
+  - Active Campaign: **Summer 2026**
+  - Product: **Linen Shirt** (a classic summer piece)
+  - Exact match = **15 out of 15**. *(A heavy winter wool coat in June would receive 5/15).*
+
+### 5. Business Objective Fit (`15 / 15`)
+- **The Question:** *"Does this format drive our marketing goal (e.g. Brand Awareness)?"*
+- **In Simple Terms:**
+  - Goal: **Brand Discovery & Awareness**
+  - High-velocity video formats with $>1.5\times$ engagement rate are proven awareness drivers = **15 out of 15**.
+
+$$\mathbf{\text{Total Score}} = \mathbf{25} + \mathbf{20} + \mathbf{18} + \mathbf{15} + \mathbf{15} = \mathbf{93 / 100}$$
+
 ---
 ## The 5 Factors & Weights
 
