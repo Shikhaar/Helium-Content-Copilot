@@ -85,9 +85,15 @@ class OpenAIProvider(BaseAIProvider):
 
     def __init__(self) -> None:
         from openai import AsyncOpenAI  # type: ignore
-        self._client = AsyncOpenAI(api_key=settings.openai_api_key)
-        self._model = settings.openai_model
-        logger.info("OpenAIProvider initialised | model=%s", self._model)
+        client_kwargs = {"api_key": settings.effective_api_key}
+        if settings.effective_base_url:
+            client_kwargs["base_url"] = settings.effective_base_url
+        self._client = AsyncOpenAI(**client_kwargs)
+        self._model = settings.effective_model
+        logger.info(
+            "OpenAIProvider initialised | model=%s | base_url=%s",
+            self._model, settings.effective_base_url or "https://api.openai.com/v1"
+        )
 
     async def get_opportunities(
         self,
@@ -99,28 +105,32 @@ class OpenAIProvider(BaseAIProvider):
         system = build_strategist_system_prompt()
         user = build_strategist_user_prompt(brand, products, posts, performance)
 
-        logger.info("Calling OpenAI for content opportunities | model=%s", self._model)
+        logger.info("Calling AI provider for content opportunities | model=%s", self._model)
         t0 = time.perf_counter()
 
-        response = await self._client.chat.completions.create(
-            model=self._model,
-            response_format={"type": "json_object"},
-            messages=[
-                {"role": "system", "content": system},
-                {"role": "user", "content": user},
-            ],
-            temperature=0.7,
-            max_tokens=2000,
-        )
+        try:
+            response = await self._client.chat.completions.create(
+                model=self._model,
+                response_format={"type": "json_object"},
+                messages=[
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": user},
+                ],
+                temperature=0.7,
+                max_tokens=2000,
+            )
 
-        latency_ms = round((time.perf_counter() - t0) * 1000)
-        raw_json = response.choices[0].message.content
-        logger.info("OpenAI responded in %dms", latency_ms)
-        logger.debug("Raw opportunities JSON: %s", raw_json[:300])
+            latency_ms = round((time.perf_counter() - t0) * 1000)
+            raw_json = response.choices[0].message.content or "{}"
+            logger.info("AI provider responded in %dms", latency_ms)
+            logger.debug("Raw opportunities JSON: %s", raw_json[:300])
 
-        data = json.loads(raw_json)
-        validated = AIOpportunitiesResponse(**data)
-        return validated, False
+            data = json.loads(raw_json)
+            validated = AIOpportunitiesResponse(**data)
+            return validated, False
+        except Exception as exc:
+            logger.warning("AI provider get_opportunities error (%s) — using fallback demo data", exc)
+            return AIOpportunitiesResponse(opportunities=FALLBACK_OPPORTUNITIES), True
 
     async def generate_content(
         self,
@@ -133,28 +143,34 @@ class OpenAIProvider(BaseAIProvider):
         user = build_content_generator_user_prompt(opportunity, product, request, brand)
 
         logger.info(
-            "Calling OpenAI for content generation | opportunity='%s'", opportunity.title
+            "Calling AI provider for content generation | opportunity='%s' | model=%s",
+            opportunity.title, self._model
         )
         t0 = time.perf_counter()
 
-        response = await self._client.chat.completions.create(
-            model=self._model,
-            response_format={"type": "json_object"},
-            messages=[
-                {"role": "system", "content": system},
-                {"role": "user", "content": user},
-            ],
-            temperature=0.8,
-            max_tokens=1500,
-        )
+        try:
+            response = await self._client.chat.completions.create(
+                model=self._model,
+                response_format={"type": "json_object"},
+                messages=[
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": user},
+                ],
+                temperature=0.8,
+                max_tokens=1500,
+            )
 
-        latency_ms = round((time.perf_counter() - t0) * 1000)
-        raw_json = response.choices[0].message.content
-        logger.info("OpenAI content generation responded in %dms", latency_ms)
+            latency_ms = round((time.perf_counter() - t0) * 1000)
+            raw_json = response.choices[0].message.content or "{}"
+            logger.info("AI content generation responded in %dms", latency_ms)
 
-        data = json.loads(raw_json)
-        validated = AIContentRaw(**data)
-        return validated, False
+            data = json.loads(raw_json)
+            validated = AIContentRaw(**data)
+            return validated, False
+        except Exception as exc:
+            logger.warning("AI provider generate_content error (%s) — using fallback demo data", exc)
+            content_key = opportunity.id if opportunity.id in FALLBACK_CONTENT else "default"
+            return FALLBACK_CONTENT[content_key], True
 
 
 # ──────────────────────────────────────────────────────────────────────────────
