@@ -115,7 +115,11 @@ export default function Dashboard({
   }, [isAnalyzing]);
 
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : hour < 22 ? 'Good evening' : 'Good night';
+  const greeting =
+    hour >= 5 && hour < 12 ? 'Good morning' :
+    hour >= 12 && hour < 17 ? 'Good afternoon' :
+    hour >= 17 && hour < 22 ? 'Good evening' :
+    'Good night';
 
   return (
     <div style={{ padding: '40px 48px', maxWidth: 1000 }}>
