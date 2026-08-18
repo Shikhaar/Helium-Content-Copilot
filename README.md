@@ -332,11 +332,11 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Documentation
 
-- 📐 [Architecture Overview](docs/ARCHITECTURE.md)
-- 🧮 [Scoring Model & Mathematical Derivations](docs/SCORING_MODEL.md)
-- 🧠 [AI Prompts & CO-STAR Framework](docs/AI_PROMPTS.md)
-- 💡 [Product Thinking & Strategy](docs/PRODUCT_THINKING.md)
-- 🚀 [Future Scope & Architectural Roadmap](docs/FUTURE_SCOPE_ROADMAP.md)
+-  [Architecture Overview](docs/ARCHITECTURE.md)
+-  [Scoring Model & Mathematical Derivations](docs/SCORING_MODEL.md)
+-  [AI Prompts & CO-STAR Framework](docs/AI_PROMPTS.md)
+-  [Product Thinking & Strategy](docs/PRODUCT_THINKING.md)
+-  [Future Scope & Architectural Roadmap](docs/FUTURE_SCOPE_ROADMAP.md)
 
 ---
 
