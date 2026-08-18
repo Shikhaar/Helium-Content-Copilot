@@ -114,12 +114,15 @@ export default function Dashboard({
     return () => clearInterval(interval);
   }, [isAnalyzing]);
 
-  const hour = new Date().getHours();
-  const greeting =
-    hour >= 5 && hour < 12 ? 'Good morning' :
-    hour >= 12 && hour < 17 ? 'Good afternoon' :
-    hour >= 17 && hour < 22 ? 'Good evening' :
-    'Good night';
+  const [greeting, setGreeting] = React.useState('Good morning');
+
+  React.useEffect(() => {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) setGreeting('Good morning');
+    else if (hour >= 12 && hour < 17) setGreeting('Good afternoon');
+    else if (hour >= 17 && hour < 22) setGreeting('Good evening');
+    else setGreeting('Good night');
+  }, []);
 
   return (
     <div style={{ padding: '40px 48px', maxWidth: 1000 }}>
