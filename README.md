@@ -1,6 +1,6 @@
 # Helium Content Copilot
 
-> **Know what to post. Know why. Create it in seconds.**
+> **Turn brand data into content worth creating.**
 >
 > An AI-native content strategist for D2C brands that identifies high-value content opportunities, explains why they matter, and turns them into ready-to-review social content.
 
@@ -197,7 +197,7 @@ The goal is not to remove the marketer from the process. The goal is to give the
 │   Brand Context   │
 └─────────┬─────────┘
           │
-┌─────────▼─────────┐
+┌─────────▼─────────┘
 │ Historical Posts  │
 │  & Performance    │
 └─────────┬─────────┘
@@ -250,7 +250,7 @@ The goal is not to remove the marketer from the process. The goal is to give the
 ## Evaluation & Test Metrics
 
 | Metric | Result | Notes |
-| :--- | :---: | :--- |
+| :--- | :--- | :--- |
 | **Backend Test Suite** | **35 / 35 passed** | 100% pass rate in `pytest` (0.35s) |
 | **Scoring Formula Coverage** | **100%** | All 5 factors, ranges, bounds & multipliers tested |
 | **Pydantic Schema Validation** | **100%** | Strict JSON response & request validation |
@@ -336,6 +336,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - 🧮 [Scoring Model & Mathematical Derivations](docs/SCORING_MODEL.md)
 - 🧠 [AI Prompts & CO-STAR Framework](docs/AI_PROMPTS.md)
 - 💡 [Product Thinking & Strategy](docs/PRODUCT_THINKING.md)
+- 🚀 [Future Scope & Architectural Roadmap](docs/FUTURE_SCOPE_ROADMAP.md)
 
 ---
 
