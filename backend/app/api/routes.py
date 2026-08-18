@@ -15,6 +15,7 @@ from app.models.schemas import (
     ApiResponse,
     CalendarEntry,
     ContentDraft,
+    ContentStatus,
     GenerateContentRequest,
     Opportunity,
     Product,
@@ -255,6 +256,30 @@ async def schedule_content(
 async def get_calendar(db: aiosqlite.Connection = Depends(get_db_conn)):
     logger.info("GET /api/calendar")
     return await CalendarRepository(db).list_all()
+
+
+@router.delete("/calendar/{entry_id}")
+async def delete_calendar_entry(entry_id: str, db: aiosqlite.Connection = Depends(get_db_conn)):
+    logger.info("DELETE /api/calendar/%s", entry_id)
+    cal_repo = CalendarRepository(db)
+    entry = await cal_repo.get_by_id(entry_id)
+    if not entry:
+        raise HTTPException(status_code=404, detail="Calendar entry not found")
+    
+    await cal_repo.delete(entry_id)
+    
+    if entry.draft_id:
+        content_repo = ContentRepository(db)
+        draft = await content_repo.get_by_id(entry.draft_id)
+        if draft:
+            draft = draft.model_copy(update={
+                "status": ContentStatus.APPROVED,
+                "scheduled_date": None,
+                "scheduled_time": None,
+            })
+            await content_repo.update(draft)
+            
+    return {"status": "ok", "message": f"Calendar entry {entry_id} removed"}
 
 
 # ── Health Check ───────────────────────────────────────────────────────────────

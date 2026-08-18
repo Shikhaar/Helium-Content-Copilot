@@ -99,15 +99,29 @@ export default function Home() {
 
   const handleTabChange = (tab: Tab) => {
     setActiveTab(tab);
-    const screenMap: Record<Tab, Screen> = {
-      dashboard: { name: 'dashboard' },
-      opportunities: { name: 'dashboard' }, // stays on dashboard until opp selected
-      create: { name: 'dashboard' },
-      calendar: { name: 'calendar' },
-      brand: { name: 'brand' },
-    };
-    setScreen(screenMap[tab]);
     setError(null);
+
+    if (tab === 'dashboard') {
+      setScreen({ name: 'dashboard' });
+    } else if (tab === 'opportunities') {
+      // Always go to the dashboard list view ("Your Top Content Opportunities")
+      setScreen({ name: 'dashboard' });
+    } else if (tab === 'create') {
+      // If we have a draft already, go straight to the studio
+      if (currentDraft && selectedOpportunity) {
+        setScreen({ name: 'create', opportunityId: selectedOpportunity.id });
+      } else if (selectedOpportunity) {
+        // Have an opportunity but no draft yet — trigger generation
+        handleGenerateContent(selectedOpportunity.id);
+      } else {
+        // Nothing selected yet — go to dashboard so user can pick an opportunity
+        setScreen({ name: 'dashboard' });
+      }
+    } else if (tab === 'calendar') {
+      setScreen({ name: 'calendar' });
+    } else if (tab === 'brand') {
+      setScreen({ name: 'brand' });
+    }
   };
 
   // Analysis
@@ -209,6 +223,17 @@ export default function Home() {
     }
   };
 
+  // Delete Calendar Entry
+  const handleDeleteCalendarEntry = async (id: string) => {
+    try {
+      await api.deleteCalendarEntry(id);
+      const cal = await api.getCalendar();
+      setCalendarEntries(cal);
+    } catch (e: any) {
+      setError(e.message || 'Failed to remove calendar entry.');
+    }
+  };
+
   // Render current screen
   const renderScreen = () => {
     switch (screen.name) {
@@ -252,7 +277,7 @@ export default function Home() {
         );
 
       case 'calendar':
-        return <CalendarView entries={calendarEntries} />;
+        return <CalendarView entries={calendarEntries} onDeleteEntry={handleDeleteCalendarEntry} />;
 
       case 'brand':
         return <BrandView brand={brand} products={products} performance={performance} />;
@@ -264,7 +289,7 @@ export default function Home() {
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-primary)' }}>
-      <Sidebar activeTab={activeTab} onTabChange={handleTabChange} />
+      <Sidebar activeTab={activeTab} onTabChange={handleTabChange} onHome={() => navigate({ name: 'dashboard' })} />
       <main style={{ flex: 1, overflowY: 'auto', minWidth: 0 }}>
         {/* Error banner */}
         {error && (

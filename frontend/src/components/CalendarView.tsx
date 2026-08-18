@@ -1,9 +1,11 @@
 'use client';
 import React from 'react';
+import { Trash2 } from 'lucide-react';
 import type { CalendarEntry } from '@/lib/types';
 
 interface CalendarViewProps {
   entries: CalendarEntry[];
+  onDeleteEntry?: (id: string) => void;
 }
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -25,10 +27,11 @@ const STATUS_COLORS: Record<string, string> = {
   draft: 'var(--text-muted)',
 };
 
-export default function CalendarView({ entries }: CalendarViewProps) {
+export default function CalendarView({ entries, onDeleteEntry }: CalendarViewProps) {
   const today = new Date();
   const [year, setYear] = React.useState(today.getFullYear());
   const [month, setMonth] = React.useState(today.getMonth());
+  const [deletingId, setDeletingId] = React.useState<string | null>(null);
 
   const days = getCalendarDays(year, month);
 
@@ -44,6 +47,16 @@ export default function CalendarView({ entries }: CalendarViewProps) {
   };
   const next = () => {
     if (month === 11) { setYear(y => y + 1); setMonth(0); } else setMonth(m => m + 1);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!onDeleteEntry) return;
+    setDeletingId(id);
+    try {
+      await onDeleteEntry(id);
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   return (
@@ -122,6 +135,7 @@ export default function CalendarView({ entries }: CalendarViewProps) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {entries.sort((a, b) => a.scheduled_datetime.localeCompare(b.scheduled_datetime)).map(entry => {
               const dt = new Date(entry.scheduled_datetime);
+              const isDeleting = deletingId === entry.id;
               return (
                 <div key={entry.id} className="card" style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16 }}>
                   <div style={{
@@ -131,8 +145,8 @@ export default function CalendarView({ entries }: CalendarViewProps) {
                     <div style={{ fontSize: 9, color: 'var(--text-muted)', fontWeight: 600 }}>{MONTHS[dt.getMonth()]}</div>
                     <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--accent-light)', lineHeight: 1 }}>{dt.getDate()}</div>
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 3 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {entry.title}
                     </div>
                     <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
@@ -146,6 +160,37 @@ export default function CalendarView({ entries }: CalendarViewProps) {
                   }}>
                     {entry.status.charAt(0).toUpperCase() + entry.status.slice(1)}
                   </div>
+                  {onDeleteEntry && (
+                    <button
+                      onClick={() => handleDelete(entry.id)}
+                      disabled={isDeleting}
+                      style={{
+                        background: 'none',
+                        border: '1px solid transparent',
+                        borderRadius: 6,
+                        padding: '6px 8px',
+                        cursor: isDeleting ? 'not-allowed' : 'pointer',
+                        color: 'var(--text-muted)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'all 0.15s ease',
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.color = '#ef4444';
+                        e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+                        e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.25)';
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.color = 'var(--text-muted)';
+                        e.currentTarget.style.background = 'none';
+                        e.currentTarget.style.borderColor = 'transparent';
+                      }}
+                      title="Remove from calendar"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  )}
                 </div>
               );
             })}

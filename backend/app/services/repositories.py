@@ -361,3 +361,25 @@ class CalendarRepository(BaseRepository[CalendarEntry]):
             )
             for r in rows
         ]
+
+    async def get_by_id(self, entry_id: str) -> CalendarEntry | None:
+        async with self._db.execute(
+            "SELECT * FROM calendar_entries WHERE id = ?", (entry_id,)
+        ) as cursor:
+            row = await cursor.fetchone()
+        if not row:
+            return None
+        return CalendarEntry(
+            id=row["id"],
+            draft_id=row["draft_id"],
+            title=row["title"],
+            platform=row["platform"],
+            format=row["format"],
+            status=ContentStatus(row["status"]),
+            scheduled_datetime=row["scheduled_datetime"],
+        )
+
+    async def delete(self, entry_id: str) -> None:
+        logger.info("Deleting calendar entry id=%s", entry_id)
+        await self._db.execute("DELETE FROM calendar_entries WHERE id = ?", (entry_id,))
+        await self._db.commit()
