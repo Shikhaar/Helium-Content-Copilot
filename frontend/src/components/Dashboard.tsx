@@ -115,7 +115,7 @@ export default function Dashboard({
   }, [isAnalyzing]);
 
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : hour < 22 ? 'Good evening' : 'Good night';
 
   return (
     <div style={{ padding: '40px 48px', maxWidth: 1000 }}>
@@ -123,7 +123,7 @@ export default function Dashboard({
       <div style={{ marginBottom: 40 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
           <h1 style={{ fontSize: 26, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
-            {greeting}, Sarah. 👋
+            {greeting}, Shikhar. <span className="waving-hand">👋</span>
           </h1>
           {analyzeResult?.is_demo && (
             <div className="demo-banner">

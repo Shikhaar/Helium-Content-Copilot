@@ -281,3 +281,20 @@
 .stagger > *:nth-child(3) { animation-delay: 0.15s; }
 .stagger > *:nth-child(4) { animation-delay: 0.20s; }
 .stagger > *:nth-child(5) { animation-delay: 0.25s; }
+
+/* Waving hand animation */
+@keyframes wave-animation {
+    0% { transform: rotate( 0.0deg); }
+   10% { transform: rotate(14.0deg); }
+   20% { transform: rotate(-8.0deg); }
+   30% { transform: rotate(14.0deg); }
+   40% { transform: rotate(-4.0deg); }
+   50% { transform: rotate(10.0deg); }
+   60% { transform: rotate( 0.0deg); }
+  100% { transform: rotate( 0.0deg); }
+}
+.waving-hand {
+  display: inline-block;
+  transform-origin: 70% 70%;
+  animation: wave-animation 2.5s infinite;
+}
