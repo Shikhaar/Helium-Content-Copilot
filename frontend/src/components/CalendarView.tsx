@@ -61,8 +61,9 @@ export default function CalendarView({ entries, onDeleteEntry, onSelectDraft }: 
   };
 
   return (
-    <div style={{ padding: '40px 48px', maxWidth: 900 }}>
-      <div style={{ marginBottom: 32 }}>
+    <div className="page-container">
+      {/* Header */}
+      <div style={{ marginBottom: 28 }}>
         <h1 style={{ fontSize: 24, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em', marginBottom: 6 }}>
           Content Calendar
         </h1>
@@ -71,9 +72,9 @@ export default function CalendarView({ entries, onDeleteEntry, onSelectDraft }: 
         </p>
       </div>
 
-      <div className="card" style={{ padding: 28 }}>
+      <div className="card" style={{ padding: '24px 20px' }}>
         {/* Calendar header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
           <button className="btn-ghost" onClick={prev} style={{ padding: '6px 12px', fontSize: 16 }}>‹</button>
           <h2 style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>
             {MONTHS[month]} {year}
@@ -81,65 +82,70 @@ export default function CalendarView({ entries, onDeleteEntry, onSelectDraft }: 
           <button className="btn-ghost" onClick={next} style={{ padding: '6px 12px', fontSize: 16 }}>›</button>
         </div>
 
-        {/* Day headers */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2, marginBottom: 8 }}>
-          {DAYS.map(d => (
-            <div key={d} style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textAlign: 'center', padding: '6px 0', letterSpacing: '0.05em' }}>
-              {d}
-            </div>
-          ))}
-        </div>
-
-        {/* Calendar grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4 }}>
-          {days.map((day, i) => {
-            if (day === null) return <div key={`empty-${i}`} />;
-            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-            const dayEntries = entriesByDate[dateStr] || [];
-            const isToday = day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
-
-            return (
-              <div key={day} style={{
-                minHeight: 80, padding: '8px 8px',
-                border: `1px solid ${isToday ? 'var(--accent-border)' : 'var(--border)'}`,
-                borderRadius: 8,
-                background: isToday ? 'var(--accent-subtle)' : 'var(--bg-secondary)',
-              }}>
-                <div style={{
-                  fontSize: 12, fontWeight: isToday ? 700 : 400,
-                  color: isToday ? 'var(--accent-light)' : 'var(--text-muted)',
-                  marginBottom: 6,
-                }}>
-                  {day}
+        {/* Scroll container for mobile */}
+        <div style={{ overflowX: 'auto', width: '100%', WebkitOverflowScrolling: 'touch' }}>
+          <div style={{ minWidth: 500 }}>
+            {/* Day headers */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2, marginBottom: 8 }}>
+              {DAYS.map(d => (
+                <div key={d} style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textAlign: 'center', padding: '6px 0', letterSpacing: '0.05em' }}>
+                  {d}
                 </div>
-                {dayEntries.map(entry => (
-                  <div
-                    key={entry.id}
-                    onClick={() => entry.draft_id && onSelectDraft?.(entry.draft_id)}
-                    style={{
-                      fontSize: 10, fontWeight: 500,
-                      background: STATUS_COLORS[entry.status] || 'var(--accent)',
-                      color: '#fff', borderRadius: 3, padding: '2px 5px',
-                      marginBottom: 2, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
-                      opacity: 0.9, cursor: entry.draft_id ? 'pointer' : 'default',
-                      transition: 'all 0.15s ease',
-                    }}
-                    onMouseEnter={e => {
-                      (e.currentTarget as HTMLElement).style.opacity = '1';
-                      (e.currentTarget as HTMLElement).style.transform = 'scale(1.02)';
-                    }}
-                    onMouseLeave={e => {
-                      (e.currentTarget as HTMLElement).style.opacity = '0.9';
-                      (e.currentTarget as HTMLElement).style.transform = 'none';
-                    }}
-                    title={entry.draft_id ? `Click to open in Studio: ${entry.title}` : entry.title}
-                  >
-                    {entry.title.split(' ').slice(0, 3).join(' ')}…
+              ))}
+            </div>
+
+            {/* Calendar grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4 }}>
+              {days.map((day, i) => {
+                if (day === null) return <div key={`empty-${i}`} />;
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dayEntries = entriesByDate[dateStr] || [];
+                const isToday = day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+
+                return (
+                  <div key={day} style={{
+                    minHeight: 80, padding: '8px 8px',
+                    border: `1px solid ${isToday ? 'var(--accent-border)' : 'var(--border)'}`,
+                    borderRadius: 8,
+                    background: isToday ? 'var(--accent-subtle)' : 'var(--bg-secondary)',
+                  }}>
+                    <div style={{
+                      fontSize: 12, fontWeight: isToday ? 700 : 400,
+                      color: isToday ? 'var(--accent-light)' : 'var(--text-muted)',
+                      marginBottom: 6,
+                    }}>
+                      {day}
+                    </div>
+                    {dayEntries.map(entry => (
+                      <div
+                        key={entry.id}
+                        onClick={() => entry.draft_id && onSelectDraft?.(entry.draft_id)}
+                        style={{
+                          fontSize: 10, fontWeight: 500,
+                          background: STATUS_COLORS[entry.status] || 'var(--accent)',
+                          color: '#fff', borderRadius: 3, padding: '2px 5px',
+                          marginBottom: 2, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis',
+                          opacity: 0.9, cursor: entry.draft_id ? 'pointer' : 'default',
+                          transition: 'all 0.15s ease',
+                        }}
+                        onMouseEnter={e => {
+                          (e.currentTarget as HTMLElement).style.opacity = '1';
+                          (e.currentTarget as HTMLElement).style.transform = 'scale(1.02)';
+                        }}
+                        onMouseLeave={e => {
+                          (e.currentTarget as HTMLElement).style.opacity = '0.9';
+                          (e.currentTarget as HTMLElement).style.transform = 'none';
+                        }}
+                        title={entry.draft_id ? `Click to open in Studio: ${entry.title}` : entry.title}
+                      >
+                        {entry.title.split(' ').slice(0, 3).join(' ')}…
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            );
-          })}
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
 

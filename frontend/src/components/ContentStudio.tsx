@@ -550,15 +550,15 @@ export default function ContentStudio({
   const currentRole = SCENE_ROLES[activeSlide] || `Beat ${activeSlide + 1}`;
 
   return (
-    <div style={{ padding: '40px 48px', maxWidth: 1100 }} className="fade-up">
+    <div className="page-container fade-up">
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24, flexWrap: 'wrap' }}>
         <button className="btn-ghost" onClick={onBack} style={{ padding: '6px 10px' }}>
           <ArrowLeft size={15} /> Back
         </button>
         <div style={{ height: 16, width: 1, background: 'var(--border)' }} />
         <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>Content Studio</span>
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
+        <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
           {draft.is_demo && <div className="demo-banner">DEMO</div>}
           {isScheduled ? (
             <div
@@ -592,7 +592,7 @@ export default function ContentStudio({
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '340px 1fr', gap: 28 }}>
+      <div className="studio-grid">
         {/* Left Column: Instagram Preview & Storyboard Strip */}
         <div>
           <div

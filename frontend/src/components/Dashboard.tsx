@@ -123,11 +123,11 @@ export default function Dashboard({
   }, []);
 
   return (
-    <div style={{ padding: '40px 48px', maxWidth: 1000 }}>
+    <div className="page-container">
       {/* Header */}
-      <div style={{ marginBottom: 40 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-          <h1 style={{ fontSize: 26, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+      <div style={{ marginBottom: 32 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8, flexWrap: 'wrap', gap: 10 }}>
+          <h1 style={{ fontSize: 24, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
             {greeting}, Shikhar. <span className="waving-hand">👋</span>
           </h1>
           {analyzeResult?.is_demo && (
@@ -137,13 +137,13 @@ export default function Dashboard({
             </div>
           )}
         </div>
-        <p style={{ fontSize: 15, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+        <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
           Here's what your AI Content Copilot recommends for this week.
         </p>
       </div>
 
       {/* Metrics */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 36 }}>
+      <div className="metrics-grid">
         <MetricCard label="Products" value={productsCount ?? 8} icon={TrendingUp} subtitle="In catalog" />
         <MetricCard label="Historical Posts" value={performance?.total_posts ?? 25} icon={FileText} subtitle="Analysed" />
         <MetricCard
@@ -156,7 +156,7 @@ export default function Dashboard({
       </div>
 
       {/* Main CTA */}
-      <div className="card" style={{ padding: 36, marginBottom: 36 }}>
+      <div className="card" style={{ padding: '28px 24px', marginBottom: 32 }}>
         {!analyzeResult && !isAnalyzing ? (
           <div>
             <h2 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8, letterSpacing: '-0.01em' }}>

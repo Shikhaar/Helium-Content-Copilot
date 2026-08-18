@@ -90,9 +90,9 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
   const { score_breakdown: bd } = opportunity;
 
   return (
-    <div style={{ padding: '40px 48px', maxWidth: 900 }} className="fade-up">
+    <div className="page-container fade-up">
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 32 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28 }}>
         <button className="btn-ghost" onClick={onBack} style={{ padding: '6px 10px' }}>
           <ArrowLeft size={15} />
           Back
@@ -102,16 +102,16 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
       </div>
 
       {/* Hero Section */}
-      <div className="card" style={{ padding: 32, marginBottom: 24 }}>
-        <div style={{ display: 'flex', gap: 32, alignItems: 'flex-start' }}>
+      <div className="card" style={{ padding: '24px 20px', marginBottom: 24 }}>
+        <div className="hero-card-flex">
           {/* Left: Score Ring */}
           <div style={{ flexShrink: 0 }} className="score-animate">
             <ScoreRing score={opportunity.score} />
           </div>
 
           {/* Right: Details */}
-          <div style={{ flex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+          <div style={{ flex: 1, width: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, justifyContent: 'inherit' }}>
               <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600 }}>
                 {opportunity.platform} · {opportunity.format}
               </span>
@@ -119,7 +119,7 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
                 <div className="demo-banner" style={{ fontSize: 10, padding: '2px 7px' }}>DEMO</div>
               )}
             </div>
-            <h1 style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.3, letterSpacing: '-0.02em', marginBottom: 14 }}>
+            <h1 style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.3, letterSpacing: '-0.02em', marginBottom: 14 }}>
               {opportunity.title}
             </h1>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 18 }}>
@@ -135,16 +135,17 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
             </div>
 
             {/* Confidence */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
               <div style={{
                 padding: '3px 10px', borderRadius: 6, fontSize: 12, fontWeight: 600,
-                background: opportunity.confidence === 'High' ? 'rgba(34,197,94,0.1)' : 'rgba(245,158,11,0.1)',
-                color: opportunity.confidence === 'High' ? '#22c55e' : '#f59e0b',
-                border: `1px solid ${opportunity.confidence === 'High' ? 'rgba(34,197,94,0.2)' : 'rgba(245,158,11,0.2)'}`,
+                background: 'rgba(108,99,255,0.1)', color: 'var(--accent-light)',
+                border: '1px solid rgba(108,99,255,0.25)',
               }}>
                 {opportunity.confidence} Confidence
               </div>
-              <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{opportunity.confidence_reason}</span>
+              <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                Target: {opportunity.audience}
+              </span>
             </div>
 
             <button id="generate-content-btn" className="btn-primary" onClick={onGenerate} style={{ fontSize: 14, padding: '11px 24px' }}>
@@ -156,7 +157,7 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
       </div>
 
       {/* Why This Recommendation */}
-      <div className="card" style={{ padding: 28, marginBottom: 24 }}>
+      <div className="card" style={{ padding: '24px 20px', marginBottom: 24 }}>
         <h2 style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 14 }}>
           Why this recommendation?
         </h2>
@@ -165,7 +166,7 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
         </p>
 
         {/* 5 signals */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        <div className="two-col-responsive">
           <SignalCard icon={BarChart2} title="Historical Signal" body={opportunity.historical_signal} color="var(--accent-light)" />
           <SignalCard icon={TrendingUp} title="Product Signal" body={opportunity.product_signal} color="#22c55e" />
           <SignalCard icon={Users} title="Audience Signal" body={opportunity.audience_signal} color="#f59e0b" />

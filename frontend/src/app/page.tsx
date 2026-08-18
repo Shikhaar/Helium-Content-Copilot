@@ -1,5 +1,6 @@
 'use client';
 import React from 'react';
+import { Menu } from 'lucide-react';
 import { api } from '../lib/api';
 import type {
   AnalyzeResponse,
@@ -36,6 +37,8 @@ type Screen =
 export default function Home() {
   const [activeTab, setActiveTab] = React.useState<Tab>('opportunities');
   const [screen, setScreen] = React.useState<Screen>({ name: 'dashboard' });
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState(false);
 
   // Data state
   const [brand, setBrand] = React.useState<Brand | null>(null);
@@ -359,22 +362,115 @@ export default function Home() {
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-primary)' }}>
-      <Sidebar activeTab={activeTab} onTabChange={handleTabChange} onHome={() => navigate({ name: 'dashboard' })} />
-      <main style={{ flex: 1, overflowY: 'auto', minWidth: 0 }}>
-        {/* Error banner */}
-        {error && (
-          <div style={{
-            margin: '20px 48px 0', padding: '12px 18px',
-            background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)',
-            borderRadius: 8, color: '#ef4444', fontSize: 13,
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          }}>
-            <span>⚠ {error}</span>
-            <button onClick={() => setError(null)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 16 }}>×</button>
+      {/* Responsive Sidebar & Drawer */}
+      <Sidebar
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        onHome={() => navigate({ name: 'dashboard' })}
+        isMobileOpen={isMobileMenuOpen}
+        onCloseMobile={() => setIsMobileMenuOpen(false)}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={() => setIsSidebarCollapsed(c => !c)}
+      />
+
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+        {/* Mobile Top Navigation Header */}
+        <header
+          className="mobile-only"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '12px 16px',
+            background: 'var(--bg-secondary)',
+            borderBottom: '1px solid var(--border)',
+            position: 'sticky',
+            top: 0,
+            zIndex: 50,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <button
+              onClick={() => setIsMobileMenuOpen(true)}
+              style={{
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid var(--border)',
+                borderRadius: 8,
+                padding: '6px 8px',
+                color: 'var(--text-primary)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              aria-label="Open navigation menu"
+            >
+              <Menu size={18} />
+            </button>
+            <button
+              onClick={() => navigate({ name: 'dashboard' })}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                background: 'none',
+                border: 'none',
+                padding: 0,
+                cursor: 'pointer',
+              }}
+            >
+              <svg width="22" height="22" viewBox="0 0 30 30" fill="none">
+                <rect width="30" height="30" rx="7" fill="url(#logoGradHeader)" />
+                <rect x="7" y="7" width="4" height="16" rx="1.5" fill="white" />
+                <rect x="19" y="7" width="4" height="16" rx="1.5" fill="white" />
+                <rect x="7" y="12.5" width="16" height="3.5" rx="1.5" fill="white" fillOpacity="0.85" />
+                <circle cx="23" cy="8.5" r="2.5" fill="#a78bfa" />
+                <defs>
+                  <linearGradient id="logoGradHeader" x1="0" y1="0" x2="30" y2="30" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#6c63ff" />
+                    <stop offset="1" stopColor="#4f46e5" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
+                Content Copilot
+              </span>
+            </button>
           </div>
-        )}
-        {renderScreen()}
-      </main>
+
+          <span
+            style={{
+              fontSize: 10,
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              background: 'var(--accent-subtle)',
+              color: 'var(--accent-light)',
+              padding: '3px 8px',
+              borderRadius: 6,
+              border: '1px solid var(--accent-border)',
+            }}
+          >
+            {activeTab === 'create' ? 'Studio' : activeTab === 'opportunities' ? 'Opps' : activeTab}
+          </span>
+        </header>
+
+        <main style={{ flex: 1, overflowY: 'auto', minWidth: 0 }}>
+          {/* Error banner */}
+          {error && (
+            <div style={{
+              margin: '16px 16px 0', padding: '12px 16px',
+              background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)',
+              borderRadius: 8, color: '#ef4444', fontSize: 13,
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            }}>
+              <span>⚠ {error}</span>
+              <button onClick={() => setError(null)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 16 }}>×</button>
+            </div>
+          )}
+          {renderScreen()}
+        </main>
+      </div>
     </div>
   );
 }
