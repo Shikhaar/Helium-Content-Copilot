@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { Edit3, Check, X, Plus, Trash2, Sparkles, Tag, Users } from 'lucide-react';
-import type { Brand, CreateProductRequest, PerformanceSummary, Product, UpdateBrandRequest } from '@/lib/types';
+import type { Brand, CreateProductRequest, PerformanceSummary, Product, UpdateBrandRequest } from '../lib/types';
 
 interface BrandViewProps {
   brand: Brand | null;

@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { ArrowLeft, Wand2, BarChart2, Users, Calendar, Target, TrendingUp } from 'lucide-react';
-import type { Opportunity, Product } from '@/lib/types';
+import type { Opportunity, Product } from '../lib/types';
 
 interface OpportunityDetailProps {
   opportunity: Opportunity;

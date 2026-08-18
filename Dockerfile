@@ -2,8 +2,10 @@
 FROM node:20-slim AS frontend-builder
 WORKDIR /app/frontend
 
-COPY frontend/package.json frontend/package-lock.json ./
-RUN npm install
+ENV NODE_ENV=development
+
+COPY frontend/package*.json ./
+RUN npm install --include=dev
 
 COPY frontend/ ./
 RUN npm run build

@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { api } from '@/lib/api';
+import { api } from '../lib/api';
 import type {
   AnalyzeResponse,
   Brand,
@@ -16,14 +16,14 @@ import type {
   Product,
   ScheduleRequest,
   UpdateBrandRequest,
-} from '@/lib/types';
+} from '../lib/types';
 
-import Sidebar from '@/components/Sidebar';
-import Dashboard from '@/components/Dashboard';
-import OpportunityDetail from '@/components/OpportunityDetail';
-import ContentStudio from '@/components/ContentStudio';
-import CalendarView from '@/components/CalendarView';
-import BrandView from '@/components/BrandView';
+import Sidebar from '../components/Sidebar';
+import Dashboard from '../components/Dashboard';
+import OpportunityDetail from '../components/OpportunityDetail';
+import ContentStudio from '../components/ContentStudio';
+import CalendarView from '../components/CalendarView';
+import BrandView from '../components/BrandView';
 
 type Tab = 'opportunities' | 'create' | 'calendar' | 'brand';
 type Screen =

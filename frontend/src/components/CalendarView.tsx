@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { Trash2 } from 'lucide-react';
-import type { CalendarEntry } from '@/lib/types';
+import type { CalendarEntry } from '../lib/types';
 
 interface CalendarViewProps {
   entries: CalendarEntry[];

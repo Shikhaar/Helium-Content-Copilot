@@ -19,7 +19,7 @@ import {
   ShieldCheck,
   X,
 } from 'lucide-react';
-import type { ContentDraft, Opportunity, ScheduleRequest } from '@/lib/types';
+import type { ContentDraft, Opportunity, ScheduleRequest } from '../lib/types';
 
 interface ContentStudioProps {
   draft: ContentDraft | null;

@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { TrendingUp, FileText, BarChart2, Calendar } from 'lucide-react';
-import type { AnalyzeResponse, Brand, PerformanceSummary } from '@/lib/types';
+import type { AnalyzeResponse, Brand, PerformanceSummary } from '../lib/types';
 
 interface DashboardProps {
   brand: Brand | null;
