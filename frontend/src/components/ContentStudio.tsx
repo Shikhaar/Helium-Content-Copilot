@@ -11,7 +11,8 @@ interface ContentStudioProps {
   onRegenerate: () => void;
   onApprove: () => void;
   onSchedule: (req: ScheduleRequest) => void;
-  onUpdateCaption: (caption: string) => void;
+  onUpdateCaption?: (caption: string) => void;
+  onUpdateDraft?: (updates: { caption?: string; cta?: string; hashtags?: string[] }) => void;
 }
 
 function SlidePreview({ slide, isActive, onClick }: {
@@ -99,17 +100,26 @@ function Skeleton() {
 }
 
 export default function ContentStudio({
-  draft, opportunity, isGenerating, onBack, onRegenerate, onApprove, onSchedule, onUpdateCaption,
+  draft, opportunity, isGenerating, onBack, onRegenerate, onApprove, onSchedule, onUpdateCaption, onUpdateDraft,
 }: ContentStudioProps) {
   const [activeSlide, setActiveSlide] = React.useState(0);
   const [editingCaption, setEditingCaption] = React.useState(false);
   const [caption, setCaption] = React.useState('');
+  const [cta, setCta] = React.useState('');
+  const [editingHashtags, setEditingHashtags] = React.useState(false);
+  const [hashtags, setHashtags] = React.useState<string[]>([]);
+  const [hashtagsInput, setHashtagsInput] = React.useState('');
   const [showScheduler, setShowScheduler] = React.useState(false);
   const [schedDate, setSchedDate] = React.useState('');
   const [schedTime, setSchedTime] = React.useState('19:00');
 
   React.useEffect(() => {
-    if (draft) setCaption(draft.caption);
+    if (draft) {
+      setCaption(draft.caption);
+      setCta(draft.cta);
+      setHashtags(draft.hashtags);
+      setHashtagsInput(draft.hashtags.map(h => (h.startsWith('#') ? h : `#${h}`)).join(' '));
+    }
   }, [draft]);
 
   if (isGenerating) return <Skeleton />;
@@ -117,6 +127,31 @@ export default function ContentStudio({
 
   const isApproved = draft.status === 'approved' || draft.status === 'scheduled';
   const isScheduled = draft.status === 'scheduled';
+
+  const handleSaveCaption = () => {
+    if (editingCaption) {
+      if (onUpdateDraft) {
+        onUpdateDraft({ caption, cta });
+      } else if (onUpdateCaption) {
+        onUpdateCaption(caption);
+      }
+    }
+    setEditingCaption(!editingCaption);
+  };
+
+  const handleSaveHashtags = () => {
+    if (editingHashtags) {
+      const parsed = hashtagsInput
+        .split(/[\s,]+/)
+        .map(t => t.trim().replace(/^#+/, ''))
+        .filter(Boolean);
+      setHashtags(parsed);
+      if (onUpdateDraft) {
+        onUpdateDraft({ hashtags: parsed });
+      }
+    }
+    setEditingHashtags(!editingHashtags);
+  };
 
   const handleSchedule = () => {
     if (!schedDate || !schedTime) return;
@@ -162,16 +197,13 @@ export default function ContentStudio({
 
         {/* Right: Content */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          {/* Caption */}
+          {/* Caption & CTA */}
           <div className="card" style={{ padding: 22 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <div className="label">Caption</div>
+              <div className="label">Caption & CTA</div>
               <button
                 className="btn-ghost"
-                onClick={() => {
-                  if (editingCaption) onUpdateCaption(caption);
-                  setEditingCaption(!editingCaption);
-                }}
+                onClick={handleSaveCaption}
                 style={{ fontSize: 12 }}
               >
                 <Edit3 size={12} />
@@ -179,43 +211,92 @@ export default function ContentStudio({
               </button>
             </div>
             {editingCaption ? (
-              <textarea
-                value={caption}
-                onChange={e => setCaption(e.target.value)}
-                style={{
-                  width: '100%', background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-                  borderRadius: 8, padding: 12, color: 'var(--text-primary)', fontSize: 13, lineHeight: 1.6,
-                  resize: 'vertical', minHeight: 100, outline: 'none', fontFamily: 'inherit',
-                }}
-              />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <div>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 4 }}>Caption</div>
+                  <textarea
+                    value={caption}
+                    onChange={e => setCaption(e.target.value)}
+                    style={{
+                      width: '100%', background: 'var(--bg-secondary)', border: '1px solid var(--border)',
+                      borderRadius: 8, padding: 12, color: 'var(--text-primary)', fontSize: 13, lineHeight: 1.6,
+                      resize: 'vertical', minHeight: 100, outline: 'none', fontFamily: 'inherit',
+                    }}
+                  />
+                </div>
+                <div>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 4 }}>Call to Action (CTA)</div>
+                  <input
+                    type="text"
+                    value={cta}
+                    onChange={e => setCta(e.target.value)}
+                    style={{
+                      width: '100%', background: 'var(--bg-secondary)', border: '1px solid var(--border)',
+                      borderRadius: 8, padding: '10px 12px', color: 'var(--text-primary)', fontSize: 13,
+                      outline: 'none', fontFamily: 'inherit',
+                    }}
+                    placeholder="e.g. Shop now — link in bio 🔗"
+                  />
+                </div>
+              </div>
             ) : (
-              <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.7, margin: 0, whiteSpace: 'pre-wrap' }}>
-                {caption}
-              </p>
+              <div>
+                <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.7, margin: 0, whiteSpace: 'pre-wrap' }}>
+                  {caption}
+                </p>
+                <div style={{ marginTop: 12, padding: '10px 14px', background: 'var(--accent-subtle)', borderRadius: 7, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 12, color: 'var(--accent-light)', fontWeight: 600 }}>CTA:</span>
+                  <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{cta || draft.cta}</span>
+                </div>
+              </div>
             )}
-            <div style={{ marginTop: 12, padding: '10px 14px', background: 'var(--accent-subtle)', borderRadius: 7, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 12, color: 'var(--accent-light)', fontWeight: 600 }}>CTA:</span>
-              <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{draft.cta}</span>
-            </div>
           </div>
 
           {/* Hashtags */}
           <div className="card" style={{ padding: 22 }}>
-            <div className="label" style={{ marginBottom: 12 }}>
-              <Hash size={11} style={{ display: 'inline', marginRight: 4 }} />
-              Hashtags ({draft.hashtags.length})
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <div className="label">
+                <Hash size={11} style={{ display: 'inline', marginRight: 4 }} />
+                Hashtags ({hashtags.length})
+              </div>
+              <button
+                className="btn-ghost"
+                onClick={handleSaveHashtags}
+                style={{ fontSize: 12 }}
+              >
+                <Edit3 size={12} />
+                {editingHashtags ? 'Save' : 'Edit'}
+              </button>
             </div>
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-              {draft.hashtags.map(h => (
-                <span key={h} style={{
-                  fontSize: 12, padding: '4px 10px', borderRadius: 6,
-                  background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-                  color: 'var(--accent-light)',
-                }}>
-                  {h.startsWith('#') ? h : `#${h}`}
-                </span>
-              ))}
-            </div>
+            {editingHashtags ? (
+              <div>
+                <textarea
+                  value={hashtagsInput}
+                  onChange={e => setHashtagsInput(e.target.value)}
+                  style={{
+                    width: '100%', background: 'var(--bg-secondary)', border: '1px solid var(--border)',
+                    borderRadius: 8, padding: 12, color: 'var(--text-primary)', fontSize: 13, lineHeight: 1.6,
+                    resize: 'vertical', minHeight: 70, outline: 'none', fontFamily: 'inherit',
+                  }}
+                  placeholder="e.g. #snitch #summer2026 #mensfashion #linen"
+                />
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 6 }}>
+                  Separate hashtags with spaces or commas. Click Save to apply.
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                {hashtags.map(h => (
+                  <span key={h} style={{
+                    fontSize: 12, padding: '4px 10px', borderRadius: 6,
+                    background: 'var(--bg-secondary)', border: '1px solid var(--border)',
+                    color: 'var(--accent-light)',
+                  }}>
+                    {h.startsWith('#') ? h : `#${h}`}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Slide details */}

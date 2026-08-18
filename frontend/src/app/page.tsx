@@ -212,16 +212,19 @@ export default function Home() {
     }
   };
 
-  // Update caption
-  const handleUpdateCaption = async (caption: string) => {
+  // Update draft (caption, cta, hashtags, slides)
+  const handleUpdateDraft = async (updates: Partial<Pick<ContentDraft, 'caption' | 'cta' | 'hashtags' | 'slides'>>) => {
     if (!currentDraft) return;
     try {
-      const updated = await api.updateDraft(currentDraft.id, { caption });
+      const updated = await api.updateDraft(currentDraft.id, updates);
       setCurrentDraft(updated);
     } catch (e: any) {
       setError(e.message || 'Update failed.');
     }
   };
+
+  // Backwards compatibility alias
+  const handleUpdateCaption = (caption: string) => handleUpdateDraft({ caption });
 
   // Delete Calendar Entry
   const handleDeleteCalendarEntry = async (id: string) => {
@@ -273,6 +276,7 @@ export default function Home() {
             onApprove={handleApprove}
             onSchedule={handleSchedule}
             onUpdateCaption={handleUpdateCaption}
+            onUpdateDraft={handleUpdateDraft}
           />
         );
 
