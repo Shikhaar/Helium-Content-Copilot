@@ -54,21 +54,12 @@ Approve & Schedule to Calendar
 
 ## Product Walkthrough
 
-### 1. Discover Opportunities
-Marketer views live-ranked opportunities grounded in catalog velocity and historical performance.
-![Dashboard](docs/screenshots/dashboard.png)
-
-### 2. "Why This Opportunity?" — The Core Decision Screen
-Marketer inspects the 5-signal evidence breakdown before generating any copy.
-![Opportunity Detail](docs/screenshots/opportunity.png)
-
-### 3. AI Content Studio
-Platform-tailored visual storyboard frames, captions, and inline scene editing.
-![Content Studio](docs/screenshots/content_studio.png)
-
-### 4. Interactive Publishing Calendar
-Weekly visual schedule with confirmed time slots.
-![Calendar](docs/screenshots/calendar.png)
+| Step | Core Screen | Description | Visual |
+| :--- | :--- | :--- | :---: |
+| **01 — Discover** | **Opportunities Hub** | Live-ranked recommendations grounded in catalog demand and brand baseline | [📸 View Screenshot](docs/screenshots/dashboard.png) |
+| **02 — Evaluate** | **"Why This Opportunity?"** | 5-signal evidence breakdown & deterministic score gauge (Decision Screen) | [📸 View Screenshot](docs/screenshots/opportunity.png) |
+| **03 — Create & Edit** | **AI Content Studio** | Platform-tailored copy, lifestyle visual mockups, and inline scene editor | [📸 View Screenshot](docs/screenshots/content_studio.png) |
+| **04 — Schedule** | **Publishing Calendar** | Weekly interactive schedule with confirmed time slots | [📸 View Screenshot](docs/screenshots/calendar.png) |
 
 ---
 
