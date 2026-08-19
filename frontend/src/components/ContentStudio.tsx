@@ -11,11 +11,11 @@ import {
   Bookmark,
   Music,
   Film,
+  Layers,
   Plus,
   X,
-  Sparkles,
 } from 'lucide-react';
-import type { ContentDraft, Opportunity, ScheduleRequest } from '../lib/types';
+import type { CarouselSlide, ContentDraft, Opportunity, ScheduleRequest } from '../lib/types';
 
 interface ContentStudioProps {
   draft: ContentDraft | null;
@@ -26,7 +26,7 @@ interface ContentStudioProps {
   onApprove: () => void;
   onSchedule: (req: ScheduleRequest) => void;
   onUpdateCaption?: (caption: string) => void;
-  onUpdateDraft?: (updates: { slides?: any[]; caption?: string; cta?: string; hashtags?: string[] }) => void;
+  onUpdateDraft?: (updates: { slides?: CarouselSlide[]; caption?: string; cta?: string; hashtags?: string[] }) => void;
 }
 
 // Curated high-aesthetic fashion & lifestyle photography for DTC preview
@@ -42,9 +42,11 @@ function getSlideImage(slideNum: number) {
   return SLIDE_IMAGES[(slideNum - 1) % SLIDE_IMAGES.length];
 }
 
-const SCENE_NAMES = ['HOOK', 'THE PRODUCT', 'STYLING', 'CTA'];
-const SCENE_TIMINGS = ['0:00 - 0:03', '0:03 - 0:07', '0:07 - 0:11', '0:11 - 0:15'];
-const STANDARD_CTAS = ['Shop the look', 'Learn more', 'View product', 'Save this post'];
+const REEL_SCENE_NAMES = ['HOOK', 'THE PRODUCT', 'STYLING', 'CTA'];
+const REEL_SCENE_TIMINGS = ['0:00 - 0:03', '0:03 - 0:07', '0:07 - 0:11', '0:11 - 0:15'];
+
+const CAROUSEL_CTAS = ['Discover your style', 'Shop the look', 'View collection', 'Save this post'];
+const REEL_CTAS = ['Shop the look', 'Learn more', 'View product', 'Save this post'];
 
 function Skeleton() {
   return (
@@ -55,6 +57,445 @@ function Skeleton() {
     </div>
   );
 }
+
+/* ==========================================================================
+   1. PREVIEWS: CAROUSEL VS REEL
+   ========================================================================== */
+
+function CarouselPreview({
+  slide,
+  slideIndex,
+  totalSlides,
+  cta,
+  brandName = 'SNITCH',
+}: {
+  slide: CarouselSlide;
+  slideIndex: number;
+  totalSlides: number;
+  cta: string;
+  brandName?: string;
+}) {
+  const bgImg = getSlideImage(slideIndex + 1);
+
+  return (
+    <div
+      style={{
+        width: '100%',
+        maxWidth: 330,
+        aspectRatio: '4/5',
+        background: '#191512',
+        borderRadius: 12,
+        border: '1px solid var(--border)',
+        position: 'relative',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        boxShadow: '0 8px 24px rgba(33, 25, 20, 0.08)',
+      }}
+    >
+      {/* Background High-res Asset Image */}
+      <img
+        src={bgImg}
+        alt={`Slide ${slideIndex + 1}`}
+        style={{
+          position: 'absolute',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          transition: 'opacity 0.3s ease',
+        }}
+      />
+
+      {/* Top & Bottom Scrim Gradients for rich legibility */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0, left: 0, right: 0, height: '28%',
+          background: 'linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%)',
+          pointerEvents: 'none',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 0, left: 0, right: 0, height: '60%',
+          background: 'linear-gradient(0deg, rgba(17,14,12,0.92) 0%, rgba(17,14,12,0.6) 45%, rgba(0,0,0,0) 100%)',
+          pointerEvents: 'none',
+        }}
+      />
+
+      {/* Top Bar inside Instagram Carousel Frame */}
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 5,
+          padding: '12px 14px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ fontSize: 12, fontWeight: 800, color: '#FFFFFF', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            {brandName}
+          </span>
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)', display: 'inline-block' }} />
+        </div>
+
+        <div
+          style={{
+            fontSize: 10,
+            fontWeight: 600,
+            color: '#FFFFFF',
+            background: 'rgba(0,0,0,0.45)',
+            borderRadius: 4,
+            padding: '2px 7px',
+            border: '1px solid rgba(255,255,255,0.15)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 4,
+          }}
+        >
+          <Layers size={10} />
+          <span>Slide {slideIndex + 1}/{totalSlides}</span>
+        </div>
+      </div>
+
+      {/* Center Slide Headline Overlay */}
+      <div style={{ position: 'relative', zIndex: 5, padding: '0 20px', textAlign: 'center' }}>
+        <div
+          className="serif-heading"
+          style={{
+            fontSize: 19,
+            fontWeight: 600,
+            color: '#FFFFFF',
+            lineHeight: 1.3,
+            textShadow: '0 2px 8px rgba(0,0,0,0.8)',
+            marginBottom: 6,
+          }}
+        >
+          {slide.headline}
+        </div>
+        {slide.body && (
+          <div
+            style={{
+              fontSize: 12,
+              color: 'rgba(255,255,255,0.88)',
+              lineHeight: 1.45,
+              textShadow: '0 1px 4px rgba(0,0,0,0.7)',
+              maxWidth: 240,
+              margin: '0 auto',
+            }}
+          >
+            {slide.body}
+          </div>
+        )}
+      </div>
+
+      {/* Right Action Bar (Instagram Interaction icons) */}
+      <div
+        style={{
+          position: 'absolute',
+          right: 10,
+          bottom: 54,
+          zIndex: 6,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 12,
+        }}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+          <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Heart size={14} color="#FFFFFF" />
+          </div>
+          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.85)', fontWeight: 600 }}>2.4k</span>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+          <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <MessageCircle size={14} color="#FFFFFF" />
+          </div>
+          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.85)', fontWeight: 600 }}>98</span>
+        </div>
+        <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Send size={13} color="#FFFFFF" />
+        </div>
+        <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Bookmark size={13} color="#FFFFFF" />
+        </div>
+      </div>
+
+      {/* Bottom Preview Overlay (Carousel Pagination Dots & CTA) */}
+      <div style={{ position: 'relative', zIndex: 5, padding: '0 16px 14px', paddingRight: 48 }}>
+        {/* Discrete Carousel Pagination Dots */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 10 }}>
+          {Array.from({ length: totalSlides }).map((_, i) => (
+            <div
+              key={i}
+              style={{
+                width: i === slideIndex ? 16 : 5,
+                height: 5,
+                borderRadius: 3,
+                background: i === slideIndex ? '#FFFFFF' : 'rgba(255,255,255,0.35)',
+                transition: 'all 0.2s ease',
+              }}
+            />
+          ))}
+        </div>
+
+        {/* CTA Preview pill */}
+        <div
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            background: 'var(--brown-primary)',
+            color: '#FFFCF7',
+            padding: '6px 12px',
+            borderRadius: 6,
+            fontSize: 11,
+            fontWeight: 600,
+          }}
+        >
+          <span>{cta || 'Discover your style'}</span>
+          <span>→</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReelPreview({
+  slide,
+  slideIndex,
+  totalSlides,
+  cta,
+  brandName = 'SNITCH',
+}: {
+  slide: CarouselSlide;
+  slideIndex: number;
+  totalSlides: number;
+  cta: string;
+  brandName?: string;
+}) {
+  const bgImg = getSlideImage(slideIndex + 1);
+
+  return (
+    <div
+      style={{
+        width: '100%',
+        maxWidth: 330,
+        aspectRatio: '9/16',
+        background: '#191512',
+        borderRadius: 12,
+        border: '1px solid var(--border)',
+        position: 'relative',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        boxShadow: '0 8px 24px rgba(33, 25, 20, 0.08)',
+      }}
+    >
+      {/* Background High-res Asset Image */}
+      <img
+        src={bgImg}
+        alt="Reel scene preview"
+        style={{
+          position: 'absolute',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          transition: 'opacity 0.3s ease',
+        }}
+      />
+
+      {/* Top & Bottom Scrim Gradients for rich legibility */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0, left: 0, right: 0, height: '30%',
+          background: 'linear-gradient(180deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0) 100%)',
+          pointerEvents: 'none',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 0, left: 0, right: 0, height: '65%',
+          background: 'linear-gradient(0deg, rgba(17,14,12,0.95) 0%, rgba(17,14,12,0.7) 45%, rgba(0,0,0,0) 100%)',
+          pointerEvents: 'none',
+        }}
+      />
+
+      {/* Top Scene Progress Segments (4 discrete scene bars) */}
+      <div style={{ position: 'relative', zIndex: 5, padding: '12px 14px 0', display: 'flex', gap: 4 }}>
+        {Array.from({ length: totalSlides }).map((_, i) => (
+          <div
+            key={i}
+            style={{
+              flex: 1,
+              height: 2.5,
+              borderRadius: 2,
+              background: i <= slideIndex ? '#FFFFFF' : 'rgba(255,255,255,0.3)',
+              transition: 'background 0.2s ease',
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Top Bar inside Instagram Frame */}
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 5,
+          padding: '10px 14px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ fontSize: 12, fontWeight: 800, color: '#FFFFFF', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            {brandName}
+          </span>
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)', display: 'inline-block' }} />
+        </div>
+
+        <div
+          style={{
+            fontSize: 10,
+            fontWeight: 600,
+            color: '#FFFFFF',
+            background: 'rgba(0,0,0,0.45)',
+            borderRadius: 4,
+            padding: '2px 7px',
+            border: '1px solid rgba(255,255,255,0.15)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 4,
+          }}
+        >
+          <Film size={10} />
+          <span>Reel · {slideIndex + 1}/{totalSlides}</span>
+        </div>
+      </div>
+
+      {/* Middle On-Screen Headline / Hook Overlay */}
+      <div style={{ position: 'relative', zIndex: 5, padding: '0 20px', textAlign: 'center' }}>
+        <div
+          style={{
+            fontSize: 18,
+            fontWeight: 700,
+            color: '#FFFFFF',
+            lineHeight: 1.3,
+            textShadow: '0 2px 8px rgba(0,0,0,0.8)',
+            marginBottom: 8,
+          }}
+        >
+          {slide.headline}
+        </div>
+        {slide.visual_cue && (
+          <div
+            style={{
+              display: 'inline-block',
+              fontSize: 10,
+              color: 'rgba(255,255,255,0.8)',
+              background: 'rgba(0,0,0,0.4)',
+              padding: '3px 8px',
+              borderRadius: 4,
+              border: '1px solid rgba(255,255,255,0.15)',
+            }}
+          >
+            📷 {slide.visual_cue}
+          </div>
+        )}
+      </div>
+
+      {/* Right Action Bar (Instagram Interaction icons) */}
+      <div
+        style={{
+          position: 'absolute',
+          right: 10,
+          bottom: 95,
+          zIndex: 6,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 12,
+        }}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+          <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Heart size={14} color="#FFFFFF" />
+          </div>
+          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.85)', fontWeight: 600 }}>2.8k</span>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+          <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <MessageCircle size={14} color="#FFFFFF" />
+          </div>
+          <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.85)', fontWeight: 600 }}>142</span>
+        </div>
+        <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Send size={13} color="#FFFFFF" />
+        </div>
+        <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Bookmark size={13} color="#FFFFFF" />
+        </div>
+      </div>
+
+      {/* Bottom Preview Overlay (Narration, Audio & CTA) */}
+      <div style={{ position: 'relative', zIndex: 5, padding: '0 16px 14px', paddingRight: 48 }}>
+        {/* Narration script */}
+        <div
+          style={{
+            fontSize: 11,
+            color: 'rgba(255,255,255,0.9)',
+            lineHeight: 1.4,
+            marginBottom: 8,
+            textShadow: '0 1px 4px rgba(0,0,0,0.8)',
+            maxHeight: 44,
+            overflow: 'hidden',
+          }}
+        >
+          {slide.body}
+        </div>
+
+        {/* Audio Cue */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10, color: 'rgba(255,255,255,0.75)', marginBottom: 10 }}>
+          <Music size={10} />
+          <span>Trending Audio · Lo-Fi Beats</span>
+        </div>
+
+        {/* CTA Preview pill */}
+        <div
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            background: 'var(--brown-primary)',
+            color: '#FFFCF7',
+            padding: '6px 12px',
+            borderRadius: 6,
+            fontSize: 11,
+            fontWeight: 600,
+          }}
+        >
+          <span>{cta || 'Shop the look'}</span>
+          <span>→</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ==========================================================================
+   2. MAIN CONTENT STUDIO COMPONENT
+   ========================================================================== */
 
 export default function ContentStudio({
   draft,
@@ -69,8 +510,7 @@ export default function ContentStudio({
 }: ContentStudioProps) {
   const [activeSlide, setActiveSlide] = React.useState(0);
   const [caption, setCaption] = React.useState('');
-  const [hook, setHook] = React.useState('');
-  const [cta, setCta] = React.useState('Shop the look');
+  const [cta, setCta] = React.useState('');
   const [hashtags, setHashtags] = React.useState<string[]>([]);
   const [newTagInput, setNewTagInput] = React.useState('');
   const [isAddingTag, setIsAddingTag] = React.useState(false);
@@ -79,36 +519,50 @@ export default function ContentStudio({
   const [schedTime, setSchedTime] = React.useState('19:00');
   const [saveToast, setSaveToast] = React.useState(false);
 
+  // Local slides state for immediate responsive edits
+  const [slides, setSlides] = React.useState<CarouselSlide[]>([]);
+
+  // Detect format accurately
+  const isCarousel = (draft?.format || opportunity?.format || '').toLowerCase().includes('carousel');
+
   React.useEffect(() => {
     if (draft) {
       setCaption(draft.caption || '');
-      setCta(draft.cta || 'Shop the look');
+      setCta(draft.cta || (isCarousel ? 'Discover your style' : 'Shop the look'));
       setHashtags(draft.hashtags || ['SNITCH', 'SummerStyle', 'LinenShirt', 'Menswear']);
-      if (draft.slides && draft.slides.length > 0) {
-        setHook(draft.slides[0]?.headline || '');
-      }
+      setSlides(draft.slides || []);
+      setActiveSlide(0);
     }
-  }, [draft]);
+  }, [draft?.id, draft?.format, isCarousel]);
 
   if (isGenerating) return <Skeleton />;
   if (!draft) return null;
 
   const isApproved = draft.status === 'approved' || draft.status === 'scheduled';
   const isScheduled = draft.status === 'scheduled';
-  const currentSlide = draft.slides[activeSlide] || draft.slides[0] || {
+  const currentSlidesList = slides.length > 0 ? slides : draft.slides;
+  const totalSlidesCount = currentSlidesList.length || 1;
+  const currentSlide = currentSlidesList[activeSlide] || currentSlidesList[0] || {
     slide_number: 1,
-    headline: hook || 'Summer Layering with Linen',
+    headline: 'Summer Layering with Linen',
     body: 'Lightweight, versatile, and easy to style.',
     visual_cue: 'Model wearing relaxed fit linen shirt.',
   };
 
-  const handleSaveDraft = () => {
-    const updatedSlides = [...draft.slides];
-    if (updatedSlides[0]) {
-      updatedSlides[0] = { ...updatedSlides[0], headline: hook };
+  const handleUpdateCurrentSlide = (field: keyof CarouselSlide, val: string) => {
+    const updated = [...currentSlidesList];
+    if (updated[activeSlide]) {
+      updated[activeSlide] = {
+        ...updated[activeSlide],
+        [field]: val,
+      };
+      setSlides(updated);
     }
+  };
+
+  const handleSaveDraft = () => {
     if (onUpdateDraft) {
-      onUpdateDraft({ slides: updatedSlides, caption, cta, hashtags });
+      onUpdateDraft({ slides: currentSlidesList, caption, cta, hashtags });
     } else if (onUpdateCaption) {
       onUpdateCaption(caption);
     }
@@ -151,9 +605,8 @@ export default function ContentStudio({
     setShowScheduler(false);
   };
 
-  const currentTitle = opportunity?.title || 'Summer Layering with Oversized Linen Shirt';
-  const currentFormat = draft.format || 'Instagram Reel';
-  const bgImg = getSlideImage(activeSlide + 1);
+  const currentTitle = opportunity?.title || draft.opportunity_id || 'Content Draft';
+  const ctaOptions = isCarousel ? CAROUSEL_CTAS : REEL_CTAS;
 
   return (
     <div className="page-container fade-up" style={{ maxWidth: 940 }}>
@@ -177,7 +630,7 @@ export default function ContentStudio({
               {currentTitle}
             </h1>
             <div style={{ fontSize: 12, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span>{currentFormat}</span>
+              <span>{isCarousel ? 'Instagram Carousel' : 'Instagram Reel'}</span>
               <span>·</span>
               <span style={{ color: 'var(--green)', fontWeight: 600 }}>High confidence recommendation</span>
               {draft.is_demo && (
@@ -221,214 +674,28 @@ export default function ContentStudio({
       {/* ── B. MAIN CONTENT WORKSPACE (Two-Column Layout) ───────────── */}
       <div className="studio-grid" style={{ marginBottom: 28, alignItems: 'start' }}>
         
-        {/* LEFT COLUMN: Large 9:16 Instagram / Reel Preview */}
+        {/* LEFT COLUMN: Format-Aware Preview */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <div
-            style={{
-              width: '100%',
-              maxWidth: 330,
-              aspectRatio: '9/16',
-              background: '#191512',
-              borderRadius: 12,
-              border: '1px solid var(--border)',
-              position: 'relative',
-              overflow: 'hidden',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              boxShadow: '0 8px 24px rgba(33, 25, 20, 0.08)',
-            }}
-          >
-            {/* Background High-res Asset Image */}
-            <img
-              src={bgImg}
-              alt="Reel scene preview"
-              style={{
-                position: 'absolute',
-                inset: 0,
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                transition: 'opacity 0.3s ease',
-              }}
+          {isCarousel ? (
+            <CarouselPreview
+              slide={currentSlide}
+              slideIndex={activeSlide}
+              totalSlides={totalSlidesCount}
+              cta={cta}
+              brandName="SNITCH"
             />
-
-            {/* Top & Bottom Scrim Gradients for rich legibility */}
-            <div
-              style={{
-                position: 'absolute',
-                top: 0, left: 0, right: 0, height: '30%',
-                background: 'linear-gradient(180deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0) 100%)',
-                pointerEvents: 'none',
-              }}
+          ) : (
+            <ReelPreview
+              slide={currentSlide}
+              slideIndex={activeSlide}
+              totalSlides={totalSlidesCount}
+              cta={cta}
+              brandName="SNITCH"
             />
-            <div
-              style={{
-                position: 'absolute',
-                bottom: 0, left: 0, right: 0, height: '65%',
-                background: 'linear-gradient(0deg, rgba(17,14,12,0.95) 0%, rgba(17,14,12,0.7) 45%, rgba(0,0,0,0) 100%)',
-                pointerEvents: 'none',
-              }}
-            />
-
-            {/* Top Scene Progress Segments (4 discrete scene bars) */}
-            <div style={{ position: 'relative', zIndex: 5, padding: '12px 14px 0', display: 'flex', gap: 4 }}>
-              {[0, 1, 2, 3].map(i => (
-                <div
-                  key={i}
-                  style={{
-                    flex: 1,
-                    height: 2.5,
-                    borderRadius: 2,
-                    background: i <= activeSlide ? '#FFFFFF' : 'rgba(255,255,255,0.3)',
-                    transition: 'background 0.2s ease',
-                  }}
-                />
-              ))}
-            </div>
-
-            {/* Top Bar inside Instagram Frame */}
-            <div
-              style={{
-                position: 'relative',
-                zIndex: 5,
-                padding: '10px 14px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{ fontSize: 12, fontWeight: 800, color: '#FFFFFF', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                  SNITCH
-                </span>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)', display: 'inline-block' }} />
-              </div>
-
-              <div
-                style={{
-                  fontSize: 10,
-                  fontWeight: 600,
-                  color: '#FFFFFF',
-                  background: 'rgba(0,0,0,0.45)',
-                  borderRadius: 4,
-                  padding: '2px 7px',
-                  border: '1px solid rgba(255,255,255,0.15)',
-                }}
-              >
-                Reel · {activeSlide + 1}/4
-              </div>
-            </div>
-
-            {/* Middle On-Screen Headline / Hook Overlay */}
-            <div style={{ position: 'relative', zIndex: 5, padding: '0 20px', textAlign: 'center' }}>
-              <div
-                style={{
-                  fontSize: 18,
-                  fontWeight: 700,
-                  color: '#FFFFFF',
-                  lineHeight: 1.3,
-                  textShadow: '0 2px 8px rgba(0,0,0,0.8)',
-                  marginBottom: 8,
-                }}
-              >
-                {activeSlide === 0 ? hook || currentSlide.headline : currentSlide.headline}
-              </div>
-              {currentSlide.visual_cue && (
-                <div
-                  style={{
-                    display: 'inline-block',
-                    fontSize: 10,
-                    color: 'rgba(255,255,255,0.8)',
-                    background: 'rgba(0,0,0,0.4)',
-                    padding: '3px 8px',
-                    borderRadius: 4,
-                    border: '1px solid rgba(255,255,255,0.15)',
-                  }}
-                >
-                  📷 {currentSlide.visual_cue}
-                </div>
-              )}
-            </div>
-
-            {/* Right Action Bar (Instagram Interaction icons) */}
-            <div
-              style={{
-                position: 'absolute',
-                right: 10,
-                bottom: 95,
-                zIndex: 6,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: 12,
-              }}
-            >
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-                <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Heart size={14} color="#FFFFFF" />
-                </div>
-                <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.85)', fontWeight: 600 }}>2.8k</span>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-                <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <MessageCircle size={14} color="#FFFFFF" />
-                </div>
-                <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.85)', fontWeight: 600 }}>142</span>
-              </div>
-              <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Send size={13} color="#FFFFFF" />
-              </div>
-              <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Bookmark size={13} color="#FFFFFF" />
-              </div>
-            </div>
-
-            {/* Bottom Preview Overlay (Narration, Audio & CTA) */}
-            <div style={{ position: 'relative', zIndex: 5, padding: '0 16px 14px', paddingRight: 48 }}>
-              {/* Narration script */}
-              <div
-                style={{
-                  fontSize: 11,
-                  color: 'rgba(255,255,255,0.9)',
-                  lineHeight: 1.4,
-                  marginBottom: 8,
-                  textShadow: '0 1px 4px rgba(0,0,0,0.8)',
-                  maxHeight: 44,
-                  overflow: 'hidden',
-                }}
-              >
-                {currentSlide.body}
-              </div>
-
-              {/* Audio Cue */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10, color: 'rgba(255,255,255,0.75)', marginBottom: 10 }}>
-                <Music size={10} />
-                <span>Trending Audio · Lo-Fi Beats</span>
-              </div>
-
-              {/* CTA Preview pill */}
-              <div
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  background: 'var(--brown-primary)',
-                  color: '#FFFCF7',
-                  padding: '6px 12px',
-                  borderRadius: 6,
-                  fontSize: 11,
-                  fontWeight: 600,
-                }}
-              >
-                <span>{cta}</span>
-                <span>→</span>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
 
-        {/* RIGHT COLUMN: Content Editing Panel */}
+        {/* RIGHT COLUMN: Format-Aware Content Editor Panel */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div className="card" style={{ padding: 22, background: 'var(--surface)' }}>
             
@@ -437,7 +704,7 @@ export default function ContentStudio({
               <div className="label" style={{ marginBottom: 8 }}>CONTENT</div>
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
-                  Format: <strong style={{ color: 'var(--text-primary)' }}>{currentFormat}</strong>
+                  Format: <strong style={{ color: 'var(--text-primary)' }}>{isCarousel ? 'Instagram Carousel' : 'Instagram Reel'}</strong>
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
                   Content angle: <strong style={{ color: 'var(--text-primary)' }}>{opportunity?.content_angle || 'Product styling'}</strong>
@@ -445,23 +712,74 @@ export default function ContentStudio({
               </div>
             </div>
 
-            {/* 1. HOOK Section */}
-            <div style={{ marginBottom: 18 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                <div className="label">HOOK</div>
-                <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{hook.length} characters</span>
-              </div>
-              <input
-                type="text"
-                value={hook}
-                onChange={e => setHook(e.target.value)}
-                placeholder="One linen shirt. Three ways to wear it this summer."
-                className="input-field"
-                style={{ fontSize: 13, fontWeight: 500 }}
-              />
-            </div>
+            {/* Slide / Scene Details */}
+            {isCarousel ? (
+              /* CAROUSEL EDITOR FIELDS */
+              <>
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                    <div className="label">SLIDE TITLE</div>
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Slide {activeSlide + 1} of {totalSlidesCount}</span>
+                  </div>
+                  <input
+                    type="text"
+                    value={currentSlide.headline || ''}
+                    onChange={e => handleUpdateCurrentSlide('headline', e.target.value)}
+                    placeholder="e.g. 5 Ways to Style the Cuban Collar Shirt"
+                    className="input-field"
+                    style={{ fontSize: 13, fontWeight: 600 }}
+                  />
+                </div>
 
-            {/* 2. CAPTION Section */}
+                <div style={{ marginBottom: 18 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                    <div className="label">SLIDE COPY</div>
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{(currentSlide.body || '').length} characters</span>
+                  </div>
+                  <textarea
+                    value={currentSlide.body || ''}
+                    onChange={e => handleUpdateCurrentSlide('body', e.target.value)}
+                    className="input-field"
+                    style={{ minHeight: 70, lineHeight: 1.55, resize: 'vertical' }}
+                    placeholder="Pair with shorts and sandals for a relaxed summer look..."
+                  />
+                </div>
+              </>
+            ) : (
+              /* REEL EDITOR FIELDS */
+              <>
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                    <div className="label">{activeSlide === 0 ? 'HOOK' : `SCENE ${activeSlide + 1} HEADLINE`}</div>
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{(currentSlide.headline || '').length} characters</span>
+                  </div>
+                  <input
+                    type="text"
+                    value={currentSlide.headline || ''}
+                    onChange={e => handleUpdateCurrentSlide('headline', e.target.value)}
+                    placeholder="One linen shirt. Three ways to wear it this summer."
+                    className="input-field"
+                    style={{ fontSize: 13, fontWeight: 600 }}
+                  />
+                </div>
+
+                <div style={{ marginBottom: 18 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                    <div className="label">VOICEOVER / SCRIPT</div>
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{(currentSlide.body || '').length} characters</span>
+                  </div>
+                  <textarea
+                    value={currentSlide.body || ''}
+                    onChange={e => handleUpdateCurrentSlide('body', e.target.value)}
+                    className="input-field"
+                    style={{ minHeight: 70, lineHeight: 1.55, resize: 'vertical' }}
+                    placeholder="Voiceover narration or dialogue..."
+                  />
+                </div>
+              </>
+            )}
+
+            {/* Caption Section */}
             <div style={{ marginBottom: 18 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                 <div className="label">CAPTION</div>
@@ -471,16 +789,16 @@ export default function ContentStudio({
                 value={caption}
                 onChange={e => setCaption(e.target.value)}
                 className="input-field"
-                style={{ minHeight: 96, lineHeight: 1.6, resize: 'vertical' }}
-                placeholder="One linen shirt, three ways to make it work all summer..."
+                style={{ minHeight: 90, lineHeight: 1.6, resize: 'vertical' }}
+                placeholder="Write your post caption..."
               />
             </div>
 
-            {/* 3. CALL TO ACTION Section */}
+            {/* Call To Action Selector */}
             <div style={{ marginBottom: 18 }}>
               <div className="label" style={{ marginBottom: 8 }}>CALL TO ACTION</div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                {STANDARD_CTAS.map(option => {
+                {ctaOptions.map(option => {
                   const isSelected = cta === option;
                   return (
                     <button
@@ -506,7 +824,7 @@ export default function ContentStudio({
               </div>
             </div>
 
-            {/* 4. HASHTAGS Section */}
+            {/* Hashtags Section */}
             <div style={{ marginBottom: 20 }}>
               <div className="label" style={{ marginBottom: 8 }}>HASHTAGS ({hashtags.length})</div>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -563,7 +881,7 @@ export default function ContentStudio({
               </div>
             </div>
 
-            {/* 5. WHY THIS WORKS (Content Intelligence) */}
+            {/* Why This Works (Content Intelligence) */}
             <div
               style={{
                 background: 'var(--surface-subtle)',
@@ -574,12 +892,18 @@ export default function ContentStudio({
             >
               <div className="label-accent" style={{ marginBottom: 4 }}>WHY THIS WORKS</div>
               <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 10, lineHeight: 1.45 }}>
-                Reels are currently SNITCH's strongest format.
+                {isCarousel
+                  ? "Carousels are currently SNITCH's highest-saving format for styling and discovery."
+                  : "Reels are currently SNITCH's strongest format for top-of-funnel reach."}
               </p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, borderTop: '1px solid var(--border)', paddingTop: 10 }}>
                 <div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1 }}>8.8%</div>
-                  <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>avg Reel engagement</div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1 }}>
+                    {isCarousel ? '8.4%' : '8.8%'}
+                  </div>
+                  <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>
+                    avg {isCarousel ? 'Carousel' : 'Reel'} ER
+                  </div>
                 </div>
                 <div>
                   <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1 }}>14.2K</div>
@@ -653,30 +977,45 @@ export default function ContentStudio({
         </div>
       </div>
 
-      {/* ── C. STORYBOARD (Scene Timeline) ─────────────────────────── */}
+      {/* ── C. STORYBOARD (Format-Aware Timeline / Slides) ─────────── */}
       <div style={{ marginTop: 12 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-          <div className="label">STORYBOARD (0:00 – 0:15)</div>
-          <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Click scene to preview</span>
+          <div className="label">
+            {isCarousel ? `STORYBOARD (${totalSlidesCount} SLIDES)` : 'STORYBOARD (0:00 – 0:15)'}
+          </div>
+          <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+            {isCarousel ? 'Click slide to preview' : 'Click scene to preview'}
+          </span>
         </div>
 
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
+            gridTemplateColumns: `repeat(auto-fit, minmax(170px, 1fr))`,
             gap: 12,
           }}
         >
-          {draft.slides.map((slide, i) => {
+          {currentSlidesList.map((slide, i) => {
             const isSelected = i === activeSlide;
             const sceneThumb = getSlideImage(i + 1);
-            const roleName = SCENE_NAMES[i] || `SCENE 0${i + 1}`;
-            const timing = SCENE_TIMINGS[i] || '';
+
+            // Role label depending on Carousel vs Reel
+            let roleName = `SLIDE 0${i + 1}`;
+            let timingText = '';
+
+            if (isCarousel) {
+              if (i === 0) roleName = '01 COVER';
+              else if (i === totalSlidesCount - 1) roleName = `0${i + 1} CTA`;
+              else roleName = `0${i + 1} SLIDE`;
+            } else {
+              roleName = `0${i + 1} ${REEL_SCENE_NAMES[i] || 'BEAT'}`;
+              timingText = REEL_SCENE_TIMINGS[i] || '';
+            }
 
             return (
               <div
                 key={slide.slide_number || i}
-                id={`storyboard-scene-${i + 1}`}
+                id={`storyboard-item-${i + 1}`}
                 onClick={() => setActiveSlide(i)}
                 style={{
                   border: isSelected ? '1px solid var(--brown-primary)' : '1px solid var(--border)',
@@ -688,7 +1027,7 @@ export default function ContentStudio({
                   position: 'relative',
                 }}
               >
-                {/* Scene top label */}
+                {/* Top label */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                   <span
                     style={{
@@ -698,16 +1037,16 @@ export default function ContentStudio({
                       letterSpacing: '0.04em',
                     }}
                   >
-                    0{i + 1} {roleName}
+                    {roleName}
                   </span>
-                  <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{timing}</span>
+                  {timingText && <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{timingText}</span>}
                 </div>
 
                 {/* Thumbnail image */}
                 <div
                   style={{
                     width: '100%',
-                    height: 58,
+                    height: 60,
                     borderRadius: 5,
                     overflow: 'hidden',
                     marginBottom: 8,
@@ -727,7 +1066,7 @@ export default function ContentStudio({
                   />
                 </div>
 
-                {/* Snippet */}
+                {/* Headline Snippet */}
                 <div
                   style={{
                     fontSize: 11,
@@ -738,9 +1077,9 @@ export default function ContentStudio({
                     whiteSpace: 'nowrap',
                     lineHeight: 1.3,
                   }}
-                  title={i === 0 ? hook || slide.headline : slide.headline}
+                  title={slide.headline}
                 >
-                  {i === 0 ? hook || slide.headline : slide.headline}
+                  {slide.headline || `Slide ${i + 1}`}
                 </div>
               </div>
             );
