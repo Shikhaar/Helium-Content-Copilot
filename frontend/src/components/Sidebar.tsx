@@ -72,8 +72,8 @@ export default function Sidebar({
           padding: isCollapsed ? '9px 0' : '8px 10px',
           borderRadius: 6,
           border: 'none',
-          background: isActive ? 'var(--bg-subtle)' : 'transparent',
-          color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
+          background: isActive ? 'var(--accent-soft)' : 'transparent',
+          color: isActive ? 'var(--accent)' : 'var(--text-secondary)',
           fontSize: 13,
           fontWeight: isActive ? 600 : 400,
           cursor: 'pointer',
@@ -85,7 +85,7 @@ export default function Sidebar({
         }}
         onMouseEnter={e => {
           if (!isActive) {
-            (e.currentTarget as HTMLElement).style.background = 'var(--bg-subtle)';
+            (e.currentTarget as HTMLElement).style.background = 'rgba(216, 209, 197, 0.5)';
             (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)';
           }
         }}
@@ -126,7 +126,7 @@ export default function Sidebar({
         style={{
           width: isCollapsed ? 60 : 220,
           minHeight: '100vh',
-          background: 'var(--bg-card)',
+          background: 'var(--sidebar)',
           borderRight: '1px solid var(--border)',
           display: 'flex',
           flexDirection: 'column',
@@ -289,14 +289,14 @@ export default function Sidebar({
             <div style={{
               display: 'flex', alignItems: 'center', gap: 9,
               padding: '8px 10px',
-              background: 'var(--bg-subtle)',
+              background: 'var(--surface)',
               borderRadius: 6,
               border: '1px solid var(--border)',
             }}>
               {/* Brand initial */}
               <div style={{
                 width: 26, height: 26, borderRadius: 5,
-                background: 'var(--accent-subtle)',
+                background: 'var(--accent-soft)',
                 border: '1px solid var(--accent-border)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 10, fontWeight: 700, color: 'var(--accent)',
