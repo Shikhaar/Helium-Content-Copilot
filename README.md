@@ -4,7 +4,7 @@
 
 **Helium Content Copilot** is an AI-powered content strategist for D2C brands that identifies high-value content opportunities, explains why they matter, and turns them into ready-to-review social content.
 
-🚀 **[Live App Demo](https://helium-content-copilot.onrender.com)** · [User Guide](docs/USER_GUIDE.md) · [Architecture](docs/ARCHITECTURE.md) · [Scoring Model](docs/SCORING_MODEL.md) · [AI Prompts](docs/AI_PROMPTS.md) · [Product Thinking](docs/PRODUCT_THINKING.md) · [Roadmap](docs/FUTURE_SCOPE_ROADMAP.md)
+**[Live App Demo](https://helium-content-copilot.onrender.com)** · [User Guide](docs/USER_GUIDE.md) · [Architecture](docs/ARCHITECTURE.md) · [Scoring Model](docs/SCORING_MODEL.md) · [AI Prompts](docs/AI_PROMPTS.md) · [Product Thinking](docs/PRODUCT_THINKING.md) · [Roadmap](docs/FUTURE_SCOPE_ROADMAP.md)
 
 ---
 
@@ -83,7 +83,7 @@ Every opportunity is evaluated across five deterministic signals:
 | **Business Objective Fit** | 15 | Format efficiency ratio for the target goal |
 | **Total** | **100** | **Sum of all 5 factors** |
 
-👉 [Read the full scoring formulas and math derivations](docs/SCORING_MODEL.md)
+[Read the full scoring formulas and math derivations](docs/SCORING_MODEL.md)
 
 ### 3. "Why This Opportunity?" — The Core Decision Screen
 Every recommendation has an evidence-backed explanation. The marketer can see:
@@ -228,12 +228,12 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 ---
 
 ## Documentation
-- 📖 [User Guide & How-To Walkthrough](docs/USER_GUIDE.md)
-- 📐 [Architecture Overview](docs/ARCHITECTURE.md)
-- 📊 [Scoring Model & Mathematical Derivations](docs/SCORING_MODEL.md)
-- 🤖 [AI Prompts & CO-STAR Framework](docs/AI_PROMPTS.md)
-- 💡 [Product Thinking & Strategy](docs/PRODUCT_THINKING.md)
-- 🗺️ [Future Scope & Architectural Roadmap](docs/FUTURE_SCOPE_ROADMAP.md)
+- [User Guide & How-To Walkthrough](docs/USER_GUIDE.md)
+- [Architecture Overview](docs/ARCHITECTURE.md)
+- [Scoring Model & Mathematical Derivations](docs/SCORING_MODEL.md)
+- [AI Prompts & CO-STAR Framework](docs/AI_PROMPTS.md)
+- [Product Thinking & Strategy](docs/PRODUCT_THINKING.md)
+- [Future Scope & Architectural Roadmap](docs/FUTURE_SCOPE_ROADMAP.md)
 
 ---
 
