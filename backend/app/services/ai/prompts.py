@@ -68,7 +68,7 @@ Do NOT include markdown fences or any text outside the JSON.
       "platform": "Instagram",
       "format": "One of: Carousel, Reel, Static Post",
       "suggested_product_id": "The product ID from the catalog most relevant to this opportunity",
-      "why": "2–3 sentences explaining why this specific opportunity is valuable for this brand RIGHT NOW",
+      "why": "2 crisp, human sentences like a marketing analyst. State key performance and demand facts clearly, then 'Why it matters: [reason]'. Avoid generic phrases like 'This opportunity leverages...'",
       "historical_signal": "A specific insight from the historical post data supporting this opportunity",
       "product_signal": "A specific insight about the suggested product supporting this opportunity",
       "audience_signal": "A specific insight about how this audience has historically engaged",

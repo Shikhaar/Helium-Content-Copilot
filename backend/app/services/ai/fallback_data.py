@@ -22,10 +22,9 @@ FALLBACK_OPPORTUNITIES: list[AIOpportunityRaw] = [
         format="Carousel",
         suggested_product_id="prod_001",
         why=(
-            "Styling carousels have consistently been SNITCH's highest-performing content format, "
-            "generating 2.5× the brand's average engagement rate. The Oversized Linen Shirt is the "
-            "brand's highest-viewed summer product right now, and linen content directly aligns with "
-            "the active Summer 2026 campaign. This is the clearest high-confidence opportunity of the week."
+            "Styling carousels are currently your highest-performing format at 8.4% average engagement. "
+            "The Oversized Linen Shirt is also your highest-demand product with 14.2K views and 1,050 sales. "
+            "Why it matters: It combines a proven format, strong product demand, and your active Summer 2026 campaign."
         ),
         historical_signal=(
             "Styling carousel posts for SNITCH have averaged 8.4% engagement rate "
