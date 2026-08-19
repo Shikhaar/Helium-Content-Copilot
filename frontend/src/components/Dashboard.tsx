@@ -152,7 +152,7 @@ export default function Dashboard({
           {topOpp && (
             <div style={{ marginBottom: 20 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                <div className="label">Your next best opportunity</div>
+                <div className="label">YOUR NEXT BEST OPPORTUNITY</div>
                 <button className="btn-ghost" onClick={onAnalyze} style={{ fontSize: 11, gap: 4 }}>
                   <RefreshCw size={11} /> Re-analyse
                 </button>
@@ -162,8 +162,8 @@ export default function Dashboard({
                 id="hero-opportunity-card"
                 style={{
                   border: '1px solid var(--border)',
-                  borderRadius: 8,
-                  background: 'var(--bg-card)',
+                  borderRadius: 10,
+                  background: 'var(--surface)',
                   cursor: 'pointer',
                   transition: 'border-color 0.15s ease',
                   overflow: 'hidden',
@@ -173,7 +173,7 @@ export default function Dashboard({
                 onMouseLeave={e => (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)'}
               >
                 {/* Card top: format pills + score */}
-                <div style={{ padding: '22px 24px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
+                <div style={{ padding: '20px 24px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                     <span className="badge badge-neutral">{topOpp.format}</span>
                     <span className="badge badge-neutral">{topOpp.platform}</span>
@@ -203,10 +203,10 @@ export default function Dashboard({
                 </div>
 
                 {/* Title — serif */}
-                <div style={{ padding: '14px 24px 0' }}>
+                <div style={{ padding: '8px 24px 0' }}>
                   <h2
                     className="serif-heading"
-                    style={{ fontSize: 24, color: 'var(--text-primary)', marginBottom: 10, maxWidth: 520, lineHeight: 1.3 }}
+                    style={{ fontSize: 24, color: 'var(--text-primary)', marginBottom: 8, maxWidth: 520, lineHeight: 1.3 }}
                   >
                     {topOpp.title}
                   </h2>
@@ -222,7 +222,7 @@ export default function Dashboard({
                 {topOpp.score_breakdown && (
                   <div className="evidence-grid">
                     {[
-                      { main: '8.8%', sub: `${topOpp.format} engagement`, label: 'Historical', score: topOpp.score_breakdown.historical, max: 25 },
+                      { main: '8.8%', sub: 'Reel engagement', label: 'Historical', score: topOpp.score_breakdown.historical, max: 25 },
                       { main: '14.2K', sub: 'Product views', label: 'Product', score: topOpp.score_breakdown.product, max: 25 },
                       { main: '1,050', sub: 'Product sales', label: 'Demand', score: topOpp.score_breakdown.product, max: 25 },
                       { main: brand?.campaign || 'Summer 2026', sub: 'Campaign focus', label: 'Seasonal', score: topOpp.score_breakdown.seasonal, max: 15 },
@@ -243,11 +243,11 @@ export default function Dashboard({
                 )}
 
                 {/* CTA row */}
-                <div style={{ padding: '14px 24px', display: 'flex', justifyContent: 'flex-end' }}>
+                <div style={{ padding: '16px 24px', display: 'flex', justifyContent: 'flex-end' }}>
                   <button
                     className="btn-primary"
                     onClick={e => { e.stopPropagation(); onViewOpportunity(topOpp.id); }}
-                    style={{ fontSize: 13, borderRadius: 6 }}
+                    style={{ fontSize: 13, borderRadius: 8 }}
                   >
                     See why this is recommended →
                   </button>
@@ -259,8 +259,8 @@ export default function Dashboard({
           {/* ── OTHER OPPORTUNITIES ─────────────────────────────────── */}
           {otherOpps.length > 0 && (
             <div>
-              <div className="label" style={{ marginBottom: 12 }}>Other Opportunities</div>
-              <div style={{ border: '1px solid var(--border)', borderRadius: 8, background: 'var(--surface)', overflow: 'hidden' }}>
+              <div className="label" style={{ marginBottom: 12 }}>OTHER OPPORTUNITIES</div>
+              <div style={{ border: '1px solid var(--border)', borderRadius: 10, background: 'var(--surface)', overflow: 'hidden' }}>
                 {otherOpps.map((opp, i) => (
                   <div
                     key={opp.id}

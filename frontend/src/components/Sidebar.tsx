@@ -217,11 +217,11 @@ export default function Sidebar({
           {/* WORKSPACE group */}
           {!isCollapsed && (
             <div style={{
-              fontSize: 9, fontWeight: 700, letterSpacing: '0.1em',
+              fontSize: 9, fontWeight: 700, letterSpacing: '0.08em',
               textTransform: 'uppercase', color: 'var(--text-muted)',
               padding: '0 10px', marginBottom: 6,
             }}>
-              Workspace
+              WORKSPACE
             </div>
           )}
           {workspaceItems.map(({ id, label, icon }) => navItem(id, label, icon))}
@@ -229,11 +229,11 @@ export default function Sidebar({
           {/* BRAND group */}
           {!isCollapsed && (
             <div style={{
-              fontSize: 9, fontWeight: 700, letterSpacing: '0.1em',
+              fontSize: 9, fontWeight: 700, letterSpacing: '0.08em',
               textTransform: 'uppercase', color: 'var(--text-muted)',
               padding: '0 10px', marginTop: 20, marginBottom: 6,
             }}>
-              Brand
+              BRAND
             </div>
           )}
           {isCollapsed && <div style={{ height: 16 }} />}

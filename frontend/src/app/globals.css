@@ -33,7 +33,7 @@ div:has(> [data-next-badge]) {
   /* Brand Chocolate & Accents */
   --brown-primary:   #5A3828;   /* rich chocolate brown primary CTA & emphasis */
   --brown-dark:      #43291D;   /* deep espresso hover & dark text */
-  --brown-soft:      #D9C8B5;   /* active navigation background */
+  --brown-soft:      #D7C4AE;   /* active navigation background */
   --badge-brown:     #E8D9C8;   /* soft brown badge background */
 
   --accent:          var(--brown-primary);
