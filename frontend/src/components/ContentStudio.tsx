@@ -5,19 +5,15 @@ import {
   RefreshCw,
   Check,
   CalendarClock,
-  Edit3,
-  Hash,
   Heart,
   MessageCircle,
   Send,
   Bookmark,
   Music,
   Film,
-  Sparkles,
-  Clock,
-  TrendingUp,
-  ShieldCheck,
+  Plus,
   X,
+  Sparkles,
 } from 'lucide-react';
 import type { ContentDraft, Opportunity, ScheduleRequest } from '../lib/types';
 
@@ -46,410 +42,16 @@ function getSlideImage(slideNum: number) {
   return SLIDE_IMAGES[(slideNum - 1) % SLIDE_IMAGES.length];
 }
 
-const SCENE_ROLES = [
-  'The Hook (0:00 - 0:03)',
-  'Fabric & Story (0:03 - 0:07)',
-  'Styling & Fit (0:07 - 0:11)',
-  'Call to Action (0:11 - 0:15)',
-];
-
-function getOptimalSchedule(
-  platform: string = 'Instagram',
-  audience: string = 'Young Millennial',
-  format: string = 'Reel',
-  scheduledDate?: string | null,
-  scheduledTime?: string | null
-) {
-  if (scheduledDate && scheduledTime) {
-    return {
-      timeText: `${scheduledDate} at ${scheduledTime}`,
-      reason: 'Confirmed on calendar',
-    };
-  }
-
-  const audLower = (audience || '').toLowerCase();
-  const platLower = (platform || '').toLowerCase();
-
-  if (platLower.includes('linkedin')) {
-    return {
-      timeText: 'Tomorrow 9:00 AM IST',
-      reason: 'Peak morning commute / professional feed activity',
-    };
-  }
-
-  if (audLower.includes('gen-z') || audLower.includes('college') || audLower.includes('streetwear')) {
-    return {
-      timeText: 'Tonight 8:30 PM IST',
-      reason: 'Peak Gen-Z evening scroll & lifestyle discovery',
-    };
-  }
-
-  if (audLower.includes('millennial') || audLower.includes('young')) {
-    return {
-      timeText: 'Today 7:30 PM IST',
-      reason: 'Peak post-work browsing & high checkout intent',
-    };
-  }
-
-  return {
-    timeText: 'Tomorrow 6:45 PM IST',
-    reason: 'High discovery & explore page velocity slot',
-  };
-}
-
-function SlidePreview({
-  slide,
-  isActive,
-  onClick,
-}: {
-  slide: { slide_number: number; headline: string; body: string; visual_cue: string };
-  isActive: boolean;
-  onClick: () => void;
-}) {
-  const bgImg = getSlideImage(slide.slide_number);
-  return (
-    <div
-      onClick={onClick}
-      style={{
-        width: 74,
-        height: 74,
-        borderRadius: 10,
-        flexShrink: 0,
-        border: isActive ? '2px solid var(--brown-primary)' : '2px solid var(--border)',
-        boxShadow: isActive ? '0 2px 8px rgba(90, 56, 40, 0.18)' : 'none',
-        position: 'relative',
-        cursor: 'pointer',
-        transition: 'all 0.2s ease',
-        overflow: 'hidden',
-      }}
-    >
-      {/* Background thumbnail */}
-      <img
-        src={bgImg}
-        alt={`Slide ${slide.slide_number}`}
-        style={{
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-          filter: 'brightness(0.65)',
-        }}
-      />
-      {/* Slide number pill */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 4,
-          left: 4,
-          fontSize: 9,
-          fontWeight: 800,
-          color: '#fff',
-          background: isActive ? 'var(--accent)' : 'rgba(0,0,0,0.6)',
-          borderRadius: 4,
-          padding: '1px 5px',
-        }}
-      >
-        {slide.slide_number}
-      </div>
-      {/* Mini headline snippet */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          padding: '3px 4px',
-          background: 'linear-gradient(0deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 100%)',
-          fontSize: 8,
-          color: '#fff',
-          fontWeight: 600,
-          lineHeight: 1.2,
-          overflow: 'hidden',
-          whiteSpace: 'nowrap',
-          textOverflow: 'ellipsis',
-        }}
-      >
-        {slide.headline}
-      </div>
-    </div>
-  );
-}
-
-function BigSlideCard({
-  slide,
-  totalSlides = 4,
-  brandName = 'SNITCH',
-  format = 'Reel',
-}: {
-  slide: { slide_number: number; headline: string; body: string; visual_cue: string };
-  totalSlides?: number;
-  brandName?: string;
-  format?: string;
-}) {
-  const bgImg = getSlideImage(slide.slide_number);
-  const isVideo = format.toLowerCase().includes('reel') || format.toLowerCase().includes('video');
-
-  return (
-    <div
-      className="ig-card"
-      style={{
-        width: 320,
-        aspectRatio: '4/5',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        position: 'relative',
-        overflow: 'hidden',
-        borderRadius: 14,
-        boxShadow: '0 20px 40px rgba(0,0,0,0.45)',
-        border: '1px solid rgba(255,255,255,0.08)',
-      }}
-    >
-      {/* High-res Background Image */}
-      <img
-        src={bgImg}
-        alt={slide.headline}
-        style={{
-          position: 'absolute',
-          inset: 0,
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-          transition: 'transform 0.4s ease',
-        }}
-      />
-
-      {/* Top Scrim Gradient */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '35%',
-          background: 'linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%)',
-          pointerEvents: 'none',
-        }}
-      />
-
-      {/* Bottom Scrim Gradient for Rich Text Legibility */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: '75%',
-          background:
-            'linear-gradient(0deg, rgba(8,8,18,0.98) 0%, rgba(8,8,18,0.85) 45%, rgba(8,8,18,0.3) 80%, rgba(0,0,0,0) 100%)',
-          pointerEvents: 'none',
-        }}
-      />
-
-      {/* Top Bar inside Instagram Frame */}
-      <div
-        style={{
-          position: 'relative',
-          padding: '14px 16px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        {/* Brand & Verified Badge */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span
-            style={{
-              fontSize: 13,
-              fontWeight: 800,
-              color: '#fff',
-              letterSpacing: '0.06em',
-              textShadow: '0 2px 4px rgba(0,0,0,0.6)',
-            }}
-          >
-            {brandName.toUpperCase()}
-          </span>
-          <ShieldCheck size={14} color="#49634A" />
-        </div>
-
-        {/* Slide Counter & Format Pill */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <div
-            style={{
-              fontSize: 10,
-              fontWeight: 700,
-              color: '#fff',
-              background: 'rgba(0,0,0,0.5)',
-              backdropFilter: 'blur(8px)',
-              borderRadius: 20,
-              padding: '3px 8px',
-              border: '1px solid rgba(255,255,255,0.15)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 4,
-            }}
-          >
-            {isVideo ? <Film size={10} /> : null}
-            {slide.slide_number}/{totalSlides}
-          </div>
-        </div>
-      </div>
-
-      {/* Right Floating Instagram Action Strip */}
-      <div
-        style={{
-          position: 'absolute',
-          right: 12,
-          bottom: 120,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: 14,
-          zIndex: 5,
-        }}
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-          <div
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: '50%',
-              background: 'rgba(0,0,0,0.4)',
-              backdropFilter: 'blur(8px)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              border: '1px solid rgba(255,255,255,0.12)',
-            }}
-          >
-            <Heart size={15} color="#fff" />
-          </div>
-          <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.85)' }}>2.8k</span>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-          <div
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: '50%',
-              background: 'rgba(0,0,0,0.4)',
-              backdropFilter: 'blur(8px)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              border: '1px solid rgba(255,255,255,0.12)',
-            }}
-          >
-            <MessageCircle size={15} color="#fff" />
-          </div>
-          <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.85)' }}>142</span>
-        </div>
-
-        <div
-          style={{
-            width: 32,
-            height: 32,
-            borderRadius: '50%',
-            background: 'rgba(0,0,0,0.4)',
-            backdropFilter: 'blur(8px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            border: '1px solid rgba(255,255,255,0.12)',
-          }}
-        >
-          <Send size={14} color="#fff" />
-        </div>
-
-        <div
-          style={{
-            width: 32,
-            height: 32,
-            borderRadius: '50%',
-            background: 'rgba(0,0,0,0.4)',
-            backdropFilter: 'blur(8px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            border: '1px solid rgba(255,255,255,0.12)',
-          }}
-        >
-          <Bookmark size={14} color="#fff" />
-        </div>
-      </div>
-
-      {/* Bottom Content Area */}
-      <div style={{ position: 'relative', padding: '0 18px 18px', zIndex: 4, paddingRight: 56 }}>
-        {/* On-screen text overlay / Headline */}
-        <div
-          style={{
-            fontSize: 18,
-            fontWeight: 800,
-            color: '#ffffff',
-            lineHeight: 1.25,
-            marginBottom: 8,
-            letterSpacing: '-0.01em',
-            textShadow: '0 2px 10px rgba(0,0,0,0.7)',
-          }}
-        >
-          {slide.headline}
-        </div>
-
-        {/* Body Script / VO Narration */}
-        <div
-          style={{
-            fontSize: 12,
-            color: 'rgba(255,255,255,0.85)',
-            lineHeight: 1.5,
-            marginBottom: 10,
-            textShadow: '0 1px 4px rgba(0,0,0,0.8)',
-          }}
-        >
-          {slide.body}
-        </div>
-
-        {/* Visual Cue Pill */}
-        <div
-          style={{
-            fontSize: 10,
-            color: 'rgba(255,255,255,0.65)',
-            background: 'rgba(255,255,255,0.08)',
-            backdropFilter: 'blur(6px)',
-            borderRadius: 6,
-            padding: '5px 8px',
-            border: '1px solid rgba(255,255,255,0.1)',
-            marginBottom: 6,
-            lineHeight: 1.4,
-          }}
-        >
-          📷 {slide.visual_cue}
-        </div>
-
-        {/* Audio / Music Cue */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            fontSize: 10,
-            color: 'var(--accent-light)',
-            fontWeight: 600,
-          }}
-        >
-          <Music size={11} />
-          <span>Trending Audio · Lo-Fi Beats (0:00 - 0:03)</span>
-        </div>
-      </div>
-    </div>
-  );
-}
+const SCENE_NAMES = ['HOOK', 'THE PRODUCT', 'STYLING', 'CTA'];
+const SCENE_TIMINGS = ['0:00 - 0:03', '0:03 - 0:07', '0:07 - 0:11', '0:11 - 0:15'];
+const STANDARD_CTAS = ['Shop the look', 'Learn more', 'View product', 'Save this post'];
 
 function Skeleton() {
   return (
     <div className="page-container">
-      <div className="skeleton" style={{ width: 120, height: 14, marginBottom: 32 }} />
-      <div className="skeleton" style={{ width: 280, height: 24, marginBottom: 12 }} />
-      <div className="skeleton" style={{ width: '100%', height: 380, borderRadius: 8 }} />
+      <div className="skeleton" style={{ width: 140, height: 16, marginBottom: 28 }} />
+      <div className="skeleton" style={{ width: 320, height: 32, marginBottom: 16 }} />
+      <div className="skeleton" style={{ width: '100%', height: 420, borderRadius: 10 }} />
     </div>
   );
 }
@@ -466,514 +68,683 @@ export default function ContentStudio({
   onUpdateDraft,
 }: ContentStudioProps) {
   const [activeSlide, setActiveSlide] = React.useState(0);
-  const [editingCaption, setEditingCaption] = React.useState(false);
   const [caption, setCaption] = React.useState('');
-  const [cta, setCta] = React.useState('');
-  const [editingHashtags, setEditingHashtags] = React.useState(false);
+  const [hook, setHook] = React.useState('');
+  const [cta, setCta] = React.useState('Shop the look');
   const [hashtags, setHashtags] = React.useState<string[]>([]);
-  const [hashtagsInput, setHashtagsInput] = React.useState('');
+  const [newTagInput, setNewTagInput] = React.useState('');
+  const [isAddingTag, setIsAddingTag] = React.useState(false);
   const [showScheduler, setShowScheduler] = React.useState(false);
   const [schedDate, setSchedDate] = React.useState('');
   const [schedTime, setSchedTime] = React.useState('19:00');
-
-  // Slide scene editing
-  const [isEditingSlide, setIsEditingSlide] = React.useState(false);
-  const [slideHeadline, setSlideHeadline] = React.useState('');
-  const [slideBody, setSlideBody] = React.useState('');
-  const [slideVisualCue, setSlideVisualCue] = React.useState('');
+  const [saveToast, setSaveToast] = React.useState(false);
 
   React.useEffect(() => {
     if (draft) {
-      setCaption(draft.caption);
-      setCta(draft.cta);
-      setHashtags(draft.hashtags);
-      setHashtagsInput(draft.hashtags.map(h => (h.startsWith('#') ? h : `#${h}`)).join(' '));
-      if (draft.slides[activeSlide]) {
-        setSlideHeadline(draft.slides[activeSlide].headline);
-        setSlideBody(draft.slides[activeSlide].body);
-        setSlideVisualCue(draft.slides[activeSlide].visual_cue);
+      setCaption(draft.caption || '');
+      setCta(draft.cta || 'Shop the look');
+      setHashtags(draft.hashtags || ['SNITCH', 'SummerStyle', 'LinenShirt', 'Menswear']);
+      if (draft.slides && draft.slides.length > 0) {
+        setHook(draft.slides[0]?.headline || '');
       }
     }
-  }, [draft, activeSlide]);
+  }, [draft]);
 
   if (isGenerating) return <Skeleton />;
   if (!draft) return null;
 
   const isApproved = draft.status === 'approved' || draft.status === 'scheduled';
   const isScheduled = draft.status === 'scheduled';
+  const currentSlide = draft.slides[activeSlide] || draft.slides[0] || {
+    slide_number: 1,
+    headline: hook || 'Summer Layering with Linen',
+    body: 'Lightweight, versatile, and easy to style.',
+    visual_cue: 'Model wearing relaxed fit linen shirt.',
+  };
 
-  const handleSaveCaption = () => {
-    if (editingCaption) {
+  const handleSaveDraft = () => {
+    const updatedSlides = [...draft.slides];
+    if (updatedSlides[0]) {
+      updatedSlides[0] = { ...updatedSlides[0], headline: hook };
+    }
+    if (onUpdateDraft) {
+      onUpdateDraft({ slides: updatedSlides, caption, cta, hashtags });
+    } else if (onUpdateCaption) {
+      onUpdateCaption(caption);
+    }
+    setSaveToast(true);
+    setTimeout(() => setSaveToast(false), 2400);
+  };
+
+  const handleSelectCta = (newCta: string) => {
+    setCta(newCta);
+    if (onUpdateDraft) {
+      onUpdateDraft({ cta: newCta });
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    const updated = hashtags.filter(t => t !== tagToRemove);
+    setHashtags(updated);
+    if (onUpdateDraft) {
+      onUpdateDraft({ hashtags: updated });
+    }
+  };
+
+  const handleAddTag = (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanTag = newTagInput.trim().replace(/^#+/, '');
+    if (cleanTag && !hashtags.includes(cleanTag)) {
+      const updated = [...hashtags, cleanTag];
+      setHashtags(updated);
       if (onUpdateDraft) {
-        onUpdateDraft({ caption, cta });
-      } else if (onUpdateCaption) {
-        onUpdateCaption(caption);
+        onUpdateDraft({ hashtags: updated });
       }
+      setNewTagInput('');
+      setIsAddingTag(false);
     }
-    setEditingCaption(!editingCaption);
   };
 
-  const handleSaveHashtags = () => {
-    if (editingHashtags) {
-      const parsed = hashtagsInput
-        .split(/[\s,]+/)
-        .map(t => t.trim().replace(/^#+/, ''))
-        .filter(Boolean);
-      setHashtags(parsed);
-      if (onUpdateDraft) {
-        onUpdateDraft({ hashtags: parsed });
-      }
-    }
-    setEditingHashtags(!editingHashtags);
-  };
-
-  const handleSaveSlide = () => {
-    if (isEditingSlide && onUpdateDraft) {
-      const updatedSlides = [...draft.slides];
-      updatedSlides[activeSlide] = {
-        ...updatedSlides[activeSlide],
-        headline: slideHeadline,
-        body: slideBody,
-        visual_cue: slideVisualCue,
-      };
-      onUpdateDraft({ slides: updatedSlides });
-    }
-    setIsEditingSlide(!isEditingSlide);
-  };
-
-  const handleSchedule = () => {
+  const handleScheduleConfirm = () => {
     if (!schedDate || !schedTime) return;
     onSchedule({ scheduled_date: schedDate, scheduled_time: schedTime, platform: 'Instagram' });
     setShowScheduler(false);
   };
 
-  const currentRole = SCENE_ROLES[activeSlide] || `Beat ${activeSlide + 1}`;
+  const currentTitle = opportunity?.title || 'Summer Layering with Oversized Linen Shirt';
+  const currentFormat = draft.format || 'Instagram Reel';
+  const bgImg = getSlideImage(activeSlide + 1);
 
   return (
-    <div className="page-container fade-up">
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24, flexWrap: 'wrap' }}>
-        <button className="btn-ghost" onClick={onBack} style={{ padding: '6px 10px' }}>
-          <ArrowLeft size={15} /> Back
+    <div className="page-container fade-up" style={{ maxWidth: 940 }}>
+      {/* ── A. HEADER ──────────────────────────────────────────────── */}
+      <div style={{ marginBottom: 24 }}>
+        <button
+          className="btn-ghost"
+          onClick={onBack}
+          style={{ padding: '4px 0', fontSize: 13, color: 'var(--text-secondary)', marginBottom: 12, display: 'inline-flex', alignItems: 'center', gap: 6 }}
+        >
+          <ArrowLeft size={14} /> Back to opportunities
         </button>
-        <div style={{ height: 16, width: 1, background: 'var(--border)' }} />
-        <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>Content Studio</span>
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-          {draft.is_demo && <div className="demo-banner">DEMO</div>}
-          {isScheduled ? (
-            <span className="badge badge-accent">Scheduled for {draft.scheduled_date}</span>
-          ) : isApproved ? (
-            <span className="badge badge-green">Approved</span>
-          ) : null}
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
+          <div>
+            <div className="label" style={{ marginBottom: 4 }}>Content Studio</div>
+            <h1
+              className="serif-heading"
+              style={{ fontSize: 24, color: 'var(--text-primary)', lineHeight: 1.25, marginBottom: 4 }}
+            >
+              {currentTitle}
+            </h1>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span>{currentFormat}</span>
+              <span>·</span>
+              <span style={{ color: 'var(--green)', fontWeight: 600 }}>High confidence recommendation</span>
+              {draft.is_demo && (
+                <>
+                  <span>·</span>
+                  <span className="demo-banner" style={{ padding: '1px 6px', fontSize: 10 }}>Demo</span>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Header Action Buttons */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            {saveToast && (
+              <span style={{ fontSize: 12, color: 'var(--green)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <Check size={14} /> Saved
+              </span>
+            )}
+            <button className="btn-secondary" onClick={handleSaveDraft} style={{ fontSize: 12, padding: '7px 14px' }}>
+              Save draft
+            </button>
+            {!isApproved && (
+              <button id="approve-btn" className="btn-primary" onClick={onApprove} style={{ fontSize: 12, padding: '7px 16px' }}>
+                <Check size={14} /> Approve & schedule
+              </button>
+            )}
+            {isApproved && !isScheduled && (
+              <button id="schedule-btn" className="btn-primary" onClick={() => setShowScheduler(s => !s)} style={{ fontSize: 12, padding: '7px 16px' }}>
+                <CalendarClock size={14} /> Schedule
+              </button>
+            )}
+            {isScheduled && (
+              <span className="badge badge-accent" style={{ fontSize: 12, padding: '5px 10px' }}>
+                Scheduled for {draft.scheduled_date}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="studio-grid">
-        {/* Left Column: Instagram Preview & Storyboard Strip */}
-        <div>
+      {/* ── B. MAIN CONTENT WORKSPACE (Two-Column Layout) ───────────── */}
+      <div className="studio-grid" style={{ marginBottom: 28, alignItems: 'start' }}>
+        
+        {/* LEFT COLUMN: Large 9:16 Instagram / Reel Preview */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div
-            className="label"
             style={{
-              marginBottom: 14,
+              width: '100%',
+              maxWidth: 330,
+              aspectRatio: '9/16',
+              background: '#191512',
+              borderRadius: 12,
+              border: '1px solid var(--border)',
+              position: 'relative',
+              overflow: 'hidden',
               display: 'flex',
+              flexDirection: 'column',
               justifyContent: 'space-between',
-              alignItems: 'center',
+              boxShadow: '0 8px 24px rgba(33, 25, 20, 0.08)',
             }}
           >
-            <span>Instagram Mockup Preview</span>
-            <span style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'none', fontWeight: 500 }}>
-              {draft.format}
-            </span>
-          </div>
+            {/* Background High-res Asset Image */}
+            <img
+              src={bgImg}
+              alt="Reel scene preview"
+              style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                transition: 'opacity 0.3s ease',
+              }}
+            />
 
-          <BigSlideCard
-            slide={draft.slides[activeSlide]}
-            totalSlides={draft.slides.length}
-            brandName={opportunity?.audience ? 'SNITCH' : 'SNITCH'}
-            format={draft.format}
-          />
+            {/* Top & Bottom Scrim Gradients for rich legibility */}
+            <div
+              style={{
+                position: 'absolute',
+                top: 0, left: 0, right: 0, height: '30%',
+                background: 'linear-gradient(180deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0) 100%)',
+                pointerEvents: 'none',
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                bottom: 0, left: 0, right: 0, height: '65%',
+                background: 'linear-gradient(0deg, rgba(17,14,12,0.95) 0%, rgba(17,14,12,0.7) 45%, rgba(0,0,0,0) 100%)',
+                pointerEvents: 'none',
+              }}
+            />
 
-          {/* Slide strip */}
-          <div style={{ marginTop: 16 }}>
-            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8 }}>
-              Storyboard Frames ({draft.slides.length} scenes)
-            </div>
-            <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4 }}>
-              {draft.slides.map((s, i) => (
-                <SlidePreview
+            {/* Top Scene Progress Segments (4 discrete scene bars) */}
+            <div style={{ position: 'relative', zIndex: 5, padding: '12px 14px 0', display: 'flex', gap: 4 }}>
+              {[0, 1, 2, 3].map(i => (
+                <div
                   key={i}
-                  slide={s}
-                  isActive={i === activeSlide}
-                  onClick={() => {
-                    setActiveSlide(i);
-                    setIsEditingSlide(false);
+                  style={{
+                    flex: 1,
+                    height: 2.5,
+                    borderRadius: 2,
+                    background: i <= activeSlide ? '#FFFFFF' : 'rgba(255,255,255,0.3)',
+                    transition: 'background 0.2s ease',
                   }}
                 />
               ))}
             </div>
+
+            {/* Top Bar inside Instagram Frame */}
+            <div
+              style={{
+                position: 'relative',
+                zIndex: 5,
+                padding: '10px 14px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 12, fontWeight: 800, color: '#FFFFFF', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                  SNITCH
+                </span>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)', display: 'inline-block' }} />
+              </div>
+
+              <div
+                style={{
+                  fontSize: 10,
+                  fontWeight: 600,
+                  color: '#FFFFFF',
+                  background: 'rgba(0,0,0,0.45)',
+                  borderRadius: 4,
+                  padding: '2px 7px',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                }}
+              >
+                Reel · {activeSlide + 1}/4
+              </div>
+            </div>
+
+            {/* Middle On-Screen Headline / Hook Overlay */}
+            <div style={{ position: 'relative', zIndex: 5, padding: '0 20px', textAlign: 'center' }}>
+              <div
+                style={{
+                  fontSize: 18,
+                  fontWeight: 700,
+                  color: '#FFFFFF',
+                  lineHeight: 1.3,
+                  textShadow: '0 2px 8px rgba(0,0,0,0.8)',
+                  marginBottom: 8,
+                }}
+              >
+                {activeSlide === 0 ? hook || currentSlide.headline : currentSlide.headline}
+              </div>
+              {currentSlide.visual_cue && (
+                <div
+                  style={{
+                    display: 'inline-block',
+                    fontSize: 10,
+                    color: 'rgba(255,255,255,0.8)',
+                    background: 'rgba(0,0,0,0.4)',
+                    padding: '3px 8px',
+                    borderRadius: 4,
+                    border: '1px solid rgba(255,255,255,0.15)',
+                  }}
+                >
+                  📷 {currentSlide.visual_cue}
+                </div>
+              )}
+            </div>
+
+            {/* Right Action Bar (Instagram Interaction icons) */}
+            <div
+              style={{
+                position: 'absolute',
+                right: 10,
+                bottom: 95,
+                zIndex: 6,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 12,
+              }}
+            >
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Heart size={14} color="#FFFFFF" />
+                </div>
+                <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.85)', fontWeight: 600 }}>2.8k</span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <MessageCircle size={14} color="#FFFFFF" />
+                </div>
+                <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.85)', fontWeight: 600 }}>142</span>
+              </div>
+              <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Send size={13} color="#FFFFFF" />
+              </div>
+              <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Bookmark size={13} color="#FFFFFF" />
+              </div>
+            </div>
+
+            {/* Bottom Preview Overlay (Narration, Audio & CTA) */}
+            <div style={{ position: 'relative', zIndex: 5, padding: '0 16px 14px', paddingRight: 48 }}>
+              {/* Narration script */}
+              <div
+                style={{
+                  fontSize: 11,
+                  color: 'rgba(255,255,255,0.9)',
+                  lineHeight: 1.4,
+                  marginBottom: 8,
+                  textShadow: '0 1px 4px rgba(0,0,0,0.8)',
+                  maxHeight: 44,
+                  overflow: 'hidden',
+                }}
+              >
+                {currentSlide.body}
+              </div>
+
+              {/* Audio Cue */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10, color: 'rgba(255,255,255,0.75)', marginBottom: 10 }}>
+                <Music size={10} />
+                <span>Trending Audio · Lo-Fi Beats</span>
+              </div>
+
+              {/* CTA Preview pill */}
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  background: 'var(--brown-primary)',
+                  color: '#FFFCF7',
+                  padding: '6px 12px',
+                  borderRadius: 6,
+                  fontSize: 11,
+                  fontWeight: 600,
+                }}
+              >
+                <span>{cta}</span>
+                <span>→</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Right Column: Scene Breakdown, Copy & Strategy */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          {/* Scene / Slide Details Card */}
-          <div className="card" style={{ padding: 22 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-              <div>
-                <div className="label" style={{ marginBottom: 2 }}>
-                  Scene {activeSlide + 1} Storyboard Breakdown
+        {/* RIGHT COLUMN: Content Editing Panel */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div className="card" style={{ padding: 22, background: 'var(--surface)' }}>
+            
+            {/* Metadata Bar */}
+            <div style={{ marginBottom: 18, borderBottom: '1px solid var(--border)', paddingBottom: 14 }}>
+              <div className="label" style={{ marginBottom: 8 }}>CONTENT</div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
+                  Format: <strong style={{ color: 'var(--text-primary)' }}>{currentFormat}</strong>
                 </div>
-                <div style={{ fontSize: 12, color: 'var(--accent)', fontWeight: 600 }}>{currentRole}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
+                  Content angle: <strong style={{ color: 'var(--text-primary)' }}>{opportunity?.content_angle || 'Product styling'}</strong>
+                </div>
               </div>
-              <button className="btn-ghost" onClick={handleSaveSlide} style={{ fontSize: 12 }}>
-                <Edit3 size={12} />
-                {isEditingSlide ? 'Save Scene' : 'Edit Scene'}
-              </button>
             </div>
 
-            {isEditingSlide ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <div>
-                  <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 4 }}>
-                    On-Screen Headline Overlay
-                  </div>
-                  <input
-                    type="text"
-                    value={slideHeadline}
-                    onChange={e => setSlideHeadline(e.target.value)}
-                    style={{
-                      width: '100%',
-                      background: 'var(--bg-card)',
-                      border: '1px solid var(--border-medium)',
-                      borderRadius: 6,
-                      padding: '8px 12px',
-                      color: 'var(--text-primary)',
-                      fontSize: 13,
-                      outline: 'none',
-                    }}
-                  />
-                </div>
-                <div>
-                  <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 4 }}>
-                    Voiceover (VO) Script / Narration
-                  </div>
-                  <textarea
-                    value={slideBody}
-                    onChange={e => setSlideBody(e.target.value)}
-                    style={{
-                      width: '100%',
-                      background: 'var(--bg-card)',
-                      border: '1px solid var(--border-medium)',
-                      borderRadius: 6,
-                      padding: '8px 12px',
-                      color: 'var(--text-primary)',
-                      fontSize: 13,
-                      lineHeight: 1.5,
-                      resize: 'vertical',
-                      minHeight: 70,
-                      outline: 'none',
-                      fontFamily: 'inherit',
-                    }}
-                  />
-                </div>
-                <div>
-                  <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 4 }}>
-                    Visual Cue / Camera Direction
-                  </div>
-                  <input
-                    type="text"
-                    value={slideVisualCue}
-                    onChange={e => setSlideVisualCue(e.target.value)}
-                    style={{
-                      width: '100%',
-                      background: 'var(--bg-card)',
-                      border: '1px solid var(--border-medium)',
-                      borderRadius: 6,
-                      padding: '8px 12px',
-                      color: 'var(--text-primary)',
-                      fontSize: 13,
-                      outline: 'none',
-                    }}
-                  />
-                </div>
+            {/* 1. HOOK Section */}
+            <div style={{ marginBottom: 18 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                <div className="label">HOOK</div>
+                <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{hook.length} characters</span>
               </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <div>
-                  <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 3 }}>
-                    On-Screen Headline Overlay
-                  </div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)' }}>
-                    {draft.slides[activeSlide].headline}
-                  </div>
-                </div>
-
-                <div>
-                  <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 3 }}>
-                    Voiceover (VO) Script / Dialogue
-                  </div>
-                  <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-                    {draft.slides[activeSlide].body}
-                  </div>
-                </div>
-
-                <div
-                  style={{
-                    padding: '10px 14px',
-                    background: 'var(--bg-subtle)',
-                    borderRadius: 6,
-                    border: '1px solid var(--border)',
-                  }}
-                >
-                  <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 3 }}>
-                    Visual / Camera Direction
-                  </div>
-                  <div style={{ fontSize: 12, color: 'var(--accent)', fontStyle: 'italic', lineHeight: 1.4 }}>
-                    {draft.slides[activeSlide].visual_cue}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Caption & CTA Card */}
-          <div className="card" style={{ padding: 22 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <div className="label">Caption & Call-to-Action</div>
-              <button className="btn-ghost" onClick={handleSaveCaption} style={{ fontSize: 12 }}>
-                <Edit3 size={12} />
-                {editingCaption ? 'Save' : 'Edit'}
-              </button>
+              <input
+                type="text"
+                value={hook}
+                onChange={e => setHook(e.target.value)}
+                placeholder="One linen shirt. Three ways to wear it this summer."
+                className="input-field"
+                style={{ fontSize: 13, fontWeight: 500 }}
+              />
             </div>
-            {editingCaption ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <div>
-                  <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 4 }}>Caption</div>
-                  <textarea
-                    value={caption}
-                    onChange={e => setCaption(e.target.value)}
-                    style={{
-                      width: '100%',
-                      background: 'var(--bg-card)',
-                      border: '1px solid var(--border-medium)',
-                      borderRadius: 6,
-                      padding: 12,
-                      color: 'var(--text-primary)',
-                      fontSize: 13,
-                      lineHeight: 1.6,
-                      resize: 'vertical',
-                      minHeight: 100,
-                      outline: 'none',
-                      fontFamily: 'inherit',
-                    }}
-                  />
-                </div>
-                <div>
-                  <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 4 }}>
-                    Call to Action (CTA)
-                  </div>
-                  <input
-                    type="text"
-                    value={cta}
-                    onChange={e => setCta(e.target.value)}
-                    style={{
-                      width: '100%',
-                      background: 'var(--bg-card)',
-                      border: '1px solid var(--border-medium)',
-                      borderRadius: 6,
-                      padding: '10px 12px',
-                      color: 'var(--text-primary)',
-                      fontSize: 13,
-                      outline: 'none',
-                      fontFamily: 'inherit',
-                    }}
-                    placeholder="e.g. Shop now — link in bio 🔗"
-                  />
-                </div>
-              </div>
-            ) : (
-              <div>
-                <p
-                  style={{
-                    fontSize: 13,
-                    color: 'var(--text-secondary)',
-                    lineHeight: 1.7,
-                    margin: 0,
-                    whiteSpace: 'pre-wrap',
-                  }}
-                >
-                  {caption}
-                </p>
-                <div
-                  style={{
-                    marginTop: 12,
-                    padding: '10px 14px',
-                    background: 'var(--accent-subtle)',
-                    borderRadius: 6,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    border: '1px solid var(--accent-border)',
-                  }}
-                >
-                  <span style={{ fontSize: 12, color: 'var(--accent)', fontWeight: 600 }}>CTA:</span>
-                  <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{cta || draft.cta}</span>
-                </div>
-              </div>
-            )}
-          </div>
 
-          {/* Hashtags Card */}
-          <div className="card" style={{ padding: 22 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <div className="label">
-                <Hash size={11} style={{ display: 'inline', marginRight: 4 }} />
-                Hashtags ({hashtags.length})
+            {/* 2. CAPTION Section */}
+            <div style={{ marginBottom: 18 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                <div className="label">CAPTION</div>
+                <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{caption.length} characters</span>
               </div>
-              <button className="btn-ghost" onClick={handleSaveHashtags} style={{ fontSize: 12 }}>
-                <Edit3 size={12} />
-                {editingHashtags ? 'Save' : 'Edit'}
-              </button>
+              <textarea
+                value={caption}
+                onChange={e => setCaption(e.target.value)}
+                className="input-field"
+                style={{ minHeight: 96, lineHeight: 1.6, resize: 'vertical' }}
+                placeholder="One linen shirt, three ways to make it work all summer..."
+              />
             </div>
-            {editingHashtags ? (
-              <div>
-                <textarea
-                  value={hashtagsInput}
-                  onChange={e => setHashtagsInput(e.target.value)}
-                  style={{
-                    width: '100%',
-                    background: 'var(--bg-secondary)',
-                    border: '1px solid var(--border)',
-                    borderRadius: 8,
-                    padding: 12,
-                    color: 'var(--text-primary)',
-                    fontSize: 13,
-                    lineHeight: 1.6,
-                    resize: 'vertical',
-                    minHeight: 70,
-                    outline: 'none',
-                    fontFamily: 'inherit',
-                  }}
-                  placeholder="e.g. #snitch #summer2026 #mensfashion #linen"
-                />
-                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 6 }}>
-                  Separate hashtags with spaces or commas. Click Save to apply.
-                </div>
+
+            {/* 3. CALL TO ACTION Section */}
+            <div style={{ marginBottom: 18 }}>
+              <div className="label" style={{ marginBottom: 8 }}>CALL TO ACTION</div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {STANDARD_CTAS.map(option => {
+                  const isSelected = cta === option;
+                  return (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => handleSelectCta(option)}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: 6,
+                        border: isSelected ? '1px solid var(--brown-primary)' : '1px solid var(--border)',
+                        background: isSelected ? 'var(--surface-subtle)' : 'var(--surface)',
+                        color: isSelected ? 'var(--brown-primary)' : 'var(--text-secondary)',
+                        fontSize: 12,
+                        fontWeight: isSelected ? 600 : 400,
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      {option}
+                    </button>
+                  );
+                })}
               </div>
-            ) : (
-              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                {hashtags.map(h => (
-                  <span key={h} className="badge badge-accent" style={{ fontSize: 12 }}>
-                    {h.startsWith('#') ? h : `#${h}`}
+            </div>
+
+            {/* 4. HASHTAGS Section */}
+            <div style={{ marginBottom: 20 }}>
+              <div className="label" style={{ marginBottom: 8 }}>HASHTAGS ({hashtags.length})</div>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+                {hashtags.map(tag => (
+                  <span
+                    key={tag}
+                    className="badge badge-accent"
+                    style={{ fontSize: 11, padding: '3px 8px', display: 'inline-flex', alignItems: 'center', gap: 5 }}
+                  >
+                    <span>#{tag.replace(/^#/, '')}</span>
+                    <button
+                      onClick={() => handleRemoveTag(tag)}
+                      style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--text-muted)', display: 'flex' }}
+                      title="Remove hashtag"
+                    >
+                      <X size={11} />
+                    </button>
                   </span>
                 ))}
+
+                {isAddingTag ? (
+                  <form onSubmit={handleAddTag} style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                    <input
+                      type="text"
+                      value={newTagInput}
+                      onChange={e => setNewTagInput(e.target.value)}
+                      placeholder="tag"
+                      autoFocus
+                      style={{
+                        width: 75,
+                        padding: '2px 6px',
+                        fontSize: 11,
+                        borderRadius: 4,
+                        border: '1px solid var(--border)',
+                        background: 'var(--surface)',
+                        outline: 'none',
+                      }}
+                    />
+                    <button type="submit" className="btn-ghost" style={{ padding: '2px 6px', fontSize: 11 }}>Add</button>
+                    <button type="button" className="btn-ghost" onClick={() => setIsAddingTag(false)} style={{ padding: '2px' }}>
+                      <X size={12} />
+                    </button>
+                  </form>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setIsAddingTag(true)}
+                    className="btn-ghost"
+                    style={{ fontSize: 11, padding: '3px 8px', border: '1px dashed var(--border)', borderRadius: 4, gap: 3 }}
+                  >
+                    <Plus size={11} /> Add tag
+                  </button>
+                )}
               </div>
-            )}
+            </div>
+
+            {/* 5. WHY THIS WORKS (Content Intelligence) */}
+            <div
+              style={{
+                background: 'var(--surface-subtle)',
+                border: '1px solid var(--border)',
+                borderRadius: 8,
+                padding: '14px 16px',
+              }}
+            >
+              <div className="label-accent" style={{ marginBottom: 4 }}>WHY THIS WORKS</div>
+              <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 10, lineHeight: 1.45 }}>
+                Reels are currently SNITCH's strongest format.
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, borderTop: '1px solid var(--border)', paddingTop: 10 }}>
+                <div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1 }}>8.8%</div>
+                  <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>avg Reel engagement</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1 }}>14.2K</div>
+                  <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>product views</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1 }}>1,050</div>
+                  <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>product sales</div>
+                </div>
+              </div>
+            </div>
+
           </div>
 
-          {/* Opportunity Intelligence Banner */}
-          {(() => {
-            const optimal = getOptimalSchedule(
-              opportunity?.platform || draft.platform,
-              opportunity?.audience || 'Young Millennial',
-              draft.format,
-              draft.scheduled_date,
-              draft.scheduled_time
-            );
-            return (
-              <div
-                style={{
-                  padding: '14px 18px',
-                  background: 'var(--bg-subtle)',
-                  border: '1px solid var(--border)',
-                  borderRadius: 8,
-                }}
-              >
-                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 5 }}>Scheduling Intelligence</div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 3 }}>
-                  {opportunity ? `Score ${opportunity.score}/100` : 'High algorithmic confidence'}
-                </div>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                  Optimal window: <strong style={{ color: 'var(--text-primary)' }}>{optimal.timeText}</strong> · {optimal.reason} · Audience: {opportunity?.audience || 'Young Millennial'}
-                </div>
-              </div>
-            );
-          })()}
-
-          {/* Actions */}
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-            <button className="btn-secondary" onClick={onRegenerate}>
-              <RefreshCw size={14} />
-              Regenerate
+          {/* Action Bar */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <button className="btn-ghost" onClick={onRegenerate} style={{ fontSize: 12, gap: 5 }}>
+              <RefreshCw size={12} /> Regenerate content
             </button>
-            {!isApproved && (
-              <button id="approve-btn" className="btn-primary" onClick={onApprove}>
-                <Check size={14} />
-                Approve Content
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button className="btn-secondary" onClick={handleSaveDraft} style={{ fontSize: 12 }}>
+                Save draft
               </button>
-            )}
-            {isApproved && !isScheduled && (
-              <button id="schedule-btn" className="btn-primary" onClick={() => setShowScheduler(true)}>
-                <CalendarClock size={14} />
-                Schedule Post
-              </button>
-            )}
+              {!isApproved ? (
+                <button id="bottom-approve-btn" className="btn-primary" onClick={onApprove} style={{ fontSize: 12 }}>
+                  <Check size={13} /> Approve
+                </button>
+              ) : (
+                <button id="bottom-schedule-btn" className="btn-primary" onClick={() => setShowScheduler(s => !s)} style={{ fontSize: 12 }}>
+                  <CalendarClock size={13} /> Schedule post
+                </button>
+              )}
+            </div>
           </div>
 
-          {/* Scheduler Popup */}
+          {/* Inline Scheduler Box */}
           {showScheduler && (
-            <div className="card" style={{ padding: 20 }}>
-              <div className="label" style={{ marginBottom: 14 }}>
-                Schedule this post
-              </div>
+            <div className="card" style={{ padding: 18, background: 'var(--surface)' }}>
+              <div className="label" style={{ marginBottom: 12 }}>Schedule post</div>
               <div style={{ display: 'flex', gap: 10, marginBottom: 14 }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 4 }}>Date</div>
+                  <label style={{ fontSize: 11, color: 'var(--text-muted)', display: 'block', marginBottom: 4 }}>Date</label>
                   <input
                     type="date"
                     value={schedDate}
                     onChange={e => setSchedDate(e.target.value)}
-                    style={{
-                      width: '100%',
-                      background: 'var(--bg-card)',
-                      border: '1px solid var(--border-medium)',
-                      borderRadius: 6,
-                      padding: '8px 12px',
-                      color: 'var(--text-primary)',
-                      fontSize: 13,
-                      outline: 'none',
-                    }}
+                    className="input-field"
                   />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 4 }}>Time</div>
+                  <label style={{ fontSize: 11, color: 'var(--text-muted)', display: 'block', marginBottom: 4 }}>Time (IST)</label>
                   <input
                     type="time"
                     value={schedTime}
                     onChange={e => setSchedTime(e.target.value)}
-                    style={{
-                      width: '100%',
-                      background: 'var(--bg-card)',
-                      border: '1px solid var(--border-medium)',
-                      borderRadius: 6,
-                      padding: '8px 12px',
-                      color: 'var(--text-primary)',
-                      fontSize: 13,
-                      outline: 'none',
-                    }}
+                    className="input-field"
                   />
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
-                <button className="btn-primary" onClick={handleSchedule} disabled={!schedDate}>
+                <button className="btn-primary" onClick={handleScheduleConfirm} disabled={!schedDate} style={{ fontSize: 12 }}>
                   Confirm Schedule
                 </button>
-                <button className="btn-secondary" onClick={() => setShowScheduler(false)}>
+                <button className="btn-secondary" onClick={() => setShowScheduler(false)} style={{ fontSize: 12 }}>
                   Cancel
                 </button>
               </div>
             </div>
           )}
+
+        </div>
+      </div>
+
+      {/* ── C. STORYBOARD (Scene Timeline) ─────────────────────────── */}
+      <div style={{ marginTop: 12 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <div className="label">STORYBOARD (0:00 – 0:15)</div>
+          <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Click scene to preview</span>
+        </div>
+
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            gap: 12,
+          }}
+        >
+          {draft.slides.map((slide, i) => {
+            const isSelected = i === activeSlide;
+            const sceneThumb = getSlideImage(i + 1);
+            const roleName = SCENE_NAMES[i] || `SCENE 0${i + 1}`;
+            const timing = SCENE_TIMINGS[i] || '';
+
+            return (
+              <div
+                key={slide.slide_number || i}
+                id={`storyboard-scene-${i + 1}`}
+                onClick={() => setActiveSlide(i)}
+                style={{
+                  border: isSelected ? '1px solid var(--brown-primary)' : '1px solid var(--border)',
+                  borderRadius: 8,
+                  background: isSelected ? 'var(--surface-subtle)' : 'var(--surface)',
+                  padding: '10px 12px',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                  position: 'relative',
+                }}
+              >
+                {/* Scene top label */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <span
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 700,
+                      color: isSelected ? 'var(--brown-primary)' : 'var(--text-muted)',
+                      letterSpacing: '0.04em',
+                    }}
+                  >
+                    0{i + 1} {roleName}
+                  </span>
+                  <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{timing}</span>
+                </div>
+
+                {/* Thumbnail image */}
+                <div
+                  style={{
+                    width: '100%',
+                    height: 58,
+                    borderRadius: 5,
+                    overflow: 'hidden',
+                    marginBottom: 8,
+                    background: '#110F0E',
+                  }}
+                >
+                  <img
+                    src={sceneThumb}
+                    alt={roleName}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      filter: isSelected ? 'brightness(1)' : 'brightness(0.75)',
+                      transition: 'filter 0.2s ease',
+                    }}
+                  />
+                </div>
+
+                {/* Snippet */}
+                <div
+                  style={{
+                    fontSize: 11,
+                    fontWeight: isSelected ? 600 : 400,
+                    color: isSelected ? 'var(--text-primary)' : 'var(--text-secondary)',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    lineHeight: 1.3,
+                  }}
+                  title={i === 0 ? hook || slide.headline : slide.headline}
+                >
+                  {i === 0 ? hook || slide.headline : slide.headline}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
