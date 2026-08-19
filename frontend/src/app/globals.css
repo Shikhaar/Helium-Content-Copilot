@@ -2,7 +2,7 @@
 
 /* ===================================================
    HELIUM CONTENT COPILOT — GLOBAL DESIGN SYSTEM
-   Chocolate Brown × Warm Ivory Fashion Editorial System
+   Rich Chocolate Brown × Warm Cream & Ivory Editorial
    =================================================== */
 
 /* Hide Next.js dev toolbar / badge (floating N indicator) — dev-only artifact */
@@ -17,10 +17,10 @@ div:has(> [data-next-badge]) {
 /* ── Base Design Tokens ──────────────────────────── */
 :root {
   /* Surfaces & Canvas */
-  --background:      #F4F0E9;   /* primary application background */
-  --surface:         #FFFDF9;   /* major content cards, panels, metrics strip */
-  --surface-subtle:  #F1EBE3;   /* subtle card sections, neutral pills */
-  --sidebar:         #F1ECE4;   /* warm, distinct editorial navigation */
+  --background:      #F3EDE4;   /* warm cream main background */
+  --sidebar:         #E8DED0;   /* distinct warm beige sidebar */
+  --surface:         #FFFCF7;   /* ivory card/surface */
+  --surface-subtle:  #E8D9C8;   /* soft brown badge/surface */
 
   /* Aliases for semantic compatibility */
   --bg-primary:      var(--background);
@@ -30,35 +30,36 @@ div:has(> [data-next-badge]) {
   --bg-subtle:       var(--surface-subtle);
   --bg-sidebar:      var(--sidebar);
 
-  /* Brand Browns & Accents */
-  --brown-primary:   #5A4030;   /* chocolate brown primary accent */
-  --brown-dark:      #3B281E;   /* espresso headings, logo, hover */
-  --brown-soft:      #E9DED2;   /* active navigation bg, soft badges, selected */
+  /* Brand Chocolate & Accents */
+  --brown-primary:   #5A3828;   /* rich chocolate brown primary CTA & emphasis */
+  --brown-dark:      #43291D;   /* deep espresso hover & dark text */
+  --brown-soft:      #D9C8B5;   /* active navigation background */
+  --badge-brown:     #E8D9C8;   /* soft brown badge background */
 
   --accent:          var(--brown-primary);
   --accent-hover:    var(--brown-dark);
   --accent-soft:     var(--brown-soft);
-  --accent-subtle:   var(--brown-soft);
-  --accent-border:   #D9CEC2;
+  --accent-subtle:   var(--badge-brown);
+  --accent-border:   #D8C9B8;
 
   /* Borders */
-  --border:          #D9CEC2;   /* primary 1px subtle border */
-  --border-strong:   #C8B9AA;
-  --border-medium:   #C8B9AA;
-  --border-focus:    #968A80;
+  --border:          #D8C9B8;   /* primary 1px subtle border */
+  --border-strong:   #C8B8A6;
+  --border-medium:   #C8B8A6;
+  --border-focus:    #9A8778;
 
   /* Typography */
-  --text-primary:    #201B17;   /* deep espresso / black */
-  --text-secondary:  #6F6258;   /* warm neutral text */
-  --text-muted:      #968A80;   /* muted labels, metadata */
+  --text-primary:    #211914;   /* deep espresso / black */
+  --text-secondary:  #735F52;   /* warm secondary brown/taupe */
+  --text-muted:      #9A8778;   /* muted metadata */
 
   /* Success / High Confidence */
-  --success:         #536653;   /* muted green */
-  --success-soft:    #E7EEE8;   /* success pill background */
-  --green:           #536653;
-  --green-subtle:    #E7EEE8;
-  --green-border:    #BFCEBF;
-  --green-light:     #536653;
+  --success:         #49634A;   /* forest green */
+  --success-soft:    #E7EFE8;   /* success pill background */
+  --green:           #49634A;
+  --green-subtle:    #E7EFE8;
+  --green-border:    #BFCFBF;
+  --green-light:     #49634A;
 
   /* Warning / Moderate */
   --amber:           #8A6A32;
@@ -153,7 +154,7 @@ h1, h2, h3, h4 {
   align-items: center;
   gap: 8px;
   background: var(--brown-primary);
-  color: #FFFFFF;
+  color: #FFFCF7;
   border: none;
   border-radius: 6px;
   padding: 9px 20px;
@@ -214,8 +215,8 @@ h1, h2, h3, h4 {
   transition: all 0.15s ease;
 }
 .btn-ghost:hover {
-  color: var(--brown-dark);
-  background: var(--brown-soft);
+  color: var(--brown-primary);
+  background: var(--badge-brown);
 }
 
 .btn-danger {
@@ -249,13 +250,13 @@ h1, h2, h3, h4 {
   font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.02em;
-  background: var(--surface-subtle);
+  background: var(--badge-brown);
   color: var(--text-secondary);
   border: 1px solid var(--border);
 }
 
 .badge-accent {
-  background: var(--brown-soft);
+  background: var(--badge-brown);
   color: var(--brown-primary);
   border: 1px solid var(--border);
   font-weight: 600;
@@ -275,15 +276,15 @@ h1, h2, h3, h4 {
 }
 
 .badge-neutral {
-  background: var(--surface-subtle);
+  background: var(--badge-brown);
   color: var(--text-secondary);
   border: 1px solid var(--border);
 }
 
-.status-draft     { background: var(--surface-subtle); color: var(--text-muted);     border: 1px solid var(--border); }
-.status-approved  { background: var(--success-soft);   color: var(--success);        border: 1px solid var(--green-border); }
-.status-scheduled { background: var(--brown-soft);     color: var(--brown-primary);  border: 1px solid var(--border); }
-.status-published { background: var(--success-soft);   color: var(--success);        border: 1px solid var(--green-border); }
+.status-draft     { background: var(--badge-brown);  color: var(--text-muted);     border: 1px solid var(--border); }
+.status-approved  { background: var(--success-soft); color: var(--success);        border: 1px solid var(--green-border); }
+.status-scheduled { background: var(--badge-brown);  color: var(--brown-primary);  border: 1px solid var(--border); }
+.status-published { background: var(--success-soft); color: var(--success);        border: 1px solid var(--green-border); }
 
 /* ── Divider ─────────────────────────────────────── */
 .divider {
@@ -296,7 +297,7 @@ h1, h2, h3, h4 {
   font-family: var(--font-sans);
   font-size: 52px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--brown-primary);
   letter-spacing: -0.04em;
   line-height: 1;
 }
@@ -554,7 +555,7 @@ h1, h2, h3, h4 {
     bottom: 0;
     height: 100vh;
     width: 240px !important;
-    box-shadow: 4px 0 32px rgba(32, 27, 23, 0.12);
+    box-shadow: 4px 0 32px rgba(33, 25, 20, 0.12);
     z-index: 200 !important;
   }
   .mobile-drawer-closed { transform: translateX(-100%) !important; }

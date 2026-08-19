@@ -115,8 +115,8 @@ function SlidePreview({
         height: 74,
         borderRadius: 10,
         flexShrink: 0,
-        border: isActive ? '2px solid var(--accent)' : '2px solid var(--border)',
-        boxShadow: isActive ? '0 0 14px rgba(99,102,241,0.35)' : 'none',
+        border: isActive ? '2px solid var(--brown-primary)' : '2px solid var(--border)',
+        boxShadow: isActive ? '0 2px 8px rgba(90, 56, 40, 0.18)' : 'none',
         position: 'relative',
         cursor: 'pointer',
         transition: 'all 0.2s ease',
@@ -268,7 +268,7 @@ function BigSlideCard({
           >
             {brandName.toUpperCase()}
           </span>
-          <ShieldCheck size={14} color="#38bdf8" />
+          <ShieldCheck size={14} color="#49634A" />
         </div>
 
         {/* Slide Counter & Format Pill */}

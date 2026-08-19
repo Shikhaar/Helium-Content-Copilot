@@ -73,7 +73,7 @@ export default function Sidebar({
           borderRadius: 6,
           border: 'none',
           background: isActive ? 'var(--brown-soft)' : 'transparent',
-          color: isActive ? 'var(--brown-dark)' : 'var(--text-secondary)',
+          color: isActive ? 'var(--brown-primary)' : 'var(--text-secondary)',
           fontSize: 13,
           fontWeight: isActive ? 600 : 400,
           cursor: 'pointer',
@@ -85,7 +85,7 @@ export default function Sidebar({
         }}
         onMouseEnter={e => {
           if (!isActive) {
-            (e.currentTarget as HTMLElement).style.background = 'rgba(217, 206, 194, 0.4)';
+            (e.currentTarget as HTMLElement).style.background = 'rgba(217, 200, 181, 0.45)';
             (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)';
           }
         }}

@@ -185,7 +185,7 @@ export default function Dashboard({
                       Recommendation score
                     </div>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, justifyContent: 'flex-end' }}>
-                      <span style={{ fontSize: 32, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.04em', lineHeight: 1 }}>
+                      <span style={{ fontSize: 32, fontWeight: 700, color: 'var(--brown-primary)', letterSpacing: '-0.04em', lineHeight: 1 }}>
                         {topOpp.score}
                       </span>
                       <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>/100</span>
