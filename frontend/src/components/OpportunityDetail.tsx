@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { ArrowLeft, Wand2, BarChart2, Users, Calendar, Target, TrendingUp } from 'lucide-react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import type { Opportunity, Product } from '../lib/types';
 
 interface OpportunityDetailProps {
@@ -10,225 +10,172 @@ interface OpportunityDetailProps {
   onGenerate: () => void;
 }
 
-function ScoreRing({ score }: { score: number }) {
-  const radius = 44;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (score / 100) * circumference;
-  const color = score >= 90 ? '#22c55e' : score >= 75 ? '#f59e0b' : '#6c63ff';
-  const label = score >= 90 ? 'HIGH OPPORTUNITY' : score >= 75 ? 'GOOD OPPORTUNITY' : 'MODERATE';
-
+function ScoreRow({ label, score, max }: { label: string; score: number; max: number }) {
+  const pct = (score / max) * 100;
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-      <div style={{ position: 'relative', width: 110, height: 110 }}>
-        <svg width="110" height="110" style={{ transform: 'rotate(-90deg)' }}>
-          <circle cx="55" cy="55" r={radius} fill="none" stroke="var(--border)" strokeWidth="6" />
-          <circle
-            cx="55" cy="55" r={radius} fill="none" stroke={color} strokeWidth="6"
-            strokeLinecap="round"
-            strokeDasharray={circumference}
-            strokeDashoffset={strokeDashoffset}
-            style={{ transition: 'stroke-dashoffset 1s ease-out' }}
-          />
-        </svg>
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 16,
+      padding: '12px 0',
+      borderBottom: '1px solid var(--border)',
+    }}>
+      <div style={{ flex: 1, fontSize: 13, color: 'var(--text-primary)', fontWeight: 500 }}>{label}</div>
+      <div style={{ width: 120, height: 3, background: 'var(--border)', borderRadius: 2, overflow: 'hidden', flexShrink: 0 }}>
         <div style={{
-          position: 'absolute', inset: 0, display: 'flex',
-          flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        }}>
-          <div style={{ fontSize: 26, fontWeight: 800, color, lineHeight: 1 }}>{score}</div>
-          <div style={{ fontSize: 9, color: 'var(--text-muted)', fontWeight: 600 }}>/100</div>
-        </div>
-      </div>
-      <div style={{
-        display: 'inline-flex', alignItems: 'center', gap: 5,
-        background: score >= 90 ? 'rgba(34,197,94,0.1)' : 'rgba(245,158,11,0.1)',
-        border: `1px solid ${score >= 90 ? 'rgba(34,197,94,0.2)' : 'rgba(245,158,11,0.2)'}`,
-        borderRadius: 6, padding: '4px 10px',
-      }}>
-        <span style={{ width: 6, height: 6, borderRadius: '50%', background: color, display: 'inline-block' }} />
-        <span style={{ fontSize: 10, fontWeight: 700, color, letterSpacing: '0.06em' }}>{label}</span>
-      </div>
-    </div>
-  );
-}
-
-function BreakdownBar({ label, score, max, color }: { label: string; score: number; max: number; color: string }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-      <div style={{ fontSize: 12, color: 'var(--text-secondary)', width: 80, flexShrink: 0 }}>{label}</div>
-      <div style={{ flex: 1, height: 6, background: 'var(--border)', borderRadius: 3, overflow: 'hidden' }}>
-        <div style={{
-          height: '100%', borderRadius: 3,
-          background: color,
-          width: `${(score / max) * 100}%`,
-          transition: 'width 0.8s ease',
+          height: '100%', borderRadius: 2,
+          background: pct >= 90 ? 'var(--green)' : pct >= 70 ? 'var(--accent)' : 'var(--border-focus)',
+          width: `${pct}%`,
+          transition: 'width 0.7s ease',
         }} />
       </div>
-      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', width: 40, textAlign: 'right' }}>
-        {score}/{max}
+      <div style={{
+        fontSize: 13, fontWeight: 700, color: 'var(--text-primary)',
+        width: 50, textAlign: 'right', fontVariantNumeric: 'tabular-nums',
+        letterSpacing: '-0.01em',
+      }}>
+        {score} <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--text-muted)' }}>/ {max}</span>
       </div>
     </div>
   );
 }
 
-function SignalCard({ icon: Icon, title, body, color }: {
-  icon: React.ElementType; title: string; body: string; color: string;
-}) {
+function SignalRow({ title, body }: { title: string; body: string }) {
   return (
     <div className="signal-card">
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-        <Icon size={14} color={color} strokeWidth={2} />
-        <span style={{ fontSize: 11, fontWeight: 600, color, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-          {title}
-        </span>
+      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 5 }}>
+        {title}
       </div>
-      <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, margin: 0 }}>{body}</p>
+      <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.65, margin: 0 }}>{body}</p>
     </div>
   );
 }
 
 export default function OpportunityDetail({ opportunity, product, onBack, onGenerate }: OpportunityDetailProps) {
   const { score_breakdown: bd } = opportunity;
+  const conf     = opportunity.score >= 90 ? 'HIGH-CONFIDENCE OPPORTUNITY' : opportunity.score >= 75 ? 'GOOD-CONFIDENCE OPPORTUNITY' : 'MODERATE OPPORTUNITY';
+  const confColor = opportunity.score >= 90 ? 'var(--green)' : opportunity.score >= 75 ? 'var(--amber)' : 'var(--text-muted)';
 
   return (
     <div className="page-container fade-up">
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28 }}>
-        <button className="btn-ghost" onClick={onBack} style={{ padding: '6px 10px' }}>
-          <ArrowLeft size={15} />
-          Back
+      {/* Back nav */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 32 }}>
+        <button className="btn-ghost" onClick={onBack} style={{ padding: '5px 8px', gap: 5 }}>
+          <ArrowLeft size={14} />
+          Opportunities
         </button>
-        <div style={{ height: 16, width: 1, background: 'var(--border)' }} />
-        <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>Content Opportunity</span>
       </div>
 
-      {/* Hero Section */}
-      <div className="card" style={{ padding: '24px 20px', marginBottom: 24 }}>
-        <div className="hero-card-flex">
-          {/* Left: Score Ring */}
-          <div style={{ flexShrink: 0 }} className="score-animate">
-            <ScoreRing score={opportunity.score} />
-          </div>
+      {/* Header section */}
+      <div style={{ marginBottom: 36 }}>
+        <div className="label" style={{ marginBottom: 12 }}>Why This Opportunity?</div>
 
-          {/* Right: Details */}
-          <div style={{ flex: 1, width: '100%' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, justifyContent: 'inherit' }}>
-              <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600 }}>
-                {opportunity.platform} · {opportunity.format}
-              </span>
-              {opportunity.is_demo && (
-                <div className="demo-banner" style={{ fontSize: 10, padding: '2px 7px' }}>DEMO</div>
-              )}
-            </div>
-            <h1 style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.3, letterSpacing: '-0.02em', marginBottom: 14 }}>
-              {opportunity.title}
-            </h1>
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 18 }}>
-              {[opportunity.audience, opportunity.objective, opportunity.format].map(tag => (
-                <span key={tag} style={{
-                  fontSize: 12, padding: '4px 10px', borderRadius: 6,
-                  background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-                  color: 'var(--text-secondary)',
-                }}>
-                  {tag}
-                </span>
-              ))}
-            </div>
+        <h1
+          className="serif-heading"
+          style={{ fontSize: 32, maxWidth: 560, marginBottom: 16, color: 'var(--text-primary)' }}
+        >
+          {opportunity.title}
+        </h1>
 
-            {/* Confidence */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
-              <div style={{
-                padding: '3px 10px', borderRadius: 6, fontSize: 12, fontWeight: 600,
-                background: 'rgba(108,99,255,0.1)', color: 'var(--accent-light)',
-                border: '1px solid rgba(108,99,255,0.25)',
-              }}>
-                {opportunity.confidence} Confidence
-              </div>
-              <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                Target: {opportunity.audience}
-              </span>
-            </div>
-
-            <button id="generate-content-btn" className="btn-primary" onClick={onGenerate} style={{ fontSize: 14, padding: '11px 24px' }}>
-              <Wand2 size={15} />
-              Generate Content
-            </button>
-          </div>
+        {/* Score block */}
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 10 }}>
+          <span className="score-number score-animate">{opportunity.score}</span>
+          <span style={{ fontSize: 18, color: 'var(--text-muted)', fontWeight: 400 }}>/ 100</span>
         </div>
-      </div>
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.07em', color: confColor, marginBottom: 16 }}>
+          {conf}
+        </div>
 
-      {/* Why This Recommendation */}
-      <div className="card" style={{ padding: '24px 20px', marginBottom: 24 }}>
-        <h2 style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 14 }}>
-          Why this recommendation?
-        </h2>
-        <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: 24 }}>
-          {opportunity.why}
+        {/* Context */}
+        <p style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6, maxWidth: 500 }}>
+          Calculated from {25} historical posts, {8} catalog products, and campaign context for {opportunity.audience}.
         </p>
 
-        {/* 5 signals */}
-        <div className="two-col-responsive">
-          <SignalCard icon={BarChart2} title="Historical Signal" body={opportunity.historical_signal} color="var(--accent-light)" />
-          <SignalCard icon={TrendingUp} title="Product Signal" body={opportunity.product_signal} color="#22c55e" />
-          <SignalCard icon={Users} title="Audience Signal" body={opportunity.audience_signal} color="#f59e0b" />
-          <SignalCard icon={Calendar} title="Seasonal Signal" body={opportunity.seasonal_signal} color="#e879f9" />
-          <SignalCard icon={Target} title="Business Signal" body={opportunity.business_signal} color="#38bdf8" />
+        {/* Format tags */}
+        <div style={{ display: 'flex', gap: 7, marginTop: 14, flexWrap: 'wrap' }}>
+          <span className="badge badge-neutral">{opportunity.format}</span>
+          <span className="badge badge-neutral">{opportunity.platform}</span>
+          <span className="badge badge-neutral">{opportunity.audience}</span>
+          {opportunity.is_demo && <span className="demo-banner">Demo</span>}
         </div>
       </div>
 
-      {/* Score Breakdown */}
-      <div className="card" style={{ padding: 28, marginBottom: 24 }}>
-        <h2 style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 20 }}>
-          Score Breakdown
-        </h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <BreakdownBar label="Historical" score={bd.historical} max={25} color="var(--accent)" />
-          <BreakdownBar label="Product" score={bd.product} max={25} color="#22c55e" />
-          <BreakdownBar label="Audience" score={bd.audience} max={20} color="#f59e0b" />
-          <BreakdownBar label="Seasonal" score={bd.seasonal} max={15} color="#e879f9" />
-          <BreakdownBar label="Objective" score={bd.objective} max={15} color="#38bdf8" />
-          <div style={{ height: 1, background: 'var(--border)', margin: '4px 0' }} />
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>Total</span>
-            <span style={{ fontSize: 20, fontWeight: 800, color: 'var(--accent-light)' }}>
-              {opportunity.score} / 100
-            </span>
+      <div className="divider" style={{ marginBottom: 36 }} />
+
+      {/* Score breakdown */}
+      <div style={{ marginBottom: 36 }}>
+        <div className="label" style={{ marginBottom: 0 }}>Recommendation Score</div>
+        <div style={{ marginTop: 0 }}>
+          <ScoreRow label="Historical Performance" score={bd.historical} max={25} />
+          <ScoreRow label="Product Relevance"      score={bd.product}    max={25} />
+          <ScoreRow label="Audience Fit"           score={bd.audience}   max={20} />
+          <ScoreRow label="Seasonal Alignment"     score={bd.seasonal}   max={15} />
+          <ScoreRow label="Business Objective"     score={bd.objective}  max={15} />
+          {/* Total row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '14px 0' }}>
+            <div style={{ flex: 1, fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>Total</div>
+            <div style={{ width: 120, flexShrink: 0 }} />
+            <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text-primary)', width: 50, textAlign: 'right', letterSpacing: '-0.02em' }}>
+              {opportunity.score} <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--text-muted)' }}>/ 100</span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Product */}
+      <div className="divider" style={{ marginBottom: 36 }} />
+
+      {/* Supporting signals (qualitative) */}
+      <div style={{ marginBottom: 36 }}>
+        <div className="label" style={{ marginBottom: 14 }}>Supporting Signals</div>
+        <div style={{ border: '1px solid var(--border)', borderRadius: 8, background: 'var(--bg-card)', overflow: 'hidden' }}>
+          <SignalRow title="Historical Performance" body={opportunity.historical_signal} />
+          <SignalRow title="Product Demand"         body={opportunity.product_signal} />
+          <SignalRow title="Audience Fit"           body={opportunity.audience_signal} />
+          <SignalRow title="Seasonal Alignment"     body={opportunity.seasonal_signal} />
+          <SignalRow title="Business Objective"     body={opportunity.business_signal} />
+        </div>
+      </div>
+
+      {/* Why summary */}
+      <div style={{
+        background: 'var(--accent-subtle)',
+        border: '1px solid var(--accent-border)',
+        borderRadius: 8, padding: '20px 22px', marginBottom: 36,
+      }}>
+        <div className="label-olive" style={{ marginBottom: 8 }}>Strategic Rationale</div>
+        <p style={{ fontSize: 14, color: 'var(--text-primary)', lineHeight: 1.7, margin: 0 }}>
+          {opportunity.why}
+        </p>
+      </div>
+
+      {/* Suggested product */}
       {product && (
-        <div className="card" style={{ padding: 24 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div>
-              <div className="label" style={{ marginBottom: 6 }}>Suggested Product</div>
-              <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>
+        <div style={{ border: '1px solid var(--border)', borderRadius: 8, background: 'var(--bg-card)', padding: '20px 22px', marginBottom: 36 }}>
+          <div className="label" style={{ marginBottom: 10 }}>Suggested Product</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
+            <div style={{ flex: 1, minWidth: 200 }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4, letterSpacing: '-0.02em' }}>
                 {product.name}
               </div>
-              <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 10 }}>
+              <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 12, lineHeight: 1.6 }}>
                 {product.description}
               </div>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 {product.features.map(f => (
-                  <span key={f} style={{
-                    fontSize: 11, padding: '3px 9px', borderRadius: 4,
-                    background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-                    color: 'var(--text-muted)',
-                  }}>{f}</span>
+                  <span key={f} className="badge badge-neutral" style={{ fontSize: 11 }}>{f}</span>
                 ))}
               </div>
             </div>
-            <div style={{ textAlign: 'right', flexShrink: 0, marginLeft: 20 }}>
-              <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>
+            <div style={{ textAlign: 'right', flexShrink: 0 }}>
+              <div style={{ fontSize: 17, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
                 ₹{product.price_inr.toLocaleString()}
               </div>
               <div style={{
-                fontSize: 11, fontWeight: 600, marginTop: 4,
-                color: product.inventory_status === 'In Stock' ? '#22c55e' : product.inventory_status === 'Low Stock' ? '#f59e0b' : '#ef4444',
+                fontSize: 11, fontWeight: 600, marginTop: 4, letterSpacing: '0.02em',
+                color: product.inventory_status === 'In Stock' ? 'var(--green)'
+                  : product.inventory_status === 'Low Stock' ? 'var(--amber)' : 'var(--red)',
               }}>
                 {product.inventory_status}
               </div>
-              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 8 }}>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 6 }}>
                 {product.views.toLocaleString()} views · {product.sales.toLocaleString()} sales
               </div>
             </div>
@@ -236,10 +183,15 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
         </div>
       )}
 
-      <div style={{ height: 40 }} />
-      <button className="btn-primary" onClick={onGenerate} style={{ fontSize: 15, padding: '13px 32px' }}>
-        <Wand2 size={16} />
-        Generate Content for This Opportunity
+      {/* Primary CTA */}
+      <button
+        id="generate-content-btn"
+        className="btn-primary"
+        onClick={onGenerate}
+        style={{ fontSize: 14, padding: '12px 28px' }}
+      >
+        Generate content
+        <ArrowRight size={15} />
       </button>
     </div>
   );

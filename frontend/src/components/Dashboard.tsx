@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { TrendingUp, FileText, BarChart2, Calendar } from 'lucide-react';
+import { ArrowRight, RefreshCw } from 'lucide-react';
 import type { AnalyzeResponse, Brand, PerformanceSummary } from '../lib/types';
 
 interface DashboardProps {
@@ -15,86 +15,77 @@ interface DashboardProps {
   scheduledCount: number;
 }
 
-function MetricCard({ label, value, icon: Icon, subtitle }: {
-  label: string; value: string | number; icon: React.ElementType; subtitle: string;
-}) {
+function MetricItem({ value, label, sub }: { value: string | number; label: string; sub: string }) {
   return (
-    <div className="card" style={{ padding: '18px 20px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-        <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 500 }}>{label}</span>
-        <div style={{
-          width: 28, height: 28, borderRadius: 6,
-          background: 'var(--accent-subtle)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          <Icon size={14} color="var(--accent-light)" />
-        </div>
-      </div>
-      <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+    <div className="metrics-strip-item">
+      <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.03em', lineHeight: 1 }}>
         {value}
       </div>
-      <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>{subtitle}</div>
+      <div style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-primary)', marginTop: 3 }}>{label}</div>
+      <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>{sub}</div>
     </div>
   );
 }
 
-function ScorePill({ score }: { score: number }) {
-  const color = score >= 90 ? '#22c55e' : score >= 75 ? '#f59e0b' : '#6c63ff';
-  const label = score >= 90 ? 'HIGH' : score >= 75 ? 'GOOD' : 'MODERATE';
+function ScoreDisplay({ score }: { score: number }) {
+  const conf = score >= 90 ? 'High confidence' : score >= 75 ? 'Good confidence' : 'Moderate confidence';
+  const confColor = score >= 90 ? 'var(--green)' : score >= 75 ? 'var(--amber)' : 'var(--text-muted)';
   return (
-    <div style={{
-      display: 'inline-flex', alignItems: 'center', gap: 6,
-      padding: '4px 10px', borderRadius: 6,
-      background: score >= 90 ? 'rgba(34,197,94,0.1)' : 'rgba(245,158,11,0.1)',
-      border: `1px solid ${score >= 90 ? 'rgba(34,197,94,0.25)' : 'rgba(245,158,11,0.25)'}`,
-    }}>
-      <span style={{ fontSize: 13, fontWeight: 800, color }}>{score}</span>
-      <span style={{ fontSize: 9, fontWeight: 700, color, letterSpacing: '0.05em' }}>{label}</span>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
+      <div style={{ textAlign: 'right' }}>
+        <span style={{ fontSize: 40, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.04em', lineHeight: 1 }}>
+          {score}
+        </span>
+        <span style={{ fontSize: 14, color: 'var(--text-muted)', marginLeft: 3 }}>/100</span>
+      </div>
+      <div style={{ fontSize: 11, fontWeight: 600, color: confColor, letterSpacing: '0.02em' }}>{conf}</div>
     </div>
   );
 }
 
-function LoadingStep({ steps, currentStep }: { steps: string[]; currentStep: number }) {
+function AnalyzingState({ brandName, step }: { brandName: string; step: number }) {
+  const steps = [
+    'Reviewing brand context',
+    'Analysing content performance',
+    'Identifying opportunities',
+    'Scoring recommendations',
+    'Finalising results',
+  ];
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxWidth: 380 }}>
-      {steps.map((step, i) => (
-        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{
-            width: 20, height: 20, borderRadius: '50%',
-            background: i < currentStep ? 'var(--accent)' : i === currentStep ? 'var(--accent-subtle)' : 'var(--bg-secondary)',
-            border: `1px solid ${i <= currentStep ? 'var(--accent)' : 'var(--border)'}`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            transition: 'all 0.3s ease',
-          }}>
-            {i < currentStep && <span style={{ fontSize: 10, color: '#fff' }}>✓</span>}
-            {i === currentStep && (
-              <div style={{
-                width: 8, height: 8, borderRadius: '50%', background: 'var(--accent)',
-                animation: 'pulse 1s ease-in-out infinite',
-              }} />
-            )}
-          </div>
-          <span style={{
-            fontSize: 13,
-            color: i <= currentStep ? 'var(--text-primary)' : 'var(--text-muted)',
-            fontWeight: i === currentStep ? 500 : 400,
-            transition: 'color 0.3s ease',
-          }}>
-            {step}
-          </span>
+    <div style={{ padding: '48px 0', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 24 }}>
+      <div>
+        <div style={{ fontSize: 18, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, letterSpacing: '-0.02em' }}>
+          Analysing {brandName}
         </div>
-      ))}
+        <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+          Calculated from {25} historical posts and {8} catalog products
+        </div>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 380 }}>
+        {steps.map((s, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{
+              width: 18, height: 18, borderRadius: '50%', flexShrink: 0,
+              background: i < step ? 'var(--green)' : i === step ? 'var(--accent-subtle)' : 'var(--bg-subtle)',
+              border: `1px solid ${i < step ? 'var(--green)' : i === step ? 'var(--accent-border)' : 'var(--border)'}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.3s ease',
+            }}>
+              {i < step && <span style={{ fontSize: 9, color: '#fff', fontWeight: 700 }}>✓</span>}
+              {i === step && <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)' }} />}
+            </div>
+            <span style={{
+              fontSize: 13, color: i <= step ? 'var(--text-primary)' : 'var(--text-muted)',
+              fontWeight: i === step ? 500 : 400, transition: 'color 0.3s ease',
+            }}>
+              {s}
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
-
-const LOADING_STEPS = [
-  'Reviewing brand context...',
-  'Analysing recent content performance...',
-  'Identifying content opportunities...',
-  'Scoring opportunities...',
-  'Building your recommendations...',
-];
 
 export default function Dashboard({
   brand, productsCount, performance, analyzeResult, isAnalyzing, onAnalyze, onViewOpportunity, onViewCalendar, scheduledCount,
@@ -104,141 +95,237 @@ export default function Dashboard({
   React.useEffect(() => {
     if (!isAnalyzing) { setLoadingStep(0); return; }
     let step = 0;
-    const interval = setInterval(() => {
+    const iv = setInterval(() => {
       step++;
-      if (step < LOADING_STEPS.length - 1) setLoadingStep(step);
-      else clearInterval(interval);
-    }, 800);
-    return () => clearInterval(interval);
+      if (step < 4) setLoadingStep(step);
+      else clearInterval(iv);
+    }, 750);
+    return () => clearInterval(iv);
   }, [isAnalyzing]);
 
-  const [greeting, setGreeting] = React.useState('Good morning');
-
-  React.useEffect(() => {
-    const hour = new Date().getHours();
-    if (hour >= 5 && hour < 12) setGreeting('Good morning');
-    else if (hour >= 12 && hour < 17) setGreeting('Good afternoon');
-    else if (hour >= 17 && hour < 22) setGreeting('Good evening');
-    else setGreeting('Good night');
-  }, []);
+  const brandName = brand?.name || 'SNITCH';
+  const topOpp = analyzeResult?.opportunities[0];
+  const otherOpps = analyzeResult?.opportunities.slice(1) || [];
 
   return (
     <div className="page-container">
-      {/* Header */}
-      <div style={{ marginBottom: 32 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8, flexWrap: 'wrap', gap: 10 }}>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
-            {greeting}, Shikhar. <span className="waving-hand">👋</span>
-          </h1>
-          {analyzeResult?.is_demo && (
-            <div className="demo-banner">
-              <span style={{ fontSize: 10 }}>●</span>
-              Demo mode · No API key configured
-            </div>
-          )}
-        </div>
-        <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-          Here's what your AI Content Copilot recommends for this week.
+      {/* Page Header */}
+      <div style={{ marginBottom: 28 }}>
+        <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em', marginBottom: 4 }}>
+          What should {brandName} post next?
+        </h1>
+        <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+          Your strongest content opportunities based on performance, product demand, audience fit, and campaign context.
         </p>
       </div>
 
-      {/* Metrics */}
-      <div className="metrics-grid">
-        <MetricCard label="Products" value={productsCount ?? 8} icon={TrendingUp} subtitle="In catalog" />
-        <MetricCard label="Historical Posts" value={performance?.total_posts ?? 25} icon={FileText} subtitle="Analysed" />
-        <MetricCard
-          label="Avg Engagement"
-          value={performance ? `${performance.brand_avg_engagement_rate.toFixed(1)}%` : '4.8%'}
-          icon={BarChart2}
-          subtitle="Feed posts"
+      {/* Metrics Strip */}
+      <div className="metrics-strip">
+        <MetricItem
+          value={productsCount ?? 8}
+          label="Products"
+          sub="In catalog"
         />
-        <MetricCard label="Scheduled" value={scheduledCount} icon={Calendar} subtitle="This week" />
+        <MetricItem
+          value={performance?.total_posts ?? 25}
+          label="Historical Posts"
+          sub="Analysed"
+        />
+        <MetricItem
+          value={performance ? `${performance.brand_avg_engagement_rate.toFixed(1)}%` : '4.8%'}
+          label="Avg Engagement"
+          sub="Feed posts"
+        />
+        <MetricItem
+          value={scheduledCount}
+          label="Scheduled"
+          sub="This week"
+        />
       </div>
 
-      {/* Main CTA */}
-      <div className="card" style={{ padding: '28px 24px', marginBottom: 32 }}>
-        {!analyzeResult && !isAnalyzing ? (
-          <div>
-            <h2 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8, letterSpacing: '-0.01em' }}>
-              What should {brand?.name || 'SNITCH'} post next?
-            </h2>
-            <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 28, lineHeight: 1.6, maxWidth: 520 }}>
-              We've analysed your products, audience, and recent content performance.
-              Click below to see your top content opportunities — ranked by potential impact.
-            </p>
-            <div style={{ display: 'flex', gap: 12 }}>
-              <button id="find-opportunities-btn" className="btn-primary" onClick={onAnalyze} style={{ fontSize: 15, padding: '12px 28px' }}>
-                Find Content Opportunities
-              </button>
-              <button className="btn-secondary" onClick={onViewCalendar}>
-                <Calendar size={15} />
-                View Calendar
-              </button>
-            </div>
+      {/* Demo mode badge */}
+      {analyzeResult?.is_demo && (
+        <div style={{ marginBottom: 20 }}>
+          <span className="demo-banner">Demo mode · No API key configured</span>
+        </div>
+      )}
+
+      {/* Main Content Area */}
+      {!analyzeResult && !isAnalyzing ? (
+        /* Empty state — CTA to analyse */
+        <div style={{
+          border: '1px solid var(--border)',
+          borderRadius: 8,
+          padding: '40px 36px',
+          background: 'var(--bg-card)',
+        }}>
+          <div className="label" style={{ marginBottom: 12 }}>Content Intelligence</div>
+          <h2 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em', marginBottom: 8 }}>
+            Find your next best opportunity
+          </h2>
+          <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.65, maxWidth: 480, marginBottom: 28 }}>
+            We'll analyse your products, historical post performance, audience signals, and campaign context to surface the
+            strongest content opportunities — ranked by their calculated impact score.
+          </p>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            <button id="find-opportunities-btn" className="btn-primary" onClick={onAnalyze} style={{ fontSize: 13, padding: '10px 22px' }}>
+              Find Content Opportunities
+            </button>
+            <button className="btn-secondary" onClick={onViewCalendar}>
+              View Calendar
+            </button>
           </div>
-        ) : isAnalyzing ? (
-          <div>
-            <h2 style={{ fontSize: 18, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 24 }}>
-              Analysing {brand?.name || 'SNITCH'}...
-            </h2>
-            <LoadingStep steps={LOADING_STEPS} currentStep={loadingStep} />
+          <div style={{ marginTop: 24, fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.6 }}>
+            Calculated from {performance?.total_posts ?? 25} historical posts · {productsCount ?? 8} catalog products
           </div>
-        ) : (
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-              <h2 style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>
-                Your Top Content Opportunities
-              </h2>
-              <button className="btn-ghost" onClick={onAnalyze} style={{ fontSize: 12 }}>
-                Refresh ↺
-              </button>
-            </div>
-            <div className="stagger" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {analyzeResult?.opportunities.map((opp, i) => (
-                <div
-                  key={opp.id}
-                  id={`opportunity-card-${i}`}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 16,
-                    padding: '16px 18px',
-                    background: 'var(--bg-secondary)',
-                    border: '1px solid var(--border)',
-                    borderRadius: 10, cursor: 'pointer',
-                    transition: 'all 0.15s ease',
-                  }}
-                  onClick={() => onViewOpportunity(opp.id)}
-                  onMouseEnter={e => {
-                    (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent-border)';
-                    (e.currentTarget as HTMLElement).style.background = 'var(--bg-card-hover)';
-                  }}
-                  onMouseLeave={e => {
-                    (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
-                    (e.currentTarget as HTMLElement).style.background = 'var(--bg-secondary)';
-                  }}
-                >
-                  <div style={{
-                    width: 32, height: 32, borderRadius: 8, background: 'var(--accent-subtle)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 14, fontWeight: 700, color: 'var(--accent-light)', flexShrink: 0,
-                  }}>
-                    {i + 1}
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 3 }}>
-                      {opp.title}
+        </div>
+      ) : isAnalyzing ? (
+        <div style={{ border: '1px solid var(--border)', borderRadius: 8, padding: '32px 36px', background: 'var(--bg-card)' }}>
+          <AnalyzingState brandName={brandName} step={loadingStep} />
+        </div>
+      ) : (
+        <>
+          {/* Hero Opportunity */}
+          {topOpp && (
+            <div style={{ marginBottom: 24 }}>
+              <div className="label" style={{ marginBottom: 14 }}>Your Next Best Opportunity</div>
+              <div
+                style={{
+                  border: '1px solid var(--border)',
+                  borderRadius: 8,
+                  padding: '28px 28px 24px',
+                  background: 'var(--bg-card)',
+                  cursor: 'pointer',
+                  transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
+                }}
+                onClick={() => onViewOpportunity(topOpp.id)}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-medium)';
+                  (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 12px rgba(24,23,20,0.06)';
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
+                  (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+                }}
+                id="hero-opportunity-card"
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 20, flexWrap: 'wrap' }}>
+                  <div style={{ flex: 1, minWidth: 200 }}>
+                    {/* Format pills */}
+                    <div style={{ display: 'flex', gap: 6, marginBottom: 14, flexWrap: 'wrap' }}>
+                      <span className="badge badge-neutral">{topOpp.format}</span>
+                      <span className="badge badge-neutral">{topOpp.platform}</span>
                     </div>
-                    <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                      {opp.platform} · {opp.format} · {opp.audience}
+                    <h2
+                      className="serif-heading"
+                      style={{ fontSize: 26, fontWeight: 500, color: 'var(--text-primary)', marginBottom: 12, maxWidth: 480 }}
+                    >
+                      {topOpp.title}
+                    </h2>
+                    <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 20, maxWidth: 440 }}>
+                      {topOpp.why}
+                    </p>
+                    {/* Key stats */}
+                    <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', marginBottom: 24 }}>
+                      {topOpp.score_breakdown && (
+                        <>
+                          <div>
+                            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 2 }}>Historical signal</div>
+                            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--green)' }}>
+                              {topOpp.score_breakdown.historical}/{25} pts
+                            </div>
+                          </div>
+                          <div>
+                            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 2 }}>Product signal</div>
+                            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--accent)' }}>
+                              {topOpp.score_breakdown.product}/{25} pts
+                            </div>
+                          </div>
+                          <div>
+                            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 2 }}>Audience fit</div>
+                            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>
+                              {topOpp.score_breakdown.audience}/{20} pts
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </div>
+                    <button
+                      className="btn-primary"
+                      onClick={e => { e.stopPropagation(); onViewOpportunity(topOpp.id); }}
+                      style={{ fontSize: 13, padding: '9px 20px' }}
+                    >
+                      See why this is recommended
+                      <ArrowRight size={14} />
+                    </button>
                   </div>
-                  <ScorePill score={opp.score} />
-                  <div style={{ fontSize: 18, color: 'var(--text-muted)' }}>›</div>
+                  <ScoreDisplay score={topOpp.score} />
                 </div>
-              ))}
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+
+          {/* Other Opportunities */}
+          {otherOpps.length > 0 && (
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                <div className="label">Other Opportunities</div>
+                <button className="btn-ghost" onClick={onAnalyze} style={{ fontSize: 12, gap: 4 }}>
+                  <RefreshCw size={12} /> Re-analyse
+                </button>
+              </div>
+              <div style={{ border: '1px solid var(--border)', borderRadius: 8, background: 'var(--bg-card)', overflow: 'hidden' }}>
+                {otherOpps.map((opp, i) => (
+                  <div
+                    key={opp.id}
+                    id={`opportunity-row-${i + 2}`}
+                    onClick={() => onViewOpportunity(opp.id)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 16,
+                      padding: '14px 20px',
+                      borderBottom: i < otherOpps.length - 1 ? '1px solid var(--border)' : 'none',
+                      cursor: 'pointer',
+                      transition: 'background 0.12s ease',
+                    }}
+                    onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--bg-subtle)'}
+                    onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
+                  >
+                    {/* Rank */}
+                    <div style={{
+                      fontSize: 12, fontWeight: 700, color: 'var(--text-muted)',
+                      width: 24, flexShrink: 0, fontVariantNumeric: 'tabular-nums',
+                    }}>
+                      {String(i + 2).padStart(2, '0')}
+                    </div>
+                    {/* Title + tags */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, letterSpacing: '-0.01em' }}>
+                        {opp.title}
+                      </div>
+                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                        <span className="badge badge-neutral" style={{ fontSize: 10 }}>{opp.format}</span>
+                        <span className="badge badge-neutral" style={{ fontSize: 10 }}>{opp.platform}</span>
+                      </div>
+                    </div>
+                    {/* Score */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+                      <div style={{ textAlign: 'right' }}>
+                        <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+                          {opp.score}
+                        </span>
+                        <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 2 }}>/100</span>
+                      </div>
+                      <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>View →</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

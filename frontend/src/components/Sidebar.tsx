@@ -20,12 +20,17 @@ interface SidebarProps {
   onCloseMobile?: () => void;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
+  brandName?: string;
+  campaign?: string;
 }
 
-const navItems = [
+const workspaceItems = [
   { id: 'opportunities' as Tab, label: 'Opportunities', icon: Lightbulb },
-  { id: 'create' as Tab, label: 'Content Studio', icon: Wand2 },
-  { id: 'calendar' as Tab, label: 'Calendar', icon: Calendar },
+  { id: 'create'        as Tab, label: 'Content Studio', icon: Wand2 },
+  { id: 'calendar'      as Tab, label: 'Calendar',        icon: Calendar },
+];
+
+const brandItems = [
   { id: 'brand' as Tab, label: 'Brand & Catalog', icon: Building2 },
 ];
 
@@ -37,6 +42,8 @@ export default function Sidebar({
   onCloseMobile,
   isCollapsed = false,
   onToggleCollapse,
+  brandName = 'SNITCH',
+  campaign = 'Summer 2026',
 }: SidebarProps) {
   const handleItemClick = (id: Tab) => {
     onTabChange(id);
@@ -48,18 +55,68 @@ export default function Sidebar({
     if (onCloseMobile) onCloseMobile();
   };
 
+  const navItem = (id: Tab, label: string, Icon: React.ElementType) => {
+    const isActive = activeTab === id;
+    return (
+      <button
+        key={id}
+        id={`nav-${id}`}
+        onClick={() => handleItemClick(id)}
+        title={isCollapsed ? label : undefined}
+        style={{
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: isCollapsed ? 'center' : 'flex-start',
+          gap: isCollapsed ? 0 : 9,
+          padding: isCollapsed ? '9px 0' : '8px 10px',
+          borderRadius: 6,
+          border: 'none',
+          background: isActive ? 'var(--accent-subtle)' : 'transparent',
+          color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
+          fontSize: 13,
+          fontWeight: isActive ? 600 : 400,
+          cursor: 'pointer',
+          transition: 'background 0.15s ease, color 0.15s ease',
+          marginBottom: 2,
+          textAlign: 'left',
+          fontFamily: 'var(--font-sans)',
+          letterSpacing: '-0.01em',
+        }}
+        onMouseEnter={e => {
+          if (!isActive) {
+            (e.currentTarget as HTMLElement).style.background = 'var(--bg-subtle)';
+            (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)';
+          }
+        }}
+        onMouseLeave={e => {
+          if (!isActive) {
+            (e.currentTarget as HTMLElement).style.background = 'transparent';
+            (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)';
+          }
+        }}
+      >
+        <Icon
+          size={15}
+          strokeWidth={isActive ? 2 : 1.6}
+          style={{ flexShrink: 0, color: isActive ? 'var(--accent)' : 'inherit' }}
+        />
+        {!isCollapsed && <span>{label}</span>}
+      </button>
+    );
+  };
+
   return (
     <>
-      {/* Mobile Backdrop Overlay */}
+      {/* Mobile Backdrop */}
       {isMobileOpen && (
         <div
           onClick={onCloseMobile}
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(0,0,0,0.7)',
-            backdropFilter: 'blur(4px)',
-            zIndex: 99,
+            background: 'rgba(24, 23, 20, 0.5)',
+            zIndex: 199,
           }}
           className="mobile-only"
         />
@@ -67,23 +124,22 @@ export default function Sidebar({
 
       <aside
         style={{
-          width: isCollapsed ? 68 : 220,
+          width: isCollapsed ? 60 : 220,
           minHeight: '100vh',
-          background: 'var(--bg-secondary)',
+          background: 'var(--bg-card)',
           borderRight: '1px solid var(--border)',
           display: 'flex',
           flexDirection: 'column',
-          padding: '0',
           flexShrink: 0,
           transition: 'width 0.2s ease, transform 0.25s ease',
           zIndex: 100,
         }}
         className={`sidebar-container ${isMobileOpen ? 'mobile-drawer-open' : 'mobile-drawer-closed'}`}
       >
-        {/* Logo & Header */}
+        {/* Logo */}
         <div
           style={{
-            padding: isCollapsed ? '18px 12px' : '20px 16px 18px',
+            padding: isCollapsed ? '18px 0' : '18px 16px 16px',
             borderBottom: '1px solid var(--border)',
             display: 'flex',
             alignItems: 'center',
@@ -100,119 +156,91 @@ export default function Sidebar({
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              padding: '4px',
-              borderRadius: 8,
-              transition: 'background 0.15s ease',
+              padding: '2px',
+              borderRadius: 6,
               overflow: 'hidden',
             }}
-            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.04)')}
-            onMouseLeave={e => (e.currentTarget.style.background = 'none')}
           >
-            {/* Brand mark — stylised H letterform */}
-            <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-              <rect width="30" height="30" rx="7" fill="url(#logoGrad)" />
-              <rect x="7" y="7" width="4" height="16" rx="1.5" fill="white" />
-              <rect x="19" y="7" width="4" height="16" rx="1.5" fill="white" />
-              <rect x="7" y="12.5" width="16" height="3.5" rx="1.5" fill="white" fillOpacity="0.85" />
-              <circle cx="23" cy="8.5" r="2.5" fill="#a78bfa" />
-              <defs>
-                <linearGradient id="logoGrad" x1="0" y1="0" x2="30" y2="30" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="#6c63ff" />
-                  <stop offset="1" stopColor="#4f46e5" />
-                </linearGradient>
-              </defs>
-            </svg>
+            {/* H mark — clean dark square */}
+            <div style={{
+              width: 28, height: 28, borderRadius: 6,
+              background: 'var(--text-primary)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+            }}>
+              <span style={{
+                fontFamily: 'var(--font-sans)',
+                fontSize: 13, fontWeight: 800,
+                color: 'var(--bg-primary)',
+                letterSpacing: '-0.04em',
+              }}>H</span>
+            </div>
             {!isCollapsed && (
-              <div style={{ textAlign: 'left', minWidth: 110 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.01em', lineHeight: 1.2 }}>
+              <div style={{ textAlign: 'left' }}>
+                <div style={{
+                  fontSize: 12, fontWeight: 700,
+                  color: 'var(--text-primary)',
+                  letterSpacing: '-0.01em', lineHeight: 1.2,
+                }}>HELIUM</div>
+                <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 1 }}>
                   Content Copilot
-                </div>
-                <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>
-                  by Helium
                 </div>
               </div>
             )}
           </button>
 
-          {/* Mobile Close Button (X) */}
+          {/* Mobile Close */}
           {onCloseMobile && (
             <button
               onClick={onCloseMobile}
               className="mobile-only"
               style={{
-                background: 'none',
-                border: 'none',
-                color: 'var(--text-secondary)',
-                cursor: 'pointer',
-                padding: '6px',
-                borderRadius: 6,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                background: 'none', border: 'none',
+                color: 'var(--text-muted)', cursor: 'pointer',
+                padding: '5px', borderRadius: 5,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}
-              title="Close menu"
             >
-              <X size={18} />
+              <X size={16} />
             </button>
           )}
         </div>
 
-        {/* Navigation Items */}
-        <nav style={{ padding: isCollapsed ? '12px 6px' : '12px 10px', flex: 1 }}>
-          {navItems.map(({ id, label, icon: Icon }) => {
-            const isActive = activeTab === id;
-            return (
-              <button
-                key={id}
-                id={`nav-${id}`}
-                onClick={() => handleItemClick(id)}
-                title={isCollapsed ? label : undefined}
-                style={{
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: isCollapsed ? 'center' : 'flex-start',
-                  gap: isCollapsed ? 0 : 10,
-                  padding: isCollapsed ? '10px 0' : '9px 12px',
-                  borderRadius: 8,
-                  border: 'none',
-                  background: isActive ? 'var(--accent-subtle)' : 'transparent',
-                  color: isActive ? 'var(--accent-light)' : 'var(--text-secondary)',
-                  fontSize: 13,
-                  fontWeight: isActive ? 600 : 400,
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease',
-                  marginBottom: 4,
-                  textAlign: 'left',
-                }}
-                onMouseEnter={e => {
-                  if (!isActive) {
-                    (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)';
-                    (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)';
-                  }
-                }}
-                onMouseLeave={e => {
-                  if (!isActive) {
-                    (e.currentTarget as HTMLElement).style.background = 'transparent';
-                    (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)';
-                  }
-                }}
-              >
-                <Icon size={16} strokeWidth={isActive ? 2.2 : 1.8} style={{ flexShrink: 0 }} />
-                {!isCollapsed && <span>{label}</span>}
-              </button>
-            );
-          })}
+        {/* Navigation */}
+        <nav style={{ padding: isCollapsed ? '14px 6px' : '14px 10px', flex: 1 }}>
+          {/* WORKSPACE group */}
+          {!isCollapsed && (
+            <div style={{
+              fontSize: 9, fontWeight: 700, letterSpacing: '0.1em',
+              textTransform: 'uppercase', color: 'var(--text-muted)',
+              padding: '0 10px', marginBottom: 6,
+            }}>
+              Workspace
+            </div>
+          )}
+          {workspaceItems.map(({ id, label, icon }) => navItem(id, label, icon))}
+
+          {/* BRAND group */}
+          {!isCollapsed && (
+            <div style={{
+              fontSize: 9, fontWeight: 700, letterSpacing: '0.1em',
+              textTransform: 'uppercase', color: 'var(--text-muted)',
+              padding: '0 10px', marginTop: 20, marginBottom: 6,
+            }}>
+              Brand
+            </div>
+          )}
+          {isCollapsed && <div style={{ height: 16 }} />}
+          {brandItems.map(({ id, label, icon }) => navItem(id, label, icon))}
         </nav>
 
-        {/* Desktop Collapse / Expand Toggle Button */}
+        {/* Desktop Collapse Toggle */}
         {onToggleCollapse && (
           <div
             className="desktop-only"
             style={{
-              padding: '10px 12px',
+              padding: '8px 10px',
               borderTop: '1px solid var(--border)',
-              display: 'flex',
               justifyContent: isCollapsed ? 'center' : 'flex-end',
             }}
           >
@@ -220,30 +248,25 @@ export default function Sidebar({
               onClick={onToggleCollapse}
               title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                background: 'none',
-                border: 'none',
-                color: 'var(--text-muted)',
-                cursor: 'pointer',
-                padding: '6px 8px',
-                borderRadius: 6,
-                fontSize: 11,
+                display: 'flex', alignItems: 'center', gap: 5,
+                background: 'none', border: 'none',
+                color: 'var(--text-muted)', cursor: 'pointer',
+                padding: '5px 7px', borderRadius: 5,
+                fontSize: 11, fontFamily: 'var(--font-sans)',
                 transition: 'all 0.15s ease',
               }}
               onMouseEnter={e => {
                 e.currentTarget.style.color = 'var(--text-primary)';
-                e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                e.currentTarget.style.background = 'var(--bg-subtle)';
               }}
               onMouseLeave={e => {
                 e.currentTarget.style.color = 'var(--text-muted)';
                 e.currentTarget.style.background = 'none';
               }}
             >
-              {isCollapsed ? <PanelLeft size={16} /> : (
+              {isCollapsed ? <PanelLeft size={14} /> : (
                 <>
-                  <PanelLeftClose size={14} />
+                  <PanelLeftClose size={13} />
                   <span>Collapse</span>
                 </>
               )}
@@ -251,13 +274,38 @@ export default function Sidebar({
           </div>
         )}
 
-        {/* Footer info (when expanded) */}
+        {/* Brand Selector Footer */}
         {!isCollapsed && (
-          <div style={{ padding: '14px 16px', borderTop: '1px solid var(--border)' }}>
-            <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.5 }}>
-              SNITCH concept demo
-              <br />
-              Not affiliated with SNITCH™
+          <div style={{
+            padding: '12px 14px',
+            borderTop: '1px solid var(--border)',
+          }}>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 9,
+              padding: '8px 10px',
+              background: 'var(--bg-subtle)',
+              borderRadius: 6,
+              border: '1px solid var(--border)',
+            }}>
+              {/* Brand initial */}
+              <div style={{
+                width: 26, height: 26, borderRadius: 5,
+                background: 'var(--accent-subtle)',
+                border: '1px solid var(--accent-border)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 10, fontWeight: 700, color: 'var(--accent)',
+                flexShrink: 0,
+              }}>
+                {brandName.charAt(0)}
+              </div>
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>
+                  {brandName}
+                </div>
+                <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 1 }}>
+                  {campaign}
+                </div>
+              </div>
             </div>
           </div>
         )}

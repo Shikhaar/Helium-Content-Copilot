@@ -371,6 +371,8 @@ export default function Home() {
         onCloseMobile={() => setIsMobileMenuOpen(false)}
         isCollapsed={isSidebarCollapsed}
         onToggleCollapse={() => setIsSidebarCollapsed(c => !c)}
+        brandName={brand?.name || 'SNITCH'}
+        campaign={brand?.campaign || 'Summer 2026'}
       />
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
@@ -382,7 +384,7 @@ export default function Home() {
             alignItems: 'center',
             justifyContent: 'space-between',
             padding: '12px 16px',
-            background: 'var(--bg-secondary)',
+            background: 'var(--bg-card)',
             borderBottom: '1px solid var(--border)',
             position: 'sticky',
             top: 0,
@@ -393,9 +395,9 @@ export default function Home() {
             <button
               onClick={() => setIsMobileMenuOpen(true)}
               style={{
-                background: 'rgba(255,255,255,0.05)',
+                background: 'var(--bg-subtle)',
                 border: '1px solid var(--border)',
-                borderRadius: 8,
+                borderRadius: 6,
                 padding: '6px 8px',
                 color: 'var(--text-primary)',
                 cursor: 'pointer',
@@ -405,53 +407,30 @@ export default function Home() {
               }}
               aria-label="Open navigation menu"
             >
-              <Menu size={18} />
+              <Menu size={16} />
             </button>
             <button
               onClick={() => navigate({ name: 'dashboard' })}
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                background: 'none',
-                border: 'none',
-                padding: 0,
-                cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 8,
+                background: 'none', border: 'none', padding: 0, cursor: 'pointer',
               }}
             >
-              <svg width="22" height="22" viewBox="0 0 30 30" fill="none">
-                <rect width="30" height="30" rx="7" fill="url(#logoGradHeader)" />
-                <rect x="7" y="7" width="4" height="16" rx="1.5" fill="white" />
-                <rect x="19" y="7" width="4" height="16" rx="1.5" fill="white" />
-                <rect x="7" y="12.5" width="16" height="3.5" rx="1.5" fill="white" fillOpacity="0.85" />
-                <circle cx="23" cy="8.5" r="2.5" fill="#a78bfa" />
-                <defs>
-                  <linearGradient id="logoGradHeader" x1="0" y1="0" x2="30" y2="30" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#6c63ff" />
-                    <stop offset="1" stopColor="#4f46e5" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
-                Content Copilot
+              <div style={{
+                width: 24, height: 24, borderRadius: 5,
+                background: 'var(--text-primary)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--bg-primary)' }}>H</span>
+              </div>
+              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
+                HELIUM
               </span>
             </button>
           </div>
 
-          <span
-            style={{
-              fontSize: 10,
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.06em',
-              background: 'var(--accent-subtle)',
-              color: 'var(--accent-light)',
-              padding: '3px 8px',
-              borderRadius: 6,
-              border: '1px solid var(--accent-border)',
-            }}
-          >
-            {activeTab === 'create' ? 'Studio' : activeTab === 'opportunities' ? 'Opps' : activeTab}
+          <span className="badge badge-neutral" style={{ fontSize: 10 }}>
+            {activeTab === 'create' ? 'Studio' : activeTab === 'opportunities' ? 'Opportunities' : activeTab === 'calendar' ? 'Calendar' : 'Brand'}
           </span>
         </header>
 
@@ -460,12 +439,12 @@ export default function Home() {
           {error && (
             <div style={{
               margin: '16px 16px 0', padding: '12px 16px',
-              background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)',
-              borderRadius: 8, color: '#ef4444', fontSize: 13,
+              background: 'var(--red-subtle)', border: '1px solid #D9B8B8',
+              borderRadius: 7, color: 'var(--red)', fontSize: 13,
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             }}>
-              <span>⚠ {error}</span>
-              <button onClick={() => setError(null)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 16 }}>×</button>
+              <span>{error}</span>
+              <button onClick={() => setError(null)} style={{ background: 'none', border: 'none', color: 'var(--red)', cursor: 'pointer', fontSize: 18, lineHeight: 1 }}>×</button>
             </div>
           )}
           {renderScreen()}

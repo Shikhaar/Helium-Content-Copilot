@@ -56,9 +56,9 @@ export default function BrandView({
 
   if (!brand) {
     return (
-      <div style={{ padding: '40px 48px' }}>
-        <div className="skeleton" style={{ width: 200, height: 28, marginBottom: 40 }} />
-        <div className="skeleton" style={{ width: '100%', height: 200, borderRadius: 12 }} />
+      <div className="page-container">
+        <div className="skeleton" style={{ width: 200, height: 24, marginBottom: 32 }} />
+        <div className="skeleton" style={{ width: '100%', height: 200, borderRadius: 8 }} />
       </div>
     );
   }
@@ -150,16 +150,17 @@ export default function BrandView({
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             <div style={{
-              width: 44, height: 44, borderRadius: 10, background: 'var(--accent)',
+              width: 40, height: 40, borderRadius: 8,
+              background: 'var(--text-primary)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 18, fontWeight: 800, color: '#fff',
+              fontSize: 16, fontWeight: 800, color: 'var(--bg-primary)',
             }}>
               {brand.name.charAt(0)}
             </div>
             <div>
               <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)' }}>{brand.name}</div>
-              <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>
-                Active campaign: <strong style={{ color: 'var(--accent-light)' }}>{brand.campaign}</strong>
+                <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+                Active campaign: <strong style={{ color: 'var(--accent)' }}>{brand.campaign}</strong>
               </div>
             </div>
           </div>
@@ -207,8 +208,8 @@ export default function BrandView({
                   value={name}
                   onChange={e => setName(e.target.value)}
                   style={{
-                    width: '100%', background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-                    borderRadius: 8, padding: '8px 12px', color: 'var(--text-primary)', fontSize: 13, outline: 'none',
+                    width: '100%', background: 'var(--bg-card)', border: '1px solid var(--border-medium)',
+                    borderRadius: 6, padding: '8px 12px', color: 'var(--text-primary)', fontSize: 13, outline: 'none',
                   }}
                 />
               </div>
@@ -222,8 +223,8 @@ export default function BrandView({
                   onChange={e => setCampaign(e.target.value)}
                   placeholder="e.g. Summer 2026, Monsoon Drops, Festive Streetwear"
                   style={{
-                    width: '100%', background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-                    borderRadius: 8, padding: '8px 12px', color: 'var(--text-primary)', fontSize: 13, outline: 'none',
+                    width: '100%', background: 'var(--bg-card)', border: '1px solid var(--border-medium)',
+                    borderRadius: 6, padding: '8px 12px', color: 'var(--text-primary)', fontSize: 13, outline: 'none',
                   }}
                 />
               </div>
@@ -238,8 +239,8 @@ export default function BrandView({
                 onChange={e => setDescription(e.target.value)}
                 rows={3}
                 style={{
-                  width: '100%', background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-                  borderRadius: 8, padding: '8px 12px', color: 'var(--text-primary)', fontSize: 13, lineHeight: 1.5,
+                  width: '100%', background: 'var(--bg-card)', border: '1px solid var(--border-medium)',
+                  borderRadius: 6, padding: '8px 12px', color: 'var(--text-primary)', fontSize: 13, lineHeight: 1.5,
                   outline: 'none', resize: 'vertical', fontFamily: 'inherit',
                 }}
               />
@@ -255,8 +256,8 @@ export default function BrandView({
                 onChange={e => setToneText(e.target.value)}
                 placeholder="e.g. Minimal, Confident, Modern, Bold, Youthful"
                 style={{
-                  width: '100%', background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-                  borderRadius: 8, padding: '8px 12px', color: 'var(--text-primary)', fontSize: 13, outline: 'none',
+                  width: '100%', background: 'var(--bg-card)', border: '1px solid var(--border-medium)',
+                  borderRadius: 6, padding: '8px 12px', color: 'var(--text-primary)', fontSize: 13, outline: 'none',
                 }}
               />
             </div>
@@ -273,8 +274,8 @@ export default function BrandView({
                     onChange={e => setAgeRange(e.target.value)}
                     placeholder="18-28"
                     style={{
-                      width: '40%', background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-                      borderRadius: 8, padding: '8px 12px', color: 'var(--text-primary)', fontSize: 13, outline: 'none',
+                      width: '40%', background: 'var(--bg-card)', border: '1px solid var(--border-medium)',
+                      borderRadius: 6, padding: '8px 12px', color: 'var(--text-primary)', fontSize: 13, outline: 'none',
                     }}
                   />
                   <input
@@ -283,8 +284,8 @@ export default function BrandView({
                     onChange={e => setLocation(e.target.value)}
                     placeholder="Metro & Tier 1 India"
                     style={{
-                      width: '60%', background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-                      borderRadius: 8, padding: '8px 12px', color: 'var(--text-primary)', fontSize: 13, outline: 'none',
+                      width: '60%', background: 'var(--bg-card)', border: '1px solid var(--border-medium)',
+                      borderRadius: 6, padding: '8px 12px', color: 'var(--text-primary)', fontSize: 13, outline: 'none',
                     }}
                   />
                 </div>
@@ -299,8 +300,8 @@ export default function BrandView({
                   onChange={e => setInterestsText(e.target.value)}
                   placeholder="Streetwear, Fast Fashion, Nightlife, Pop Culture"
                   style={{
-                    width: '100%', background: 'var(--bg-secondary)', border: '1px solid var(--border)',
-                    borderRadius: 8, padding: '8px 12px', color: 'var(--text-primary)', fontSize: 13, outline: 'none',
+                    width: '100%', background: 'var(--bg-card)', border: '1px solid var(--border-medium)',
+                    borderRadius: 6, padding: '8px 12px', color: 'var(--text-primary)', fontSize: 13, outline: 'none',
                   }}
                 />
               </div>
@@ -313,11 +314,7 @@ export default function BrandView({
             </p>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 18 }}>
               {brand.tone.map(t => (
-                <span key={t} style={{
-                  fontSize: 12, padding: '4px 10px', borderRadius: 6,
-                  background: 'var(--accent-subtle)', border: '1px solid var(--accent-border)',
-                  color: 'var(--accent-light)', display: 'flex', alignItems: 'center', gap: 4,
-                }}>
+                <span key={t} className="badge badge-olive" style={{ fontSize: 12 }}>
                   <Tag size={10} /> {t}
                 </span>
               ))}
@@ -343,7 +340,7 @@ export default function BrandView({
                   <div className="label" style={{ marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
                     <Sparkles size={11} /> Top Performing Format
                   </div>
-                  <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--accent-light)', marginBottom: 3 }}>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--accent)', marginBottom: 3 }}>
                     {performance.top_performing_format}
                   </div>
                   <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
@@ -381,13 +378,13 @@ export default function BrandView({
           <form
             onSubmit={handleAddProductSubmit}
             style={{
-              padding: 18, marginBottom: 20, background: 'var(--bg-secondary)',
-              border: '1px solid var(--accent-border)', borderRadius: 10,
+              padding: 18, marginBottom: 20, background: 'var(--bg-subtle)',
+              border: '1px solid var(--border)', borderRadius: 8,
               display: 'flex', flexDirection: 'column', gap: 12,
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--accent-light)' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--accent)' }}>
                 + Add New Product to Catalog
               </div>
               <button
@@ -519,7 +516,7 @@ export default function BrandView({
             return (
               <div key={p.id} style={{
                 padding: '14px 16px', border: '1px solid var(--border)',
-                borderRadius: 8, background: 'var(--bg-secondary)',
+                borderRadius: 7, background: 'var(--bg-card)',
                 display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
               }}>
                 <div>
@@ -528,8 +525,8 @@ export default function BrandView({
                       {p.name}
                     </div>
                     <div style={{
-                      fontSize: 11, color: p.inventory_status === 'In Stock' ? '#22c55e' : p.inventory_status === 'Low Stock' ? '#f59e0b' : '#ef4444',
-                      fontWeight: 600, flexShrink: 0, marginLeft: 8,
+                      fontSize: 11, flexShrink: 0, marginLeft: 8, fontWeight: 600,
+                      color: p.inventory_status === 'In Stock' ? 'var(--green)' : p.inventory_status === 'Low Stock' ? 'var(--amber)' : 'var(--red)',
                     }}>
                       {p.inventory_status}
                     </div>
@@ -539,33 +536,21 @@ export default function BrandView({
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8, borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8, borderTop: '1px solid var(--border)' }}>
                   <div style={{ display: 'flex', gap: 12, fontSize: 12, color: 'var(--text-muted)' }}>
-                    <span>👁 {p.views.toLocaleString()}</span>
-                    <span>🛒 {p.sales.toLocaleString()}</span>
+                    <span>{p.views.toLocaleString()} views</span>
+                    <span>{p.sales.toLocaleString()} sales</span>
                   </div>
 
                   {onDeleteProduct && (
                     <button
                       onClick={() => handleDeleteProduct(p.id)}
                       disabled={isDeleting}
-                      style={{
-                        background: 'none', border: 'none', cursor: isDeleting ? 'not-allowed' : 'pointer',
-                        color: 'var(--text-muted)', padding: '4px', borderRadius: 4,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        transition: 'all 0.15s ease',
-                      }}
-                      onMouseEnter={e => {
-                        e.currentTarget.style.color = '#ef4444';
-                        e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
-                      }}
-                      onMouseLeave={e => {
-                        e.currentTarget.style.color = 'var(--text-muted)';
-                        e.currentTarget.style.background = 'none';
-                      }}
+                      className="btn-danger"
+                      style={{ padding: '4px 7px' }}
                       title="Delete product"
                     >
-                      <Trash2 size={14} />
+                      <Trash2 size={13} />
                     </button>
                   )}
                 </div>

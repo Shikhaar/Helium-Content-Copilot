@@ -446,10 +446,10 @@ function BigSlideCard({
 
 function Skeleton() {
   return (
-    <div style={{ padding: '40px 48px', maxWidth: 900 }}>
-      <div className="skeleton" style={{ width: 120, height: 16, marginBottom: 32 }} />
-      <div className="skeleton" style={{ width: 300, height: 28, marginBottom: 12 }} />
-      <div className="skeleton" style={{ width: '100%', height: 400, borderRadius: 12 }} />
+    <div className="page-container">
+      <div className="skeleton" style={{ width: 120, height: 14, marginBottom: 32 }} />
+      <div className="skeleton" style={{ width: 280, height: 24, marginBottom: 12 }} />
+      <div className="skeleton" style={{ width: '100%', height: 380, borderRadius: 8 }} />
     </div>
   );
 }
@@ -561,33 +561,9 @@ export default function ContentStudio({
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
           {draft.is_demo && <div className="demo-banner">DEMO</div>}
           {isScheduled ? (
-            <div
-              style={{
-                padding: '5px 12px',
-                borderRadius: 6,
-                background: 'var(--accent-subtle)',
-                color: 'var(--accent-light)',
-                fontSize: 12,
-                fontWeight: 600,
-                border: '1px solid var(--accent-border)',
-              }}
-            >
-              ✓ Scheduled for {draft.scheduled_date}
-            </div>
+            <span className="badge badge-olive">Scheduled for {draft.scheduled_date}</span>
           ) : isApproved ? (
-            <div
-              style={{
-                padding: '5px 12px',
-                borderRadius: 6,
-                background: 'var(--green-subtle)',
-                color: 'var(--green)',
-                fontSize: 12,
-                fontWeight: 600,
-                border: '1px solid rgba(34,197,94,0.25)',
-              }}
-            >
-              ✓ Approved
-            </div>
+            <span className="badge badge-green">Approved</span>
           ) : null}
         </div>
       </div>
@@ -647,7 +623,7 @@ export default function ContentStudio({
                 <div className="label" style={{ marginBottom: 2 }}>
                   Scene {activeSlide + 1} Storyboard Breakdown
                 </div>
-                <div style={{ fontSize: 12, color: 'var(--accent-light)', fontWeight: 600 }}>{currentRole}</div>
+                <div style={{ fontSize: 12, color: 'var(--accent)', fontWeight: 600 }}>{currentRole}</div>
               </div>
               <button className="btn-ghost" onClick={handleSaveSlide} style={{ fontSize: 12 }}>
                 <Edit3 size={12} />
@@ -667,9 +643,9 @@ export default function ContentStudio({
                     onChange={e => setSlideHeadline(e.target.value)}
                     style={{
                       width: '100%',
-                      background: 'var(--bg-secondary)',
-                      border: '1px solid var(--border)',
-                      borderRadius: 8,
+                      background: 'var(--bg-card)',
+                      border: '1px solid var(--border-medium)',
+                      borderRadius: 6,
                       padding: '8px 12px',
                       color: 'var(--text-primary)',
                       fontSize: 13,
@@ -686,9 +662,9 @@ export default function ContentStudio({
                     onChange={e => setSlideBody(e.target.value)}
                     style={{
                       width: '100%',
-                      background: 'var(--bg-secondary)',
-                      border: '1px solid var(--border)',
-                      borderRadius: 8,
+                      background: 'var(--bg-card)',
+                      border: '1px solid var(--border-medium)',
+                      borderRadius: 6,
                       padding: '8px 12px',
                       color: 'var(--text-primary)',
                       fontSize: 13,
@@ -710,9 +686,9 @@ export default function ContentStudio({
                     onChange={e => setSlideVisualCue(e.target.value)}
                     style={{
                       width: '100%',
-                      background: 'var(--bg-secondary)',
-                      border: '1px solid var(--border)',
-                      borderRadius: 8,
+                      background: 'var(--bg-card)',
+                      border: '1px solid var(--border-medium)',
+                      borderRadius: 6,
                       padding: '8px 12px',
                       color: 'var(--text-primary)',
                       fontSize: 13,
@@ -744,15 +720,15 @@ export default function ContentStudio({
                 <div
                   style={{
                     padding: '10px 14px',
-                    background: 'var(--bg-secondary)',
-                    borderRadius: 8,
+                    background: 'var(--bg-subtle)',
+                    borderRadius: 6,
                     border: '1px solid var(--border)',
                   }}
                 >
                   <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 3 }}>
-                    📷 Camera & Visual Direction
+                    Visual / Camera Direction
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--accent-light)', fontStyle: 'italic', lineHeight: 1.4 }}>
+                  <div style={{ fontSize: 12, color: 'var(--accent)', fontStyle: 'italic', lineHeight: 1.4 }}>
                     {draft.slides[activeSlide].visual_cue}
                   </div>
                 </div>
@@ -778,9 +754,9 @@ export default function ContentStudio({
                     onChange={e => setCaption(e.target.value)}
                     style={{
                       width: '100%',
-                      background: 'var(--bg-secondary)',
-                      border: '1px solid var(--border)',
-                      borderRadius: 8,
+                      background: 'var(--bg-card)',
+                      border: '1px solid var(--border-medium)',
+                      borderRadius: 6,
                       padding: 12,
                       color: 'var(--text-primary)',
                       fontSize: 13,
@@ -802,9 +778,9 @@ export default function ContentStudio({
                     onChange={e => setCta(e.target.value)}
                     style={{
                       width: '100%',
-                      background: 'var(--bg-secondary)',
-                      border: '1px solid var(--border)',
-                      borderRadius: 8,
+                      background: 'var(--bg-card)',
+                      border: '1px solid var(--border-medium)',
+                      borderRadius: 6,
                       padding: '10px 12px',
                       color: 'var(--text-primary)',
                       fontSize: 13,
@@ -833,13 +809,14 @@ export default function ContentStudio({
                     marginTop: 12,
                     padding: '10px 14px',
                     background: 'var(--accent-subtle)',
-                    borderRadius: 7,
+                    borderRadius: 6,
                     display: 'flex',
                     alignItems: 'center',
                     gap: 8,
+                    border: '1px solid var(--accent-border)',
                   }}
                 >
-                  <span style={{ fontSize: 12, color: 'var(--accent-light)', fontWeight: 600 }}>CTA:</span>
+                  <span style={{ fontSize: 12, color: 'var(--accent)', fontWeight: 600 }}>CTA:</span>
                   <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{cta || draft.cta}</span>
                 </div>
               </div>
@@ -886,17 +863,7 @@ export default function ContentStudio({
             ) : (
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 {hashtags.map(h => (
-                  <span
-                    key={h}
-                    style={{
-                      fontSize: 12,
-                      padding: '4px 10px',
-                      borderRadius: 6,
-                      background: 'var(--bg-secondary)',
-                      border: '1px solid var(--border)',
-                      color: 'var(--accent-light)',
-                    }}
-                  >
+                  <span key={h} className="badge badge-olive" style={{ fontSize: 12 }}>
                     {h.startsWith('#') ? h : `#${h}`}
                   </span>
                 ))}
@@ -915,26 +882,19 @@ export default function ContentStudio({
             );
             return (
               <div
-                className="card"
                 style={{
-                  padding: '16px 20px',
-                  background: 'rgba(99, 102, 241, 0.04)',
+                  padding: '14px 18px',
+                  background: 'var(--accent-subtle)',
                   border: '1px solid var(--accent-border)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
+                  borderRadius: 7,
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <Sparkles size={18} color="var(--accent-light)" />
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>
-                      Why this will perform: {opportunity ? `${opportunity.score}/100 Opportunity Fit` : 'High algorithmic confidence'}
-                    </div>
-                    <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                      Optimal schedule: <strong style={{ color: 'var(--accent-light)' }}>{optimal.timeText}</strong> ({optimal.reason}) · Target: {opportunity?.audience || 'Young Millennial'}
-                    </div>
-                  </div>
+                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 5 }}>Scheduling Intelligence</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 3 }}>
+                  {opportunity ? `Score ${opportunity.score}/100` : 'High algorithmic confidence'}
+                </div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                  Optimal window: <strong style={{ color: 'var(--accent)' }}>{optimal.timeText}</strong> · {optimal.reason} · Audience: {opportunity?.audience || 'Young Millennial'}
                 </div>
               </div>
             );
@@ -975,9 +935,9 @@ export default function ContentStudio({
                     onChange={e => setSchedDate(e.target.value)}
                     style={{
                       width: '100%',
-                      background: 'var(--bg-secondary)',
-                      border: '1px solid var(--border)',
-                      borderRadius: 7,
+                      background: 'var(--bg-card)',
+                      border: '1px solid var(--border-medium)',
+                      borderRadius: 6,
                       padding: '8px 12px',
                       color: 'var(--text-primary)',
                       fontSize: 13,
@@ -993,9 +953,9 @@ export default function ContentStudio({
                     onChange={e => setSchedTime(e.target.value)}
                     style={{
                       width: '100%',
-                      background: 'var(--bg-secondary)',
-                      border: '1px solid var(--border)',
-                      borderRadius: 7,
+                      background: 'var(--bg-card)',
+                      border: '1px solid var(--border-medium)',
+                      borderRadius: 6,
                       padding: '8px 12px',
                       color: 'var(--text-primary)',
                       fontSize: 13,
