@@ -439,7 +439,7 @@ export default function Home() {
           {error && (
             <div style={{
               margin: '16px 16px 0', padding: '12px 16px',
-              background: 'var(--red-subtle)', border: '1px solid #D9B8B8',
+              background: 'var(--red-subtle)', border: '1px solid var(--red-border)',
               borderRadius: 7, color: 'var(--red)', fontSize: 13,
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             }}>

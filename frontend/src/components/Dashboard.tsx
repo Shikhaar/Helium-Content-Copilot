@@ -246,9 +246,9 @@ export default function Dashboard({
                 {/* CTA row */}
                 <div style={{ padding: '14px 24px', display: 'flex', justifyContent: 'flex-end' }}>
                   <button
-                    className="btn-ghost"
+                    className="btn-primary"
                     onClick={e => { e.stopPropagation(); onViewOpportunity(topOpp.id); }}
-                    style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', gap: 5 }}
+                    style={{ fontSize: 13 }}
                   >
                     See why this is recommended →
                   </button>

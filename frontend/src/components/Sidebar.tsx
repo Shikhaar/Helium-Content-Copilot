@@ -72,7 +72,7 @@ export default function Sidebar({
           padding: isCollapsed ? '9px 0' : '8px 10px',
           borderRadius: 6,
           border: 'none',
-          background: isActive ? 'var(--accent-subtle)' : 'transparent',
+          background: isActive ? 'var(--bg-subtle)' : 'transparent',
           color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
           fontSize: 13,
           fontWeight: isActive ? 600 : 400,

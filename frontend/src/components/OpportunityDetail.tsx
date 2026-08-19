@@ -136,11 +136,11 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
 
       {/* Why summary */}
       <div style={{
-        background: 'var(--accent-subtle)',
-        border: '1px solid var(--accent-border)',
+        background: 'var(--bg-subtle)',
+        border: '1px solid var(--border)',
         borderRadius: 8, padding: '20px 22px', marginBottom: 36,
       }}>
-        <div className="label-olive" style={{ marginBottom: 8 }}>Strategic Rationale</div>
+        <div className="label-accent" style={{ marginBottom: 8 }}>Strategic Rationale</div>
         <p style={{ fontSize: 14, color: 'var(--text-primary)', lineHeight: 1.7, margin: 0 }}>
           {opportunity.why}
         </p>

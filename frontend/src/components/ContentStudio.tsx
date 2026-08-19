@@ -561,7 +561,7 @@ export default function ContentStudio({
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
           {draft.is_demo && <div className="demo-banner">DEMO</div>}
           {isScheduled ? (
-            <span className="badge badge-olive">Scheduled for {draft.scheduled_date}</span>
+            <span className="badge badge-accent">Scheduled for {draft.scheduled_date}</span>
           ) : isApproved ? (
             <span className="badge badge-green">Approved</span>
           ) : null}
@@ -863,7 +863,7 @@ export default function ContentStudio({
             ) : (
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 {hashtags.map(h => (
-                  <span key={h} className="badge badge-olive" style={{ fontSize: 12 }}>
+                  <span key={h} className="badge badge-accent" style={{ fontSize: 12 }}>
                     {h.startsWith('#') ? h : `#${h}`}
                   </span>
                 ))}
@@ -884,9 +884,9 @@ export default function ContentStudio({
               <div
                 style={{
                   padding: '14px 18px',
-                  background: 'var(--accent-subtle)',
-                  border: '1px solid var(--accent-border)',
-                  borderRadius: 7,
+                  background: 'var(--bg-subtle)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 8,
                 }}
               >
                 <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 5 }}>Scheduling Intelligence</div>
@@ -894,7 +894,7 @@ export default function ContentStudio({
                   {opportunity ? `Score ${opportunity.score}/100` : 'High algorithmic confidence'}
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                  Optimal window: <strong style={{ color: 'var(--accent)' }}>{optimal.timeText}</strong> · {optimal.reason} · Audience: {opportunity?.audience || 'Young Millennial'}
+                  Optimal window: <strong style={{ color: 'var(--text-primary)' }}>{optimal.timeText}</strong> · {optimal.reason} · Audience: {opportunity?.audience || 'Young Millennial'}
                 </div>
               </div>
             );

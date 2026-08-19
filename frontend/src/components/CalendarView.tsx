@@ -30,7 +30,7 @@ const STATUS_DOT: Record<string, string> = {
 };
 
 const STATUS_LABEL_CLASS: Record<string, string> = {
-  scheduled: 'badge badge-olive',
+  scheduled: 'badge badge-accent',
   approved:  'badge badge-green',
   published: 'badge badge-green',
   draft:     'badge badge-neutral',

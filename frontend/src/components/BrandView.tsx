@@ -314,7 +314,7 @@ export default function BrandView({
             </p>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 18 }}>
               {brand.tone.map(t => (
-                <span key={t} className="badge badge-olive" style={{ fontSize: 12 }}>
+                <span key={t} className="badge badge-accent" style={{ fontSize: 12 }}>
                   <Tag size={10} /> {t}
                 </span>
               ))}
