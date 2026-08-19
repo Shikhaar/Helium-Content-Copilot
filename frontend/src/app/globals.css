@@ -5,6 +5,15 @@
    Warm Editorial × D2C Intelligence
    =================================================== */
 
+/* Hide Next.js dev toolbar / badge (floating N indicator) — dev-only artifact */
+nextjs-portal,
+[data-nextjs-dev-overlay],
+[data-nextjs-toast],
+[data-next-badge],
+div:has(> [data-next-badge]) {
+  display: none !important;
+}
+
 /* ── Base Tokens ─────────────────────────────────── */
 :root {
   /* Backgrounds */
@@ -507,6 +516,30 @@ h1, h2, h3, h4 {
 @media (min-width: 640px) {
   .two-col-responsive {
     grid-template-columns: 1fr 1fr;
+  }
+}
+
+.evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  border-bottom: 1px solid var(--border);
+}
+@media (min-width: 640px) {
+  .evidence-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+.evidence-item {
+  padding: 14px 18px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+@media (min-width: 640px) {
+  .evidence-item {
+    border-bottom: none;
+  }
+  .evidence-item:last-child {
+    border-right: none;
   }
 }
 

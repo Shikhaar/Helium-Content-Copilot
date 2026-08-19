@@ -161,16 +161,16 @@ export default function Sidebar({
               overflow: 'hidden',
             }}
           >
-            {/* H mark — clean dark square */}
+            {/* H mark */}
             <div style={{
-              width: 28, height: 28, borderRadius: 6,
+              width: 26, height: 26, borderRadius: 5,
               background: 'var(--text-primary)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               flexShrink: 0,
             }}>
               <span style={{
                 fontFamily: 'var(--font-sans)',
-                fontSize: 13, fontWeight: 800,
+                fontSize: 12, fontWeight: 800,
                 color: 'var(--bg-primary)',
                 letterSpacing: '-0.04em',
               }}>H</span>
@@ -178,13 +178,19 @@ export default function Sidebar({
             {!isCollapsed && (
               <div style={{ textAlign: 'left' }}>
                 <div style={{
-                  fontSize: 12, fontWeight: 700,
+                  fontSize: 11, fontWeight: 800,
                   color: 'var(--text-primary)',
-                  letterSpacing: '-0.01em', lineHeight: 1.2,
-                }}>HELIUM</div>
-                <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 1 }}>
-                  Content Copilot
-                </div>
+                  letterSpacing: '0.06em',
+                  lineHeight: 1.15,
+                  textTransform: 'uppercase',
+                }}>Helium</div>
+                <div style={{
+                  fontSize: 9, fontWeight: 600,
+                  color: 'var(--text-muted)',
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  marginTop: 1,
+                }}>Content Copilot</div>
               </div>
             )}
           </button>
