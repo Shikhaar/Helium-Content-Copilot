@@ -72,8 +72,8 @@ export default function Sidebar({
           padding: isCollapsed ? '9px 0' : '8px 10px',
           borderRadius: 6,
           border: 'none',
-          background: isActive ? 'var(--accent-soft)' : 'transparent',
-          color: isActive ? 'var(--accent)' : 'var(--text-secondary)',
+          background: isActive ? 'var(--brown-soft)' : 'transparent',
+          color: isActive ? 'var(--brown-dark)' : 'var(--text-secondary)',
           fontSize: 13,
           fontWeight: isActive ? 600 : 400,
           cursor: 'pointer',
@@ -85,7 +85,7 @@ export default function Sidebar({
         }}
         onMouseEnter={e => {
           if (!isActive) {
-            (e.currentTarget as HTMLElement).style.background = 'rgba(216, 209, 197, 0.5)';
+            (e.currentTarget as HTMLElement).style.background = 'rgba(217, 206, 194, 0.4)';
             (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)';
           }
         }}
@@ -99,7 +99,7 @@ export default function Sidebar({
         <Icon
           size={15}
           strokeWidth={isActive ? 2 : 1.6}
-          style={{ flexShrink: 0, color: isActive ? 'var(--accent)' : 'inherit' }}
+          style={{ flexShrink: 0, color: isActive ? 'var(--brown-primary)' : 'inherit' }}
         />
         {!isCollapsed && <span>{label}</span>}
       </button>
@@ -115,7 +115,7 @@ export default function Sidebar({
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(24, 23, 20, 0.5)',
+            background: 'rgba(32, 27, 23, 0.5)',
             zIndex: 199,
           }}
           className="mobile-only"
@@ -164,14 +164,14 @@ export default function Sidebar({
             {/* H mark */}
             <div style={{
               width: 26, height: 26, borderRadius: 5,
-              background: 'var(--text-primary)',
+              background: 'var(--brown-dark)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               flexShrink: 0,
             }}>
               <span style={{
                 fontFamily: 'var(--font-sans)',
                 fontSize: 12, fontWeight: 800,
-                color: 'var(--bg-primary)',
+                color: 'var(--surface)',
                 letterSpacing: '-0.04em',
               }}>H</span>
             </div>
@@ -179,8 +179,8 @@ export default function Sidebar({
               <div style={{ textAlign: 'left' }}>
                 <div style={{
                   fontSize: 11, fontWeight: 800,
-                  color: 'var(--text-primary)',
-                  letterSpacing: '0.06em',
+                  color: 'var(--brown-dark)',
+                  letterSpacing: '0.08em',
                   lineHeight: 1.15,
                   textTransform: 'uppercase',
                 }}>Helium</div>

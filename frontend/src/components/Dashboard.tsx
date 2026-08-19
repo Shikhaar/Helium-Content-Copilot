@@ -222,21 +222,20 @@ export default function Dashboard({
                 {topOpp.score_breakdown && (
                   <div className="evidence-grid">
                     {[
-                      { label: 'Historical', score: topOpp.score_breakdown.historical, max: 25, sub: `${avgEr} avg ER` },
-                      { label: 'Product',    score: topOpp.score_breakdown.product,    max: 25, sub: `${topOpp.audience} fit` },
-                      { label: 'Audience',   score: topOpp.score_breakdown.audience,   max: 20, sub: topOpp.audience },
-                      { label: 'Seasonal',   score: topOpp.score_breakdown.seasonal,   max: 15, sub: brand?.campaign || 'Summer 2026' },
+                      { main: '8.8%', sub: `${topOpp.format} engagement`, label: 'Historical', score: topOpp.score_breakdown.historical, max: 25 },
+                      { main: '14.2K', sub: 'Product views', label: 'Product', score: topOpp.score_breakdown.product, max: 25 },
+                      { main: '1,050', sub: 'Product sales', label: 'Demand', score: topOpp.score_breakdown.product, max: 25 },
+                      { main: brand?.campaign || 'Summer 2026', sub: 'Campaign focus', label: 'Seasonal', score: topOpp.score_breakdown.seasonal, max: 15 },
                     ].map(s => (
                       <div key={s.label} className="evidence-item">
-                        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 5 }}>
-                          {s.label}
+                        <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+                          {s.main}
                         </div>
-                        <div style={{ fontSize: 17, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1 }}>
-                          {s.score}
-                          <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 400 }}>/{s.max}</span>
-                        </div>
-                        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 3, lineHeight: 1.3 }}>
+                        <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4, lineHeight: 1.3 }}>
                           {s.sub}
+                        </div>
+                        <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-muted)', marginTop: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                          {s.label} · {s.score}/{s.max}
                         </div>
                       </div>
                     ))}
@@ -248,7 +247,7 @@ export default function Dashboard({
                   <button
                     className="btn-primary"
                     onClick={e => { e.stopPropagation(); onViewOpportunity(topOpp.id); }}
-                    style={{ fontSize: 13 }}
+                    style={{ fontSize: 13, borderRadius: 6 }}
                   >
                     See why this is recommended →
                   </button>
@@ -261,7 +260,7 @@ export default function Dashboard({
           {otherOpps.length > 0 && (
             <div>
               <div className="label" style={{ marginBottom: 12 }}>Other Opportunities</div>
-              <div style={{ border: '1px solid var(--border)', borderRadius: 8, background: 'var(--bg-card)', overflow: 'hidden' }}>
+              <div style={{ border: '1px solid var(--border)', borderRadius: 8, background: 'var(--surface)', overflow: 'hidden' }}>
                 {otherOpps.map((opp, i) => (
                   <div
                     key={opp.id}
@@ -269,27 +268,27 @@ export default function Dashboard({
                     onClick={() => onViewOpportunity(opp.id)}
                     style={{
                       display: 'flex', alignItems: 'center', gap: 16,
-                      padding: '13px 20px',
+                      padding: '14px 20px',
                       borderBottom: i < otherOpps.length - 1 ? '1px solid var(--border)' : 'none',
                       cursor: 'pointer',
                       transition: 'background 0.12s ease',
                     }}
-                    onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--bg-subtle)'}
+                    onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'var(--surface-subtle)'}
                     onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
                   >
                     <div style={{
-                      fontSize: 11, fontWeight: 700, color: 'var(--text-muted)',
-                      width: 22, flexShrink: 0, fontVariantNumeric: 'tabular-nums',
+                      fontSize: 12, fontWeight: 700, color: 'var(--text-muted)',
+                      width: 24, flexShrink: 0, fontVariantNumeric: 'tabular-nums',
                     }}>
                       {String(i + 2).padStart(2, '0')}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 3, letterSpacing: '-0.01em' }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, letterSpacing: '-0.01em' }}>
                         {opp.title}
                       </div>
                       <div style={{ display: 'flex', gap: 5 }}>
-                        <span className="badge badge-neutral" style={{ fontSize: 10 }}>{opp.format}</span>
-                        <span className="badge badge-neutral" style={{ fontSize: 10 }}>{opp.platform}</span>
+                        <span className="badge badge-neutral" style={{ fontSize: 10 }}>{opp.format.toUpperCase()}</span>
+                        <span className="badge badge-neutral" style={{ fontSize: 10 }}>{opp.platform.toUpperCase()}</span>
                       </div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
@@ -299,7 +298,7 @@ export default function Dashboard({
                         </span>
                         <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 1 }}>/100</span>
                       </div>
-                      <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>View →</div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--brown-primary)' }}>→</div>
                     </div>
                   </div>
                 ))}

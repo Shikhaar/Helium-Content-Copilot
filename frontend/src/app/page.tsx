@@ -418,12 +418,12 @@ export default function Home() {
             >
               <div style={{
                 width: 24, height: 24, borderRadius: 5,
-                background: 'var(--text-primary)',
+                background: 'var(--brown-dark)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--bg-primary)' }}>H</span>
+                <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--surface)' }}>H</span>
               </div>
-              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--brown-dark)', letterSpacing: '0.08em' }}>
                 HELIUM
               </span>
             </button>

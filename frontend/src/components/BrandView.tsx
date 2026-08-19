@@ -151,16 +151,16 @@ export default function BrandView({
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             <div style={{
               width: 40, height: 40, borderRadius: 8,
-              background: 'var(--text-primary)',
+              background: 'var(--brown-dark)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 16, fontWeight: 800, color: 'var(--bg-primary)',
+              fontSize: 16, fontWeight: 800, color: 'var(--surface)',
             }}>
               {brand.name.charAt(0)}
             </div>
             <div>
               <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)' }}>{brand.name}</div>
                 <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>
-                Active campaign: <strong style={{ color: 'var(--accent)' }}>{brand.campaign}</strong>
+                Active campaign: <strong style={{ color: 'var(--brown-primary)' }}>{brand.campaign}</strong>
               </div>
             </div>
           </div>
