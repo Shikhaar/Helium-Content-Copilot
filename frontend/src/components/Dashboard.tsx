@@ -186,16 +186,9 @@ export default function Dashboard({
         </div>
       ) : (
         /* ── 2-Column Dashboard Grid: Opportunities on Left, Insights & Instagram on Right ── */
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'flex-start',
-            gap: 24,
-          }}
-        >
+        <div className="dashboard-grid-layout">
           {/* ── Left Column: Opportunities ────────────────────────────────────────── */}
-          <div style={{ flex: '1 1 540px', minWidth: 320, display: 'flex', flexDirection: 'column', gap: 24 }}>
+          <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: 24 }}>
             {/* HERO OPPORTUNITY */}
             {topOpp && (
               <div>
@@ -373,7 +366,7 @@ export default function Dashboard({
           </div>
 
           {/* ── Right Column: Insights & Instagram Connect Card ─────────────────── */}
-          <div style={{ flex: '0 0 310px', width: 310, display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: 16 }}>
             {/* THIS WEEK'S INSIGHTS */}
             <div
               style={{

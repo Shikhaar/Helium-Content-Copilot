@@ -432,13 +432,27 @@ h1, h2, h3, h4 {
 /* ── Responsive Layout Utilities ─────────────────── */
 .page-container {
   padding: 20px 16px;
-  max-width: 860px;
+  max-width: 1140px;
   width: 100%;
+  box-sizing: border-box;
 }
 
 @media (min-width: 768px) {
   .page-container {
-    padding: 40px 44px;
+    padding: 36px 40px;
+  }
+}
+
+.dashboard-grid-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 960px) {
+  .dashboard-grid-layout {
+    grid-template-columns: 1fr;
   }
 }
 
