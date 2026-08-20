@@ -36,6 +36,7 @@ from app.services.ai.prompts import (
     build_strategist_user_prompt,
 )
 from app.services.ai.fallback_data import FALLBACK_OPPORTUNITIES, FALLBACK_CONTENT
+from app.services.ai.validator import ContentQualityValidator
 
 logger = get_logger(__name__)
 
@@ -139,7 +140,7 @@ class OpenAIProvider(BaseAIProvider):
         request: GenerateContentRequest,
         brand: Brand,
     ) -> tuple[AIContentRaw, bool]:
-        system = build_content_generator_system_prompt(brand)
+        system = build_content_generator_system_prompt(brand, request)
         user = build_content_generator_user_prompt(opportunity, product, request, brand)
 
         logger.info(
@@ -156,7 +157,7 @@ class OpenAIProvider(BaseAIProvider):
                     {"role": "system", "content": system},
                     {"role": "user", "content": user},
                 ],
-                temperature=0.8,
+                temperature=0.75,
                 max_tokens=1500,
             )
 
@@ -166,7 +167,53 @@ class OpenAIProvider(BaseAIProvider):
 
             data = json.loads(raw_json)
             validated = AIContentRaw(**data)
-            return validated, False
+
+            # Deterministic Content Quality Validation Guardrail
+            validation_result = ContentQualityValidator.validate(validated, product, request.format)
+            if validation_result.valid:
+                logger.info("Content passed quality validation guardrail on attempt 1")
+                return validated, False
+
+            logger.warning(
+                "Content failed quality validation guardrail with %d violation(s): %s. Initiating retry...",
+                len(validation_result.violations),
+                [v.message for v in validation_result.violations],
+            )
+
+            # Structured single retry with violation feedback
+            violations_text = "\n".join(f"- [{v.field}] {v.message}" for v in validation_result.violations)
+            retry_prompt = (
+                f"The previous output failed quality validation for the following reason(s):\n"
+                f"{violations_text}\n\n"
+                f"Please regenerate the content strictly fixing all these violations. "
+                f"Ensure headlines are max 8 words and avoid banned generic phrases. Return valid JSON only."
+            )
+
+            retry_response = await self._client.chat.completions.create(
+                model=self._model,
+                response_format={"type": "json_object"},
+                messages=[
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": user},
+                    {"role": "assistant", "content": raw_json},
+                    {"role": "user", "content": retry_prompt},
+                ],
+                temperature=0.7,
+                max_tokens=1500,
+            )
+
+            retry_raw_json = retry_response.choices[0].message.content or "{}"
+            retry_data = json.loads(retry_raw_json)
+            retry_validated = AIContentRaw(**retry_data)
+
+            retry_validation = ContentQualityValidator.validate(retry_validated, product, request.format)
+            if retry_validation.valid:
+                logger.info("Content passed quality validation guardrail on retry attempt")
+                return retry_validated, False
+            else:
+                logger.warning("Retry attempt still had %d violation(s), accepting best effort output", len(retry_validation.violations))
+                return retry_validated, False
+
         except Exception as exc:
             logger.warning("AI provider generate_content error (%s) — using fallback demo data", exc)
             content_key = opportunity.id if opportunity.id in FALLBACK_CONTENT else "default"
