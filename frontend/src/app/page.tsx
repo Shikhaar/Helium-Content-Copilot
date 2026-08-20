@@ -255,6 +255,28 @@ export default function Home() {
     }
   };
 
+  // Reschedule Calendar Entry (Drag and drop or quick edit)
+  const handleRescheduleCalendarEntry = async (entryId: string, draftId: string, newDate: string, newTime?: string) => {
+    try {
+      const existing = calendarEntries.find(c => c.id === entryId);
+      const currentTime = newTime || (existing ? existing.scheduled_datetime.split('T')[1]?.slice(0, 5) : '19:00');
+      const updated = await api.scheduleDraft(draftId, {
+        scheduled_date: newDate,
+        scheduled_time: currentTime,
+        platform: (existing?.platform as Platform) || 'Instagram',
+      });
+      if (currentDraft && currentDraft.id === draftId) {
+        setCurrentDraft(updated);
+      }
+      const cal = await api.getCalendar();
+      setCalendarEntries(cal);
+      return updated;
+    } catch (e: any) {
+      setError(e.message || 'Failed to reschedule post.');
+      throw e;
+    }
+  };
+
   // View Draft from Calendar
   const handleViewDraft = async (draftId: string) => {
     try {
@@ -358,6 +380,7 @@ export default function Home() {
             entries={calendarEntries}
             onDeleteEntry={handleDeleteCalendarEntry}
             onSelectDraft={handleViewDraft}
+            onRescheduleEntry={handleRescheduleCalendarEntry}
           />
         );
 
