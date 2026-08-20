@@ -334,3 +334,29 @@ class CreateProductRequest(BaseModel):
     inventory_status: InventoryStatus = InventoryStatus.IN_STOCK
     views: int = 0
     sales: int = 0
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Authentication & User Identity (Clerk Integration)
+# ──────────────────────────────────────────────────────────────────────────────
+
+class UserContext(BaseModel):
+    clerk_user_id: str
+    email: str | None = None
+    name: str | None = None
+    avatar_url: str | None = None
+    role: str = "editor"
+    workspace_id: str = "default_workspace"
+
+
+class UserResponse(BaseModel):
+    id: str
+    clerk_user_id: str
+    name: str
+    email: str
+    avatar_url: str | None = None
+    role: str = "editor"
+    workspace_id: str = "default_workspace"
+    created_at: str
+    updated_at: str
+

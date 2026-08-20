@@ -20,6 +20,12 @@ class Settings(BaseSettings):
     # Database
     database_url: str = "./helium.db"
 
+    # Clerk Authentication
+    clerk_secret_key: str = ""
+    clerk_publishable_key: str = ""
+    clerk_issuer: str = ""
+    clerk_jwks_url: str = ""
+
     # Server
     host: str = "0.0.0.0"
     port: int = 8000

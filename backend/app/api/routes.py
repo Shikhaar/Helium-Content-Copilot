@@ -27,6 +27,7 @@ from app.models.schemas import (
 )
 from app.services.ai.providers import get_ai_provider
 from app.services.analytics import AnalyticsService
+from app.services.auth_service import get_current_user
 from app.services.content_generator import ContentGeneratorService
 from app.services.repositories import (
     BrandRepository,
@@ -35,9 +36,11 @@ from app.services.repositories import (
     OpportunityRepository,
     PostRepository,
     ProductRepository,
+    UserRepository,
 )
 from app.services.scoring import ScoringService
 from app.services.strategist import StrategistService
+from app.models.schemas import UserContext, UserResponse
 
 import aiosqlite
 
@@ -350,8 +353,22 @@ async def delete_calendar_entry(entry_id: str, db: aiosqlite.Connection = Depend
     return {"status": "ok", "message": f"Calendar entry {entry_id} removed"}
 
 
+# ── Auth & Identity Endpoint ───────────────────────────────────────────────────
+
+@router.get("/auth/me", response_model=UserResponse)
+async def get_me(
+    current_user: UserContext = Depends(get_current_user),
+    db: aiosqlite.Connection = Depends(get_db_conn),
+):
+    """Return authenticated user profile synced from Clerk."""
+    logger.info("GET /api/auth/me | clerk_user_id=%s", current_user.clerk_user_id)
+    repo = UserRepository(db)
+    return await repo.sync_user(current_user)
+
+
 # ── Health Check ───────────────────────────────────────────────────────────────
 
 @router.get("/health")
 async def health():
     return {"status": "ok", "service": "helium-content-copilot"}
+

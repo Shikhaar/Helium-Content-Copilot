@@ -176,7 +176,8 @@ Real brand performance data was unavailable for the assignment, so I created a t
 
 | Component | Result | Notes |
 | :--- | :---: | :--- |
-| **Backend Test Suite** | **35 / 35 passed** | 100% pass rate in `pytest` (0.35s) |
+| **Backend Test Suite** | **47 / 47 passed** | 100% pass rate in `pytest` (0.77s) |
+| **Authentication & RBAC** | **Passed** | Clerk JWT session verification, JWKS caching, and user sync tested |
 | **Scoring Boundary Tests** | **Passed** | Factor bounds (0–25, 0–20, 0–15) and stock multipliers verified |
 | **Pydantic Validation Tests** | **Passed** | Strict JSON schema validation for all requests and responses |
 | **Opportunity Ranking Tests** | **Passed** | Opportunities reliably sorted by deterministic total score |
@@ -185,12 +186,48 @@ Real brand performance data was unavailable for the assignment, so I created a t
 
 ---
 
+## Authentication
+
+Helium uses [Clerk](https://clerk.com/) for secure authentication, user identity, and session management.
+
+### Configuration Steps
+
+1. Create a Clerk application at [dashboard.clerk.com](https://dashboard.clerk.com).
+2. Configure your preferred authentication methods (Email/Password, Google OAuth, etc.).
+3. Copy your API keys into `frontend/.env.local`:
+   ```bash
+   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+   CLERK_SECRET_KEY=sk_test_...
+   NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+   NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+   NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/
+   NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/
+   NEXT_PUBLIC_API_URL=http://localhost:8000/api
+   ```
+4. (Optional) Add your Clerk keys to `backend/.env` for server-side token verification:
+   ```bash
+   CLERK_SECRET_KEY=sk_test_...
+   CLERK_PUBLISHABLE_KEY=pk_test_...
+   CLERK_ISSUER=https://<your-clerk-domain>.clerk.accounts.dev
+   ```
+5. Start the backend:
+   ```bash
+   cd backend && poetry run uvicorn app.main:app --reload
+   ```
+6. Start the frontend:
+   ```bash
+   cd frontend && npm run dev
+   ```
+7. Open `http://localhost:3000`, click **Sign Up** to create an account, verify your email, and access the Helium Content Studio.
+
+---
+
 ## Tech Stack
 
-- **Backend:** Python 3.11+ / FastAPI / SQLite (`aiosqlite`) / Poetry / Pydantic v2
-- **Frontend:** Next.js (Turbopack) / React 19 / TypeScript / Lucide Icons / Vanilla CSS
+- **Backend:** Python 3.11+ / FastAPI / SQLite (`aiosqlite`) / Poetry / Pydantic v2 / PyJWT
+- **Frontend:** Next.js (Turbopack) / React 19 / TypeScript / Tailwind CSS / Lucide Icons / Clerk
 - **AI Engine:** OpenAI (`gpt-4o-mini`) / OpenRouter + CO-STAR structured prompting + JSON mode validation
-- **Testing:** `pytest` + `pytest-asyncio` (35 unit tests)
+- **Testing:** `pytest` + `pytest-asyncio` (47 unit tests)
 
 ---
 
@@ -205,7 +242,7 @@ Real brand performance data was unavailable for the assignment, so I created a t
 cd backend
 poetry install
 
-# Run backend tests (35 passing)
+# Run backend tests (47 passing)
 poetry run pytest tests/ -v
 
 # Start FastAPI server (runs on http://localhost:8000)

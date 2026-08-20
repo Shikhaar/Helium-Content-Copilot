@@ -1,7 +1,8 @@
 'use client';
 import React from 'react';
 import { Menu } from 'lucide-react';
-import { api } from '../lib/api';
+import { useAuth } from '@clerk/nextjs';
+import { api, setApiAuthToken } from '../lib/api';
 import type {
   AnalyzeResponse,
   Brand,
@@ -35,6 +36,7 @@ type Screen =
   | { name: 'brand' };
 
 export default function Home() {
+  const { isLoaded, isSignedIn, getToken } = useAuth();
   const [activeTab, setActiveTab] = React.useState<Tab>('opportunities');
   const [screen, setScreen] = React.useState<Screen>({ name: 'dashboard' });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
@@ -63,6 +65,11 @@ export default function Home() {
   React.useEffect(() => {
     const loadBootstrap = async () => {
       try {
+        if (isSignedIn) {
+          const token = await getToken();
+          setApiAuthToken(token);
+        }
+
         const [b, p, perf, cal] = await Promise.all([
           api.getBrand(),
           api.getProducts(),
@@ -89,7 +96,7 @@ export default function Home() {
       }
     };
     loadBootstrap();
-  }, []);
+  }, [isSignedIn, getToken]);
 
   // Navigation helpers
   const navigate = (s: Screen) => {

@@ -15,6 +15,7 @@ import type {
   Product,
   ScheduleRequest,
   UpdateBrandRequest,
+  UserResponse,
 } from './types';
 
 const BASE_URL =
@@ -23,10 +24,25 @@ const BASE_URL =
     ? '/api'
     : 'http://localhost:8000/api');
 
+let _authToken: string | null = null;
+
+export const setApiAuthToken = (token: string | null) => {
+  _authToken = token;
+};
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(options?.headers as Record<string, string>),
+  };
+
+  if (_authToken) {
+    headers['Authorization'] = `Bearer ${_authToken}`;
+  }
+
   const res = await fetch(`${BASE_URL}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
     ...options,
+    headers,
   });
   if (!res.ok) {
     const error = await res.json().catch(() => ({ detail: 'Unknown error' }));
@@ -40,6 +56,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 
 // ── Brand & Data ──────────────────────────────────────────────────────────────
 export const api = {
+  getMe: () => request<UserResponse>('/auth/me'),
   getBrand: () => request<Brand>('/brand'),
   updateBrand: (updates: UpdateBrandRequest) =>
     request<Brand>('/brand', {

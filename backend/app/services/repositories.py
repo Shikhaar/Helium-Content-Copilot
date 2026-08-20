@@ -30,6 +30,8 @@ from app.models.schemas import (
     Opportunity,
     Product,
     ScoreBreakdown,
+    UserResponse,
+    UserContext,
 )
 
 logger = get_logger(__name__)
@@ -451,3 +453,82 @@ class CalendarRepository(BaseRepository[CalendarEntry]):
         logger.info("Deleting calendar entry id=%s", entry_id)
         await self._db.execute("DELETE FROM calendar_entries WHERE id = ?", (entry_id,))
         await self._db.commit()
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# User Repository (Clerk User Sync)
+# ──────────────────────────────────────────────────────────────────────────────
+
+class UserRepository(BaseRepository[UserResponse]):
+    """Handles synchronization and retrieval of Clerk-authenticated users."""
+
+    async def get_by_clerk_id(self, clerk_user_id: str) -> UserResponse | None:
+        async with self._db.execute(
+            "SELECT * FROM users WHERE clerk_user_id = ?", (clerk_user_id,)
+        ) as cursor:
+            row = await cursor.fetchone()
+        if not row:
+            return None
+        return UserResponse(
+            id=row["id"],
+            clerk_user_id=row["clerk_user_id"],
+            name=row["name"],
+            email=row["email"],
+            avatar_url=row["avatar_url"],
+            role=row["role"],
+            workspace_id=row["workspace_id"],
+            created_at=row["created_at"],
+            updated_at=row["updated_at"],
+        )
+
+    async def sync_user(self, ctx: UserContext) -> UserResponse:
+        """Upsert user profile from verified Clerk context."""
+        existing = await self.get_by_clerk_id(ctx.clerk_user_id)
+        now = self._now_iso()
+
+        name = ctx.name or (ctx.email.split("@")[0] if ctx.email else "Helium User")
+        email = ctx.email or f"{ctx.clerk_user_id}@helium.internal"
+
+        if existing:
+            await self._db.execute(
+                """
+                UPDATE users
+                SET name = ?, email = ?, avatar_url = ?, updated_at = ?
+                WHERE clerk_user_id = ?
+                """,
+                (name, email, ctx.avatar_url or existing.avatar_url, now, ctx.clerk_user_id),
+            )
+            await self._db.commit()
+            return await self.get_by_clerk_id(ctx.clerk_user_id)  # type: ignore
+
+        user_id = self._new_id()
+        await self._db.execute(
+            """
+            INSERT INTO users (id, clerk_user_id, name, email, avatar_url, role, workspace_id, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                user_id,
+                ctx.clerk_user_id,
+                name,
+                email,
+                ctx.avatar_url,
+                ctx.role,
+                ctx.workspace_id,
+                now,
+                now,
+            ),
+        )
+        await self._db.commit()
+        return UserResponse(
+            id=user_id,
+            clerk_user_id=ctx.clerk_user_id,
+            name=name,
+            email=email,
+            avatar_url=ctx.avatar_url,
+            role=ctx.role,
+            workspace_id=ctx.workspace_id,
+            created_at=now,
+            updated_at=now,
+        )
+

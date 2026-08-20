@@ -177,3 +177,16 @@ export interface CreateProductRequest {
   views?: number;
   sales?: number;
 }
+
+export interface UserResponse {
+  id: string;
+  clerk_user_id: string;
+  name: string;
+  email: string;
+  avatar_url?: string;
+  role: string;
+  workspace_id: string;
+  created_at: string;
+  updated_at: string;
+}
+

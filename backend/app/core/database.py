@@ -107,6 +107,18 @@ CREATE TABLE IF NOT EXISTS calendar_entries (
     status      TEXT NOT NULL,
     scheduled_datetime TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS users (
+    id            TEXT PRIMARY KEY,
+    clerk_user_id TEXT UNIQUE NOT NULL,
+    name          TEXT NOT NULL,
+    email         TEXT NOT NULL,
+    avatar_url    TEXT,
+    role          TEXT NOT NULL DEFAULT 'editor',
+    workspace_id  TEXT NOT NULL DEFAULT 'default_workspace',
+    created_at    TEXT NOT NULL,
+    updated_at    TEXT NOT NULL
+);
 """
 
 

@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Lightbulb,
   Wand2,
@@ -8,7 +8,14 @@ import {
   PanelLeftClose,
   PanelLeft,
   X,
+  User as UserIcon,
+  LogOut,
+  ChevronUp,
+  ChevronDown,
+  Sparkles,
 } from 'lucide-react';
+import { useUser, useClerk } from '@clerk/nextjs';
+import UserProfileModal from './UserProfileModal';
 
 export type Tab = 'opportunities' | 'create' | 'calendar' | 'brand';
 
@@ -45,6 +52,28 @@ export default function Sidebar({
   brandName = 'SNITCH',
   campaign = 'Summer 2026',
 }: SidebarProps) {
+  const { user } = useUser();
+  const { signOut } = useClerk();
+
+  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const accountMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close popover when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (accountMenuRef.current && !accountMenuRef.current.contains(event.target as Node)) {
+        setIsAccountMenuOpen(false);
+      }
+    };
+    if (isAccountMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isAccountMenuOpen]);
+
   const handleItemClick = (id: Tab) => {
     onTabChange(id);
     if (onCloseMobile) onCloseMobile();
@@ -54,6 +83,15 @@ export default function Sidebar({
     onHome();
     if (onCloseMobile) onCloseMobile();
   };
+
+  const displayName = user?.fullName || user?.firstName || 'Helium User';
+  const email = user?.primaryEmailAddress?.emailAddress || 'user@helium.internal';
+  const initials = displayName
+    .split(' ')
+    .map(n => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2) || 'H';
 
   const navItem = (id: Tab, label: string, Icon: React.ElementType) => {
     const isActive = activeTab === id;
@@ -122,6 +160,15 @@ export default function Sidebar({
         />
       )}
 
+      {/* User Profile Modal */}
+      <UserProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        user={user}
+        brandName={brandName}
+        campaign={campaign}
+      />
+
       <aside
         style={{
           width: isCollapsed ? 60 : 220,
@@ -166,35 +213,56 @@ export default function Sidebar({
             }}
           >
             {/* H mark */}
-            <div style={{
-              width: 26, height: 26, borderRadius: 5,
-              background: 'var(--brown-dark)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0,
-            }}>
-              <span style={{
-                fontFamily: 'var(--font-sans)',
-                fontSize: 12, fontWeight: 800,
-                color: 'var(--surface)',
-                letterSpacing: '-0.04em',
-              }}>H</span>
+            <div
+              style={{
+                width: 26,
+                height: 26,
+                borderRadius: 5,
+                background: 'var(--brown-dark)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: 'var(--font-sans)',
+                  fontSize: 12,
+                  fontWeight: 800,
+                  color: 'var(--surface)',
+                  letterSpacing: '-0.04em',
+                }}
+              >
+                H
+              </span>
             </div>
             {!isCollapsed && (
               <div style={{ textAlign: 'left' }}>
-                <div style={{
-                  fontSize: 11, fontWeight: 800,
-                  color: 'var(--brown-dark)',
-                  letterSpacing: '0.08em',
-                  lineHeight: 1.15,
-                  textTransform: 'uppercase',
-                }}>Helium</div>
-                <div style={{
-                  fontSize: 9, fontWeight: 600,
-                  color: 'var(--text-muted)',
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
-                  marginTop: 1,
-                }}>Content Copilot</div>
+                <div
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 800,
+                    color: 'var(--brown-dark)',
+                    letterSpacing: '0.08em',
+                    lineHeight: 1.15,
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  Helium
+                </div>
+                <div
+                  style={{
+                    fontSize: 9,
+                    fontWeight: 600,
+                    color: 'var(--text-muted)',
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                    marginTop: 1,
+                  }}
+                >
+                  Content Copilot
+                </div>
               </div>
             )}
           </button>
@@ -205,10 +273,15 @@ export default function Sidebar({
               onClick={onCloseMobile}
               className="mobile-only"
               style={{
-                background: 'none', border: 'none',
-                color: 'var(--text-muted)', cursor: 'pointer',
-                padding: '5px', borderRadius: 5,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-muted)',
+                cursor: 'pointer',
+                padding: '5px',
+                borderRadius: 5,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
               <X size={16} />
@@ -220,11 +293,17 @@ export default function Sidebar({
         <nav style={{ padding: isCollapsed ? '14px 6px' : '14px 10px', flex: 1, overflowY: 'auto' }}>
           {/* WORKSPACE group */}
           {!isCollapsed && (
-            <div style={{
-              fontSize: 9, fontWeight: 700, letterSpacing: '0.08em',
-              textTransform: 'uppercase', color: 'var(--text-muted)',
-              padding: '0 10px', marginBottom: 6,
-            }}>
+            <div
+              style={{
+                fontSize: 9,
+                fontWeight: 700,
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                color: 'var(--text-muted)',
+                padding: '0 10px',
+                marginBottom: 6,
+              }}
+            >
               WORKSPACE
             </div>
           )}
@@ -232,11 +311,18 @@ export default function Sidebar({
 
           {/* BRAND group */}
           {!isCollapsed && (
-            <div style={{
-              fontSize: 9, fontWeight: 700, letterSpacing: '0.08em',
-              textTransform: 'uppercase', color: 'var(--text-muted)',
-              padding: '0 10px', marginTop: 20, marginBottom: 6,
-            }}>
+            <div
+              style={{
+                fontSize: 9,
+                fontWeight: 700,
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                color: 'var(--text-muted)',
+                padding: '0 10px',
+                marginTop: 20,
+                marginBottom: 6,
+              }}
+            >
               BRAND
             </div>
           )}
@@ -244,8 +330,9 @@ export default function Sidebar({
           {brandItems.map(({ id, label, icon }) => navItem(id, label, icon))}
         </nav>
 
-        {/* Bottom Utility & Workspace Identity Section */}
+        {/* Bottom Utility & Workspace / Account Section */}
         <div
+          ref={accountMenuRef}
           style={{
             borderTop: '1px solid var(--border)',
             padding: isCollapsed ? '8px 6px 12px' : '8px 10px 12px',
@@ -253,6 +340,7 @@ export default function Sidebar({
             flexDirection: 'column',
             gap: 4,
             background: 'var(--sidebar)',
+            position: 'relative',
           }}
         >
           {/* Desktop Collapse Toggle */}
@@ -298,74 +386,254 @@ export default function Sidebar({
             </button>
           )}
 
-          {/* Integrated Workspace / Brand Identity */}
-          <div
-            title={isCollapsed ? `${brandName} · ${campaign}` : undefined}
+          {/* Account Popover Menu */}
+          {isAccountMenuOpen && (
+            <div
+              style={{
+                position: 'absolute',
+                bottom: '100%',
+                left: isCollapsed ? 64 : 10,
+                width: 220,
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
+                borderRadius: 8,
+                boxShadow: '0 12px 28px -4px rgba(32, 27, 23, 0.18)',
+                padding: '6px 0',
+                zIndex: 250,
+                marginBottom: 6,
+                fontFamily: 'var(--font-sans)',
+              }}
+            >
+              {/* User Identity Header */}
+              <div
+                style={{
+                  padding: '8px 12px 10px',
+                  borderBottom: '1px solid var(--border)',
+                }}
+              >
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>
+                  {displayName}
+                </div>
+                <div
+                  style={{
+                    fontSize: 11,
+                    color: 'var(--text-muted)',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    marginTop: 1,
+                  }}
+                >
+                  {email}
+                </div>
+              </div>
+
+              {/* Account Section */}
+              <div style={{ padding: '4px 0', borderBottom: '1px solid var(--border)' }}>
+                <button
+                  onClick={() => {
+                    setIsAccountMenuOpen(false);
+                    setIsProfileModalOpen(true);
+                  }}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    padding: '7px 12px',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: 12,
+                    color: 'var(--text-primary)',
+                    textAlign: 'left',
+                    transition: 'background 0.12s ease',
+                  }}
+                  onMouseEnter={e => {
+                    (e.currentTarget as HTMLElement).style.background = 'var(--bg-subtle)';
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLElement).style.background = 'none';
+                  }}
+                >
+                  <UserIcon size={14} color="var(--text-secondary)" />
+                  <span>Profile & Details</span>
+                </button>
+              </div>
+
+              {/* Workspace Section */}
+              <div style={{ padding: '6px 12px', borderBottom: '1px solid var(--border)' }}>
+                <div
+                  style={{
+                    fontSize: 9,
+                    fontWeight: 700,
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                    color: 'var(--text-muted)',
+                    marginBottom: 4,
+                  }}
+                >
+                  Active Workspace
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div
+                    style={{
+                      width: 16,
+                      height: 16,
+                      borderRadius: 3,
+                      background: 'var(--brown-soft)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 8,
+                      fontWeight: 700,
+                      color: 'var(--brown-primary)',
+                    }}
+                  >
+                    {brandName.charAt(0)}
+                  </div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-primary)' }}>
+                    {brandName} <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>· {campaign}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Log out Button */}
+              <div style={{ padding: '4px 0 0' }}>
+                <button
+                  onClick={() => signOut({ redirectUrl: '/sign-in' })}
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    padding: '7px 12px',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: 12,
+                    color: '#9C3426',
+                    fontWeight: 500,
+                    textAlign: 'left',
+                    transition: 'background 0.12s ease',
+                  }}
+                  onMouseEnter={e => {
+                    (e.currentTarget as HTMLElement).style.background = '#FDE8E4';
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLElement).style.background = 'none';
+                  }}
+                >
+                  <LogOut size={14} />
+                  <span>Sign out</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Interactive Account & Workspace Identity Button */}
+          <button
+            onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)}
+            title={isCollapsed ? `${displayName} (${email})` : undefined}
             style={{
               width: '100%',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: isCollapsed ? 'center' : 'flex-start',
-              gap: 9,
-              padding: isCollapsed ? '6px 0' : '7px 8px',
+              justifyContent: isCollapsed ? 'center' : 'space-between',
+              gap: 8,
+              padding: isCollapsed ? '6px 0' : '6px 8px',
               borderRadius: 6,
-              background: 'transparent',
-              userSelect: 'none',
+              background: isAccountMenuOpen ? 'rgba(217, 200, 181, 0.45)' : 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              textAlign: 'left',
+              transition: 'background 0.15s ease',
+            }}
+            onMouseEnter={e => {
+              if (!isAccountMenuOpen) {
+                (e.currentTarget as HTMLElement).style.background = 'rgba(217, 200, 181, 0.45)';
+              }
+            }}
+            onMouseLeave={e => {
+              if (!isAccountMenuOpen) {
+                (e.currentTarget as HTMLElement).style.background = 'transparent';
+              }
             }}
           >
-            {/* Refined Brand Avatar */}
-            <div
-              style={{
-                width: 24,
-                height: 24,
-                borderRadius: 5,
-                background: 'var(--brown-soft)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 11,
-                fontWeight: 700,
-                color: 'var(--brown-primary)',
-                flexShrink: 0,
-                fontFamily: 'var(--font-sans)',
-              }}
-            >
-              {brandName.charAt(0)}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+              {/* User Avatar */}
+              {user?.imageUrl ? (
+                <img
+                  src={user.imageUrl}
+                  alt={displayName}
+                  style={{
+                    width: 24,
+                    height: 24,
+                    borderRadius: 5,
+                    objectFit: 'cover',
+                    flexShrink: 0,
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: 24,
+                    height: 24,
+                    borderRadius: 5,
+                    background: 'var(--brown-soft)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 10,
+                    fontWeight: 700,
+                    color: 'var(--brown-primary)',
+                    flexShrink: 0,
+                    fontFamily: 'var(--font-sans)',
+                  }}
+                >
+                  {initials}
+                </div>
+              )}
+
+              {!isCollapsed && (
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: 'var(--text-primary)',
+                      lineHeight: 1.2,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {displayName}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 10,
+                      fontWeight: 500,
+                      color: 'var(--text-muted)',
+                      lineHeight: 1.2,
+                      marginTop: 1,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {email}
+                  </div>
+                </div>
+              )}
             </div>
 
             {!isCollapsed && (
-              <div style={{ minWidth: 0, flex: 1 }}>
-                <div
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 700,
-                    color: 'var(--text-primary)',
-                    lineHeight: 1.2,
-                    letterSpacing: '0.02em',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {brandName}
-                </div>
-                <div
-                  style={{
-                    fontSize: 10,
-                    fontWeight: 500,
-                    color: 'var(--text-muted)',
-                    lineHeight: 1.2,
-                    marginTop: 1,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {campaign}
-                </div>
+              <div style={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}>
+                {isAccountMenuOpen ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
               </div>
             )}
-          </div>
+          </button>
         </div>
       </aside>
     </>
