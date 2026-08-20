@@ -125,7 +125,10 @@ export default function Sidebar({
       <aside
         style={{
           width: isCollapsed ? 60 : 220,
-          minHeight: '100vh',
+          height: '100vh',
+          maxHeight: '100vh',
+          position: 'sticky',
+          top: 0,
           background: 'var(--sidebar)',
           borderRight: '1px solid var(--border)',
           display: 'flex',
@@ -133,6 +136,7 @@ export default function Sidebar({
           flexShrink: 0,
           transition: 'width 0.2s ease, transform 0.25s ease',
           zIndex: 100,
+          boxSizing: 'border-box',
         }}
         className={`sidebar-container ${isMobileOpen ? 'mobile-drawer-open' : 'mobile-drawer-closed'}`}
       >
@@ -213,7 +217,7 @@ export default function Sidebar({
         </div>
 
         {/* Navigation */}
-        <nav style={{ padding: isCollapsed ? '14px 6px' : '14px 10px', flex: 1 }}>
+        <nav style={{ padding: isCollapsed ? '14px 6px' : '14px 10px', flex: 1, overflowY: 'auto' }}>
           {/* WORKSPACE group */}
           {!isCollapsed && (
             <div style={{
