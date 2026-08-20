@@ -5,8 +5,10 @@ Deterministic quality checks for AI-generated social content:
 1. Schema & Structure Validation (required fields, slide count)
 2. Headline Constraint (maximum 8 words per slide/scene)
 3. Anti-Cliché / Banned AI Phrase Detection
-4. Unsupported Product & Discount Claims Detection
-5. CTA & Hashtag Conformance
+4. Generic Opening Pattern Detection
+5. Excessive Exclamation Mark & Fake Excitement Detection
+6. Unsupported Product & Discount Claims Detection
+7. CTA & Hashtag Conformance
 """
 from __future__ import annotations
 
@@ -17,10 +19,20 @@ from app.models.schemas import AIContentRaw, Product, PostFormat
 
 
 BANNED_PHRASES = [
+    "summer is the perfect time",
+    "ready to express",
+    "ready to show off",
+    "ready to elevate",
+    "how are you rocking",
+    "show us your style",
+    "express your style",
     "elevate your style",
+    "elevate your wardrobe",
     "step up your game",
     "level up your wardrobe",
+    "take your style to the next level",
     "effortlessly stylish",
+    "effortless style",
     "timeless sophistication",
     "where style meets comfort",
     "designed for the modern man",
@@ -32,16 +44,26 @@ BANNED_PHRASES = [
     "the perfect blend of",
     "from day to night",
     "whether you're",
-    "embrace the",
+    "unleash your",
     "discover the perfect",
     "unlock your style",
-    "elevate your wardrobe",
-    "effortless style",
-    "seamlessly transitions",
+    "stand out from the crowd",
+    "say hello to",
+    "here's how to elevate",
     "game-changer",
-    "must-have",
-    "ultimate wardrobe",
-    "iconic piece",
+    "must-have item",
+    "share your looks with us",
+    "join the street style challenge",
+    "join the challenge",
+]
+
+GENERIC_OPENING_PATTERNS = [
+    r"^\s*summer is the perfect time",
+    r"^\s*are you ready to",
+    r"^\s*ready to (take|elevate|level up|show)",
+    r"^\s*how are you rocking",
+    r"^\s*looking for the perfect",
+    r"^\s*it's time to upgrade",
 ]
 
 UNSUPPORTED_CLAIM_PATTERNS = [
@@ -57,7 +79,7 @@ UNSUPPORTED_CLAIM_PATTERNS = [
 
 
 class ValidationViolation(BaseModel):
-    type: str  # e.g. "banned_phrase", "headline_length", "unsupported_claim", "structure"
+    type: str  # e.g. "banned_phrase", "headline_length", "unsupported_claim", "structure", "generic_opening"
     field: str  # e.g. "slides[0].headline", "caption", "hashtags"
     message: str
 
@@ -88,10 +110,16 @@ class ContentQualityValidator:
         # 3. Anti-Cliché Banned Phrase Detection
         cls._detect_banned_phrases(content, violations)
 
-        # 4. Unsupported Claims Detection
+        # 4. Generic Opening Pattern Detection
+        cls._detect_generic_openings(content, violations)
+
+        # 5. Excessive Exclamation Mark & Fake Excitement Detection
+        cls._detect_excessive_exclamation_marks(content, violations)
+
+        # 6. Unsupported Claims Detection
         cls._detect_unsupported_claims(content, product, violations)
 
-        # 5. CTA & Hashtag Validation
+        # 7. CTA & Hashtag Validation
         cls._validate_cta_and_hashtags(content, violations)
 
         return ValidationResult(
@@ -141,7 +169,7 @@ class ContentQualityValidator:
     ) -> None:
         for idx, slide in enumerate(content.slides):
             word_count = len(slide.headline.strip().split())
-            if word_count > 9:  # generous 8-word limit with slight tolerance
+            if word_count > 9:  # generous 8-word target with tolerance
                 violations.append(
                     ValidationViolation(
                         type="headline_length",
@@ -180,6 +208,46 @@ class ContentQualityValidator:
                             message=f"Slide {idx + 1} contains generic AI phrase: '{phrase}'",
                         )
                     )
+
+    @classmethod
+    def _detect_generic_openings(
+        cls,
+        content: AIContentRaw,
+        violations: list[ValidationViolation],
+    ) -> None:
+        for pattern in GENERIC_OPENING_PATTERNS:
+            if re.search(pattern, content.caption, re.IGNORECASE):
+                violations.append(
+                    ValidationViolation(
+                        type="generic_opening",
+                        field="caption",
+                        message=f"Caption starts with predictable AI opener matching: '{pattern}'",
+                    )
+                )
+            if content.slides and re.search(pattern, content.slides[0].headline, re.IGNORECASE):
+                violations.append(
+                    ValidationViolation(
+                        type="generic_opening",
+                        field="slides[0].headline",
+                        message=f"Hook headline starts with predictable AI opener matching: '{pattern}'",
+                    )
+                )
+
+    @classmethod
+    def _detect_excessive_exclamation_marks(
+        cls,
+        content: AIContentRaw,
+        violations: list[ValidationViolation],
+    ) -> None:
+        caption_exclamations = content.caption.count("!")
+        if caption_exclamations >= 3:
+            violations.append(
+                ValidationViolation(
+                    type="tone",
+                    field="caption",
+                    message=f"Excessive exclamation marks ({caption_exclamations}) detected. Keep tone grounded and confident.",
+                )
+            )
 
     @classmethod
     def _detect_unsupported_claims(

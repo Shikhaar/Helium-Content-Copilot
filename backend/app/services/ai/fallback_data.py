@@ -131,27 +131,27 @@ FALLBACK_OPPORTUNITIES: list[AIOpportunityRaw] = [
 _STYLING_SLIDES = [
     CarouselSlide(
         slide_number=1,
-        headline="3 Ways to Wear Linen This Summer",
-        body="One shirt. Three completely different looks. Which one are you starting with?",
-        visual_cue="Clean white background. Model holds up linen shirt, facing camera. Bold text overlay.",
+        headline="Beach at 4. Dinner at 8.",
+        body="One shirt that handles both without missing a beat.",
+        visual_cue="Model throws the sage linen shirt over a white rib tank, adjusting the cuff outdoors.",
     ),
     CarouselSlide(
         slide_number=2,
-        headline="Look 01 — The Sunday Reset",
-        body="Oversized Linen Shirt + white shorts + chunky sneakers. Nothing forced, everything right.",
-        visual_cue="Outdoor, natural light. Model seated at café table, relaxed posture. Sage green shirt.",
+        headline="Look 01: Daytime Casual",
+        body="Unbuttoned over relaxed drawstring shorts and slide sandals.",
+        visual_cue="Tracking side shot of model walking through sunlit café terrace.",
     ),
     CarouselSlide(
         slide_number=3,
-        headline="Look 02 — Smart Casual Done Right",
-        body="Tuck it halfway. Add pleated trousers. Suddenly you're the most put-together person in the room.",
-        visual_cue="Urban setting. Model standing against textured concrete wall. Half-tuck, pleated trousers, loafers.",
+        headline="Look 02: Sunset Dinner",
+        body="Buttoned up with pleated ecru trousers and leather mules.",
+        visual_cue="Golden hour close-up on fabric texture and resort collar detail.",
     ),
     CarouselSlide(
         slide_number=4,
-        headline="Look 03 — Rooftop Ready",
-        body="Leave it open over a ribbed tank. Add cargo pants. The effortless rooftop fit you needed.",
-        visual_cue="Golden hour rooftop. Model leaning on railing, open linen shirt over white tank, cargo pants.",
+        headline="Save This for Packing",
+        body="Which fit are you starting with this weekend?",
+        visual_cue="Flatlay of styled lookbook essentials with minimalist framing.",
     ),
 ]
 
@@ -159,15 +159,14 @@ FALLBACK_CONTENT: dict[str, AIContentRaw] = {
     "default": AIContentRaw(
         slides=_STYLING_SLIDES,
         caption=(
-            "Linen season is here and we're not letting the heat win. 🌞\n\n"
-            "3 ways to style the Oversized Linen Shirt — from a lazy Sunday to a rooftop night. "
-            "Which look are you going for first?\n\n"
-            "Drop your number below 👇"
+            "One linen shirt, plenty of ways to wear it.\n\n"
+            "From midday coffee runs to rooftop evenings without needing an outfit change. "
+            "Which fit are you wearing?"
         ),
-        cta="Shop the Linen Shirt — link in bio 🔗",
+        cta="Discover your style — link in bio 🔗",
         hashtags=[
-            "#SNITCH", "#SnitchStyle", "#LinenShirt", "#MensFashionIndia",
-            "#IndianStreetStyle", "#SummerFits", "#OOTDIndia", "#StyleGuide",
+            "snitch", "summerstyling", "linenlayering", "menslookbook",
+            "resortwear", "streetstyleindia", "summerfits",
         ],
     ),
 }

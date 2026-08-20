@@ -142,3 +142,29 @@ def test_detects_insufficient_slides(valid_carousel_content, sample_product):
     structure_violations = [v for v in result.violations if v.type == "structure"]
     assert len(structure_violations) >= 1
     assert "Too few slides" in structure_violations[0].message
+
+
+def test_detects_generic_openings(valid_carousel_content, sample_product):
+    valid_carousel_content.caption = "Summer is the perfect time to express your style! Check out our new drop."
+    result = ContentQualityValidator.validate(
+        content=valid_carousel_content,
+        product=sample_product,
+        format_type=PostFormat.CAROUSEL,
+    )
+    assert result.valid is False
+    violations = [v for v in result.violations if v.type == "generic_opening"]
+    assert len(violations) >= 1
+    assert "predictable AI opener" in violations[0].message
+
+
+def test_detects_excessive_exclamation_marks(valid_carousel_content, sample_product):
+    valid_carousel_content.caption = "Amazing fit! Super stylish! Don't miss out on this summer drop!"
+    result = ContentQualityValidator.validate(
+        content=valid_carousel_content,
+        product=sample_product,
+        format_type=PostFormat.CAROUSEL,
+    )
+    assert result.valid is False
+    tone_violations = [v for v in result.violations if v.type == "tone"]
+    assert len(tone_violations) >= 1
+    assert "Excessive exclamation marks" in tone_violations[0].message
