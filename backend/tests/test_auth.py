@@ -26,7 +26,7 @@ async def memory_db():
 async def test_verify_valid_test_token():
     ctx = await verify_clerk_token("Bearer valid-test-token")
     assert ctx.clerk_user_id == "user_test_123"
-    assert ctx.email == "tester@helium.internal"
+    assert ctx.email == "tester@brandbrew.internal"
     assert ctx.role == "editor"
 
 
