@@ -30,7 +30,7 @@ type Tab = 'opportunities' | 'create' | 'calendar' | 'brand';
 type Screen =
   | { name: 'dashboard' }
   | { name: 'opportunity'; id: string }
-  | { name: 'create'; opportunityId: string }
+  | { name: 'create'; opportunityId?: string }
   | { name: 'calendar' }
   | { name: 'brand' };
 
@@ -115,13 +115,17 @@ export default function Home() {
     } else if (tab === 'create') {
       // If we have a draft already, go straight to the studio
       if (currentDraft && selectedOpportunity) {
-        setScreen({ name: 'create', opportunityId: selectedOpportunity.id });
+        navigate({ name: 'create', opportunityId: selectedOpportunity.id });
       } else if (selectedOpportunity) {
         // Have an opportunity but no draft yet — trigger generation
         handleGenerateContent(selectedOpportunity.id);
+      } else if (analyzeResult?.opportunities && analyzeResult.opportunities.length > 0) {
+        // Automatically start crafting for the #1 top recommendation (Hero Opportunity)
+        const heroOpp = analyzeResult.opportunities[0];
+        setSelectedOpportunity(heroOpp);
+        handleGenerateContent(heroOpp.id);
       } else {
-        // Nothing selected yet — go to dashboard so user can pick an opportunity
-        setScreen({ name: 'dashboard' });
+        navigate({ name: 'create' });
       }
     } else if (tab === 'calendar') {
       setScreen({ name: 'calendar' });
@@ -324,8 +328,13 @@ export default function Home() {
           <ContentStudio
             draft={currentDraft}
             opportunity={selectedOpportunity}
+            opportunities={analyzeResult?.opportunities || []}
             isGenerating={isGenerating}
-            onBack={() => navigate({ name: 'opportunity', id: selectedOpportunity?.id || '' })}
+            onBack={() => navigate({ name: 'dashboard' })}
+            onSelectOpportunity={(opp) => {
+              setSelectedOpportunity(opp);
+              handleGenerateContent(opp.id);
+            }}
             onRegenerate={handleRegenerate}
             onApprove={handleApprove}
             onSchedule={handleSchedule}

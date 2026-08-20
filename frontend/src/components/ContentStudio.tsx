@@ -20,8 +20,10 @@ import type { CarouselSlide, ContentDraft, Opportunity, ScheduleRequest } from '
 interface ContentStudioProps {
   draft: ContentDraft | null;
   opportunity: Opportunity | null;
+  opportunities?: Opportunity[];
   isGenerating: boolean;
   onBack: () => void;
+  onSelectOpportunity?: (opp: Opportunity) => void;
   onRegenerate: () => void;
   onApprove: () => void;
   onSchedule: (req: ScheduleRequest) => void;
@@ -600,8 +602,10 @@ function ReelPreview({
 export default function ContentStudio({
   draft,
   opportunity,
+  opportunities = [],
   isGenerating,
   onBack,
+  onSelectOpportunity,
   onRegenerate,
   onApprove,
   onSchedule,
@@ -639,21 +643,87 @@ export default function ContentStudio({
   }, [draft?.id, draft?.format, isCarousel]);
 
   if (isGenerating) return <Skeleton />;
+
   if (!draft) {
     return (
-      <div className="page-container fade-up" style={{ maxWidth: 940, textAlign: 'center', padding: '60px 20px' }}>
-        <div className="card" style={{ padding: 40, maxWidth: 500, margin: '0 auto', background: 'var(--surface)' }}>
-          <div className="label" style={{ marginBottom: 8 }}>Content Studio</div>
-          <h2 className="serif-heading" style={{ fontSize: 22, color: 'var(--text-primary)', marginBottom: 12 }}>
-            No Active Content Draft
-          </h2>
-          <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 24 }}>
-            Content Studio generates and refines social posts based on strategic opportunities. Select an opportunity from the dashboard to start crafting.
-          </p>
-          <button className="btn-primary" onClick={onBack} style={{ margin: '0 auto' }}>
+      <div className="page-container fade-up" style={{ maxWidth: 940 }}>
+        {/* Header */}
+        <div style={{ marginBottom: 24 }}>
+          <button
+            className="btn-ghost"
+            onClick={onBack}
+            style={{ padding: '4px 0', fontSize: 13, color: 'var(--text-secondary)', marginBottom: 12, display: 'inline-flex', alignItems: 'center', gap: 6 }}
+          >
             <ArrowLeft size={14} /> Back to opportunities
           </button>
+          <div className="label" style={{ marginBottom: 4 }}>Content Studio</div>
+          <h1 className="serif-heading" style={{ fontSize: 24, color: 'var(--text-primary)', marginBottom: 4 }}>
+            Select an Opportunity to Craft
+          </h1>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+            Choose a high-confidence recommendation to generate format-tailored social content (Instagram Reels & Carousels).
+          </div>
         </div>
+
+        {/* Opportunities List for 1-click Studio launch */}
+        {opportunities.length > 0 ? (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 14 }}>
+            {opportunities.map(opp => (
+              <div
+                key={opp.id}
+                className="card card-interactive"
+                onClick={() => onSelectOpportunity && onSelectOpportunity(opp)}
+                style={{
+                  padding: '20px 24px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  gap: 16,
+                  cursor: 'pointer',
+                  background: 'var(--surface)',
+                }}
+              >
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                    <span className="badge badge-accent" style={{ fontSize: 11 }}>
+                      {opp.format} · {opp.platform}
+                    </span>
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                      Score: <strong style={{ color: 'var(--brown-primary)' }}>{opp.score}</strong>/100
+                    </span>
+                  </div>
+                  <div className="serif-heading" style={{ fontSize: 17, color: 'var(--text-primary)', marginBottom: 4 }}>
+                    {opp.title}
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+                    {opp.why || opp.content_angle}
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  className="btn-primary"
+                  style={{ fontSize: 12, padding: '8px 16px', whiteSpace: 'nowrap' }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (onSelectOpportunity) onSelectOpportunity(opp);
+                  }}
+                >
+                  Craft in Studio →
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="card" style={{ padding: 40, textAlign: 'center', background: 'var(--surface)' }}>
+            <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 16 }}>
+              No opportunities loaded yet. Analyze performance to discover new content opportunities.
+            </p>
+            <button className="btn-primary" onClick={onBack}>
+              <ArrowLeft size={14} /> Back to dashboard
+            </button>
+          </div>
+        )}
       </div>
     );
   }
