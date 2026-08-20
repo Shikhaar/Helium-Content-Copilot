@@ -863,6 +863,7 @@ export default function ContentStudio({
     setActiveSlide(prev => (prev < totalSlidesCount - 1 ? prev + 1 : prev));
   };
 
+  const effectiveAudience = opportunity?.audience || draft.audience || 'Gen-Z';
   const currentTitle =
     opportunity?.title ||
     draft.slides?.[0]?.headline ||
@@ -906,12 +907,8 @@ export default function ContentStudio({
                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#49634A' }} />
                 High confidence recommendation
               </span>
-              {opportunity?.audience && (
-                <>
-                  <span>·</span>
-                  <span>Target: <strong>{opportunity.audience}</strong></span>
-                </>
-              )}
+              <span>·</span>
+              <span>Target: <strong>{effectiveAudience}</strong></span>
               {draft.is_demo && (
                 <>
                   <span>·</span>
@@ -1302,7 +1299,7 @@ export default function ContentStudio({
                 })}
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 6 }}>
                 <button
                   type="button"
                   onClick={() => setShowAllCtas(s => !s)}
@@ -1314,7 +1311,7 @@ export default function ContentStudio({
 
                 <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>
                   Preview: {cta ? (
-                    <strong style={{ color: '#5A3021' }}>{cta} →</strong>
+                    <strong style={{ color: '#5A3021' }}>"{cta} — link in bio 🔗 →"</strong>
                   ) : (
                     <span style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>None</span>
                   )}
@@ -1380,7 +1377,7 @@ export default function ContentStudio({
               </div>
             </div>
 
-            {/* 6. CONTENT STRATEGY / WHY THIS WORKS */}
+            {/* 6. CONTENT STRATEGY / WHY THIS IS RECOMMENDED */}
             <div
               style={{
                 background: '#F9F5EE',
@@ -1389,13 +1386,13 @@ export default function ContentStudio({
                 padding: '14px 16px',
               }}
             >
-              <div className="label-accent" style={{ marginBottom: 6, letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 5 }}>
-                <Sparkles size={12} /> WHY THIS CREATIVE
+              <div className="label-accent" style={{ marginBottom: 8, letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 5 }}>
+                <Sparkles size={12} /> WHY THIS IS RECOMMENDED
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 5, fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.45 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.45 }}>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
                   <span style={{ color: '#49634A', fontWeight: 700 }}>✓</span>
-                  <span>{isCarousel ? "Highest-saving format for styling and discovery (8.4% ER)." : "Strongest top-of-funnel reach format (8.8% ER)."}</span>
+                  <span>Strongest-performing format historically ({isCarousel ? '8.4%' : '8.8%'} avg. engagement).</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
                   <span style={{ color: '#49634A', fontWeight: 700 }}>✓</span>
@@ -1403,7 +1400,7 @@ export default function ContentStudio({
                 </div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
                   <span style={{ color: '#49634A', fontWeight: 700 }}>✓</span>
-                  <span>Optimized for Instagram Young Millennial audience tone.</span>
+                  <span>Optimized for {effectiveAudience} audience tone and styling behavior.</span>
                 </div>
               </div>
             </div>
