@@ -658,7 +658,6 @@ export default function ContentStudio({
   };
 
   const currentTitle = opportunity?.title || draft.opportunity_id || 'Content Draft';
-  const ctaOptions = isCarousel ? CAROUSEL_CTAS : REEL_CTAS;
 
   return (
     <div className="page-container fade-up" style={{ maxWidth: 940 }}>
