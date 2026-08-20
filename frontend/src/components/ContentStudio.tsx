@@ -621,8 +621,9 @@ export default function ContentStudio({
   const [showScheduler, setShowScheduler] = React.useState(false);
   const [schedDate, setSchedDate] = React.useState('');
   const [schedTime, setSchedTime] = React.useState('19:00');
-  const [saveToast, setSaveToast] = React.useState(false);
+  const [saveToast, setSaveToast] = React.useState<string | null>(null);
   const [isSaving, setIsSaving] = React.useState(false);
+  const lastSavedSignatureRef = React.useRef<string>('');
 
   const [showAllCtas, setShowAllCtas] = React.useState(false);
 
@@ -635,11 +636,21 @@ export default function ContentStudio({
 
   React.useEffect(() => {
     if (draft) {
-      setCaption(draft.caption || '');
-      setCta(draft.cta || (isCarousel ? 'Discover your style' : 'Shop the look'));
-      setHashtags(draft.hashtags || ['SNITCH', 'SummerStyle', 'LinenShirt', 'Menswear']);
-      setSlides(draft.slides || []);
+      const initialCaption = draft.caption || '';
+      const initialCta = draft.cta || (isCarousel ? 'Discover your style' : 'Shop the look');
+      const initialTags = draft.hashtags || ['SNITCH', 'SummerStyle', 'LinenShirt', 'Menswear'];
+      const initialSlides = draft.slides || [];
+      setCaption(initialCaption);
+      setCta(initialCta);
+      setHashtags(initialTags);
+      setSlides(initialSlides);
       setActiveSlide(0);
+      lastSavedSignatureRef.current = JSON.stringify({
+        slides: initialSlides,
+        caption: initialCaption,
+        cta: initialCta,
+        hashtags: initialTags,
+      });
     }
   }, [draft?.id, draft?.format, isCarousel]);
 
@@ -752,6 +763,22 @@ export default function ContentStudio({
   };
 
   const handleSaveDraft = async (showFeedback = true) => {
+    const currentSignature = JSON.stringify({
+      slides: currentSlidesList,
+      caption,
+      cta,
+      hashtags,
+    });
+
+    // If no changes were made since the last save, notify 'Already saved'
+    if (currentSignature === lastSavedSignatureRef.current) {
+      if (showFeedback) {
+        setSaveToast('Already saved');
+        setTimeout(() => setSaveToast(null), 2200);
+      }
+      return;
+    }
+
     setIsSaving(true);
     try {
       if (onUpdateDraft) {
@@ -759,9 +786,10 @@ export default function ContentStudio({
       } else if (onUpdateCaption) {
         await onUpdateCaption(caption);
       }
+      lastSavedSignatureRef.current = currentSignature;
       if (showFeedback) {
-        setSaveToast(true);
-        setTimeout(() => setSaveToast(false), 2400);
+        setSaveToast('Saved to draft');
+        setTimeout(() => setSaveToast(null), 2400);
       }
     } catch (err) {
       console.error('Save draft failed:', err);
@@ -878,7 +906,7 @@ export default function ContentStudio({
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             {saveToast && (
               <span style={{ fontSize: 12, color: 'var(--green)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
-                <Check size={14} /> Saved to draft
+                <Check size={14} /> {saveToast}
               </span>
             )}
             <button
