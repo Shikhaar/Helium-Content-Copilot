@@ -45,8 +45,34 @@ function getSlideImage(slideNum: number) {
 const REEL_SCENE_NAMES = ['HOOK', 'THE PRODUCT', 'STYLING', 'CTA'];
 const REEL_SCENE_TIMINGS = ['0:00 - 0:03', '0:03 - 0:07', '0:07 - 0:11', '0:11 - 0:15'];
 
-const CAROUSEL_CTAS = ['Discover your style', 'Shop the look', 'View collection', 'Save this post'];
-const REEL_CTAS = ['Shop the look', 'Learn more', 'View product', 'Save this post'];
+const ALL_D2C_CTAS = [
+  'Discover your style',
+  'Shop the look',
+  'View collection',
+  'Shop now',
+  'Learn more',
+  'Save this post',
+  'Explore the product',
+  'See all styles',
+];
+
+function getContextualCtas(angle: string = '', format: string = ''): string[] {
+  const text = `${angle} ${format}`.toLowerCase();
+  
+  let prioritized: string[] = [];
+  if (text.includes('style') || text.includes('styling') || text.includes('inspiration') || text.includes('outfit') || text.includes('layering')) {
+    prioritized = ['Discover your style', 'Shop the look', 'Save this post', 'See all styles'];
+  } else if (text.includes('product') || text.includes('review') || text.includes('fit') || text.includes('cargo') || text.includes('shirt')) {
+    prioritized = ['Shop now', 'Explore the product', 'View collection', 'Learn more'];
+  } else if (text.includes('collection') || text.includes('campaign') || text.includes('summer') || text.includes('drop')) {
+    prioritized = ['View collection', 'Shop now', 'Discover your style', 'Explore the product'];
+  } else {
+    prioritized = ['Discover your style', 'Shop the look', 'Shop now', 'View collection'];
+  }
+
+  const remaining = ALL_D2C_CTAS.filter(c => !prioritized.includes(c));
+  return [...prioritized, ...remaining];
+}
 
 function Skeleton() {
   return (
@@ -543,7 +569,24 @@ export default function ContentStudio({
   }, [draft?.id, draft?.format, isCarousel]);
 
   if (isGenerating) return <Skeleton />;
-  if (!draft) return null;
+  if (!draft) {
+    return (
+      <div className="page-container fade-up" style={{ maxWidth: 940, textAlign: 'center', padding: '60px 20px' }}>
+        <div className="card" style={{ padding: 40, maxWidth: 500, margin: '0 auto', background: 'var(--surface)' }}>
+          <div className="label" style={{ marginBottom: 8 }}>Content Studio</div>
+          <h2 className="serif-heading" style={{ fontSize: 22, color: 'var(--text-primary)', marginBottom: 12 }}>
+            No Active Content Draft
+          </h2>
+          <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 24 }}>
+            Content Studio generates and refines social posts based on strategic opportunities. Select an opportunity from the dashboard to start crafting.
+          </p>
+          <button className="btn-primary" onClick={onBack} style={{ margin: '0 auto' }}>
+            <ArrowLeft size={14} /> Back to opportunities
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const isApproved = draft.status === 'approved' || draft.status === 'scheduled';
   const isScheduled = draft.status === 'scheduled';
