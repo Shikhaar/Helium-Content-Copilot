@@ -12,6 +12,7 @@ import {
   LogOut,
   ChevronUp,
   ChevronDown,
+  ChevronRight,
   Sparkles,
 } from 'lucide-react';
 import { useUser, useClerk } from '@clerk/nextjs';
@@ -84,14 +85,17 @@ export default function Sidebar({
     if (onCloseMobile) onCloseMobile();
   };
 
-  const displayName = user?.fullName || user?.firstName || 'BrandBrew User';
-  const email = user?.primaryEmailAddress?.emailAddress || 'user@brandbrew.internal';
+  const displayName = user?.fullName || user?.firstName || 'Shikhar';
+  const firstName = user?.firstName || (displayName.split(' ')[0]) || 'Shikhar';
+  const role = (user?.publicMetadata?.role as string) || 'Admin';
+  const email = user?.primaryEmailAddress?.emailAddress || 'shikharsrivastava3004@gmail.com';
+  const singleInitial = (firstName.charAt(0) || 'S').toUpperCase();
   const initials = displayName
     .split(' ')
     .map(n => n[0])
     .join('')
     .toUpperCase()
-    .slice(0, 2) || 'BB';
+    .slice(0, 2) || 'S';
 
   const navItem = (id: Tab, label: string, Icon: React.ElementType) => {
     const isActive = activeTab === id;
@@ -335,55 +339,102 @@ export default function Sidebar({
           ref={accountMenuRef}
           style={{
             borderTop: '1px solid var(--border)',
-            padding: isCollapsed ? '8px 6px 12px' : '8px 10px 12px',
+            padding: isCollapsed ? '10px 6px 14px' : '14px 10px 16px',
             display: 'flex',
             flexDirection: 'column',
-            gap: 4,
+            gap: 10,
             background: 'var(--sidebar)',
             position: 'relative',
           }}
         >
-          {/* Desktop Collapse Toggle */}
-          {onToggleCollapse && (
-            <button
-              onClick={onToggleCollapse}
-              title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-              className="desktop-only"
+          {/* Workspace Switcher Card (SNITCH · Summer 2026) */}
+          {!isCollapsed ? (
+            <div
+              onClick={() => onTabChange('brand')}
+              title="Switch Workspace / Brand Catalog"
               style={{
-                width: '100%',
+                border: '1px solid var(--border)',
+                borderRadius: 8,
+                background: 'rgba(255, 252, 247, 0.65)',
+                padding: '8px 10px',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: isCollapsed ? 'center' : 'flex-start',
-                gap: isCollapsed ? 0 : 8,
-                padding: isCollapsed ? '8px 0' : '6px 8px',
-                borderRadius: 5,
-                border: 'none',
-                background: 'transparent',
-                color: 'var(--text-muted)',
-                fontSize: 12,
-                fontFamily: 'var(--font-sans)',
-                fontWeight: 500,
+                justifyContent: 'space-between',
                 cursor: 'pointer',
                 transition: 'all 0.15s ease',
               }}
               onMouseEnter={e => {
-                (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)';
-                (e.currentTarget as HTMLElement).style.background = 'rgba(217, 200, 181, 0.45)';
+                (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-strong)';
+                (e.currentTarget as HTMLElement).style.background = 'var(--surface)';
               }}
               onMouseLeave={e => {
-                (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)';
-                (e.currentTarget as HTMLElement).style.background = 'transparent';
+                (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
+                (e.currentTarget as HTMLElement).style.background = 'rgba(255, 252, 247, 0.65)';
               }}
             >
-              {isCollapsed ? (
-                <PanelLeft size={15} strokeWidth={1.75} />
-              ) : (
-                <>
-                  <PanelLeftClose size={14} strokeWidth={1.75} />
-                  <span>Collapse</span>
-                </>
-              )}
-            </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                {/* Brand square logo */}
+                <div
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 6,
+                    background: '#EDE4D8',
+                    border: '1px solid var(--border)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '2px 4px',
+                    boxSizing: 'border-box',
+                    flexShrink: 0,
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 8,
+                      fontWeight: 800,
+                      letterSpacing: '0.04em',
+                      color: 'var(--text-primary)',
+                      textTransform: 'uppercase',
+                      fontFamily: 'var(--font-sans)',
+                    }}
+                  >
+                    {brandName}
+                  </span>
+                </div>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>
+                    {brandName}
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2, lineHeight: 1.2 }}>
+                    {campaign}
+                  </div>
+                </div>
+              </div>
+              <ChevronDown size={14} color="var(--text-muted)" />
+            </div>
+          ) : (
+            /* Collapsed Brand Icon */
+            <div
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 8,
+                background: '#EDE4D8',
+                border: '1px solid var(--border)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto',
+                cursor: 'pointer',
+              }}
+              onClick={() => onTabChange('brand')}
+              title={`${brandName} · ${campaign}`}
+            >
+              <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-primary)' }}>
+                {brandName.charAt(0)}
+              </span>
+            </div>
           )}
 
           {/* Account Popover Menu */}
@@ -393,14 +444,15 @@ export default function Sidebar({
                 position: 'absolute',
                 bottom: '100%',
                 left: isCollapsed ? 64 : 10,
-                width: 220,
+                right: isCollapsed ? 'auto' : 10,
+                width: isCollapsed ? 220 : 'auto',
                 background: 'var(--surface)',
                 border: '1px solid var(--border)',
                 borderRadius: 8,
                 boxShadow: '0 12px 28px -4px rgba(32, 27, 23, 0.18)',
                 padding: '6px 0',
                 zIndex: 250,
-                marginBottom: 6,
+                marginBottom: 8,
                 fontFamily: 'var(--font-sans)',
               }}
             >
@@ -461,43 +513,6 @@ export default function Sidebar({
                 </button>
               </div>
 
-              {/* Workspace Section */}
-              <div style={{ padding: '6px 12px', borderBottom: '1px solid var(--border)' }}>
-                <div
-                  style={{
-                    fontSize: 9,
-                    fontWeight: 700,
-                    letterSpacing: '0.08em',
-                    textTransform: 'uppercase',
-                    color: 'var(--text-muted)',
-                    marginBottom: 4,
-                  }}
-                >
-                  Active Workspace
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <div
-                    style={{
-                      width: 16,
-                      height: 16,
-                      borderRadius: 3,
-                      background: 'var(--brown-soft)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 8,
-                      fontWeight: 700,
-                      color: 'var(--brown-primary)',
-                    }}
-                  >
-                    {brandName.charAt(0)}
-                  </div>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-primary)' }}>
-                    {brandName} <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>· {campaign}</span>
-                  </div>
-                </div>
-              </div>
-
               {/* Log out Button */}
               <div style={{ padding: '4px 0 0' }}>
                 <button
@@ -531,17 +546,17 @@ export default function Sidebar({
             </div>
           )}
 
-          {/* Interactive Account & Workspace Identity Button */}
+          {/* Interactive User Account Row (Shikhar · Admin >) */}
           <button
             onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)}
-            title={isCollapsed ? `${displayName} (${email})` : undefined}
+            title={isCollapsed ? `${displayName} (${role})` : undefined}
             style={{
               width: '100%',
               display: 'flex',
               alignItems: 'center',
               justifyContent: isCollapsed ? 'center' : 'space-between',
-              gap: 8,
-              padding: isCollapsed ? '6px 0' : '6px 8px',
+              gap: 10,
+              padding: isCollapsed ? '6px 0' : '4px 4px',
               borderRadius: 6,
               background: isAccountMenuOpen ? 'rgba(217, 200, 181, 0.45)' : 'transparent',
               border: 'none',
@@ -551,7 +566,7 @@ export default function Sidebar({
             }}
             onMouseEnter={e => {
               if (!isAccountMenuOpen) {
-                (e.currentTarget as HTMLElement).style.background = 'rgba(217, 200, 181, 0.45)';
+                (e.currentTarget as HTMLElement).style.background = 'rgba(217, 200, 181, 0.35)';
               }
             }}
             onMouseLeave={e => {
@@ -560,46 +575,33 @@ export default function Sidebar({
               }
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
-              {/* User Avatar */}
-              {user?.imageUrl ? (
-                <img
-                  src={user.imageUrl}
-                  alt={displayName}
-                  style={{
-                    width: 24,
-                    height: 24,
-                    borderRadius: 5,
-                    objectFit: 'cover',
-                    flexShrink: 0,
-                  }}
-                />
-              ) : (
-                <div
-                  style={{
-                    width: 24,
-                    height: 24,
-                    borderRadius: 5,
-                    background: 'var(--brown-soft)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 10,
-                    fontWeight: 700,
-                    color: 'var(--brown-primary)',
-                    flexShrink: 0,
-                    fontFamily: 'var(--font-sans)',
-                  }}
-                >
-                  {initials}
-                </div>
-              )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+              {/* Circular Avatar with Initial */}
+              <div
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #E2D5C3 0%, #CBB9A2 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: '#211914',
+                  flexShrink: 0,
+                  fontFamily: 'var(--font-sans)',
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.06)',
+                }}
+              >
+                {singleInitial}
+              </div>
 
               {!isCollapsed && (
                 <div style={{ minWidth: 0, flex: 1 }}>
                   <div
                     style={{
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: 700,
                       color: 'var(--text-primary)',
                       lineHeight: 1.2,
@@ -608,21 +610,18 @@ export default function Sidebar({
                       whiteSpace: 'nowrap',
                     }}
                   >
-                    {displayName}
+                    {firstName}
                   </div>
                   <div
                     style={{
-                      fontSize: 10,
-                      fontWeight: 500,
-                      color: 'var(--text-muted)',
+                      fontSize: 11,
+                      fontWeight: 400,
+                      color: 'var(--text-secondary)',
                       lineHeight: 1.2,
-                      marginTop: 1,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
+                      marginTop: 2,
                     }}
                   >
-                    {email}
+                    {role}
                   </div>
                 </div>
               )}
@@ -630,7 +629,7 @@ export default function Sidebar({
 
             {!isCollapsed && (
               <div style={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}>
-                {isAccountMenuOpen ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+                <ChevronRight size={16} color="var(--text-muted)" />
               </div>
             )}
           </button>
