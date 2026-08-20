@@ -416,59 +416,61 @@ export default function Dashboard({
           </div>
 
           {/* ── Right Column: Insights & Instagram Connect Card ─────────────────── */}
-          <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: 20 }}>
-            {/* Header sitting on identical horizontal baseline */}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                height: 28,
-                marginBottom: 10,
-              }}
-            >
-              <div className="label">THIS WEEK'S INSIGHTS</div>
-            </div>
+          <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <div>
+              {/* Header sitting on identical horizontal baseline */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  height: 28,
+                  marginBottom: 10,
+                }}
+              >
+                <div className="label">THIS WEEK'S INSIGHTS</div>
+              </div>
 
-            {/* THIS WEEK'S INSIGHTS CARD */}
-            <div
-              style={{
-                border: '1px solid var(--border)',
-                borderRadius: 10,
-                background: 'var(--surface)',
-                padding: '20px 20px',
-              }}
-            >
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                {dynamicInsights.map(insight => {
-                  const Icon = insight.icon;
-                  return (
-                    <div key={insight.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                      <div
-                        style={{
-                          width: 32,
-                          height: 32,
-                          borderRadius: 6,
-                          background: 'rgba(238, 231, 220, 0.65)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          flexShrink: 0,
-                          color: 'var(--brown-dark)',
-                        }}
-                      >
-                        <Icon size={15} />
-                      </div>
-                      <div>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>
-                          {insight.title}
+              {/* THIS WEEK'S INSIGHTS CARD */}
+              <div
+                style={{
+                  border: '1px solid var(--border)',
+                  borderRadius: 10,
+                  background: 'var(--surface)',
+                  padding: '20px 20px',
+                }}
+              >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  {dynamicInsights.map(insight => {
+                    const Icon = insight.icon;
+                    return (
+                      <div key={insight.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                        <div
+                          style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: 6,
+                            background: 'rgba(238, 231, 220, 0.65)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flexShrink: 0,
+                            color: 'var(--brown-dark)',
+                          }}
+                        >
+                          <Icon size={15} />
                         </div>
-                        <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.4 }}>
-                          {insight.description}
+                        <div>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>
+                            {insight.title}
+                          </div>
+                          <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+                            {insight.description}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
