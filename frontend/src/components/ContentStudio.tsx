@@ -622,6 +622,7 @@ export default function ContentStudio({
   const [schedDate, setSchedDate] = React.useState('');
   const [schedTime, setSchedTime] = React.useState('19:00');
   const [saveToast, setSaveToast] = React.useState(false);
+  const [isSaving, setIsSaving] = React.useState(false);
 
   const [showAllCtas, setShowAllCtas] = React.useState(false);
 
@@ -749,8 +750,6 @@ export default function ContentStudio({
       setSlides(updated);
     }
   };
-
-  const [isSaving, setIsSaving] = React.useState(false);
 
   const handleSaveDraft = async (showFeedback = true) => {
     setIsSaving(true);
