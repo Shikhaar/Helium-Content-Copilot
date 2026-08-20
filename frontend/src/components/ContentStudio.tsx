@@ -1282,46 +1282,10 @@ export default function ContentStudio({
                   <CalendarClock size={13} /> Reschedule post
                 </button>
               )}
-            </div>
           </div>
-
-          {/* Inline Scheduler Box */}
-          {showScheduler && (
-            <div className="card" style={{ padding: 18, background: 'var(--surface)' }}>
-              <div className="label" style={{ marginBottom: 12 }}>Schedule post</div>
-              <div style={{ display: 'flex', gap: 10, marginBottom: 14 }}>
-                <div style={{ flex: 1 }}>
-                  <label style={{ fontSize: 11, color: 'var(--text-muted)', display: 'block', marginBottom: 4 }}>Date</label>
-                  <input
-                    type="date"
-                    value={schedDate}
-                    onChange={e => setSchedDate(e.target.value)}
-                    className="input-field"
-                  />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <label style={{ fontSize: 11, color: 'var(--text-muted)', display: 'block', marginBottom: 4 }}>Time (IST)</label>
-                  <input
-                    type="time"
-                    value={schedTime}
-                    onChange={e => setSchedTime(e.target.value)}
-                    className="input-field"
-                  />
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button className="btn-primary" onClick={handleScheduleConfirm} disabled={!schedDate} style={{ fontSize: 12 }}>
-                  Confirm Schedule
-                </button>
-                <button className="btn-secondary" onClick={() => setShowScheduler(false)} style={{ fontSize: 12 }}>
-                  Cancel
-                </button>
-              </div>
-            </div>
-          )}
-
         </div>
       </div>
+    </div>
 
       {/* ── C. STORYBOARD (Format-Aware Timeline / Slides) ─────────── */}
       <div style={{ marginTop: 12 }}>
@@ -1432,6 +1396,161 @@ export default function ContentStudio({
           })}
         </div>
       </div>
+
+      {/* ── D. SCHEDULE MODAL DIALOG (Centered with Backdrop Blur) ─── */}
+      {showScheduler && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 1000,
+            background: 'rgba(23, 21, 19, 0.5)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 20,
+          }}
+          onClick={() => setShowScheduler(false)}
+        >
+          <div
+            className="card fade-up"
+            style={{
+              maxWidth: 440,
+              width: '100%',
+              background: 'var(--surface)',
+              padding: '26px 28px',
+              borderRadius: 12,
+              border: '1px solid var(--border)',
+              boxShadow: '0 24px 48px rgba(33, 25, 20, 0.22)',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+              <div>
+                <div className="label" style={{ marginBottom: 4 }}>
+                  {isScheduled ? 'RESCHEDULE PUBLICATION' : 'SCHEDULE PUBLICATION'}
+                </div>
+                <h3 className="serif-heading" style={{ fontSize: 20, color: 'var(--text-primary)' }}>
+                  Choose Publication Time
+                </h3>
+              </div>
+              <button
+                type="button"
+                className="btn-ghost"
+                onClick={() => setShowScheduler(false)}
+                style={{ padding: 6, borderRadius: '50%' }}
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 18, lineHeight: 1.45 }}>
+              Set when this {isCarousel ? 'Instagram Carousel' : 'Instagram Reel'} should be scheduled to your content calendar.
+            </p>
+
+            <form
+              onSubmit={e => {
+                e.preventDefault();
+                handleScheduleConfirm();
+              }}
+            >
+              {/* Date Input */}
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>
+                  Publication Date
+                </label>
+                <input
+                  type="date"
+                  value={schedDate}
+                  onChange={e => setSchedDate(e.target.value)}
+                  required
+                  className="input-field"
+                  style={{ width: '100%' }}
+                />
+              </div>
+
+              {/* Peak D2C Posting Time Presets */}
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>
+                  Optimal D2C Posting Times
+                </label>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
+                  {[
+                    { label: 'Morning Drop', time: '09:00' },
+                    { label: 'Lunch Break', time: '13:00' },
+                    { label: 'Peak Evening', time: '19:00' },
+                    { label: 'Late Night', time: '21:00' },
+                  ].map(preset => {
+                    const isSelected = schedTime === preset.time;
+                    return (
+                      <button
+                        type="button"
+                        key={preset.time}
+                        onClick={() => setSchedTime(preset.time)}
+                        style={{
+                          padding: '8px 10px',
+                          borderRadius: 6,
+                          border: isSelected ? '1px solid var(--brown-primary)' : '1px solid var(--border)',
+                          background: isSelected ? 'var(--brown-primary)' : 'var(--surface-subtle)',
+                          color: isSelected ? '#FFFCF7' : 'var(--text-primary)',
+                          fontSize: 11,
+                          fontWeight: 600,
+                          textAlign: 'left',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          transition: 'all 0.15s ease',
+                        }}
+                      >
+                        <span>{preset.label}</span>
+                        <span style={{ opacity: isSelected ? 0.9 : 0.6 }}>{preset.time}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Custom Time */}
+              <div style={{ marginBottom: 22 }}>
+                <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>
+                  Custom Time (IST)
+                </label>
+                <input
+                  type="time"
+                  value={schedTime}
+                  onChange={e => setSchedTime(e.target.value)}
+                  required
+                  className="input-field"
+                  style={{ width: '100%' }}
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => setShowScheduler(false)}
+                  style={{ fontSize: 12, padding: '8px 16px' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={!schedDate || !schedTime}
+                  className="btn-primary"
+                  style={{ fontSize: 12, padding: '8px 18px' }}
+                >
+                  {isScheduled ? 'Confirm Reschedule' : 'Confirm & Add to Calendar'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
