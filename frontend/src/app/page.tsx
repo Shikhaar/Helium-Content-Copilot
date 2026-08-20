@@ -117,14 +117,10 @@ export default function Home() {
       if (currentDraft && selectedOpportunity) {
         navigate({ name: 'create', opportunityId: selectedOpportunity.id });
       } else if (selectedOpportunity) {
-        // Have an opportunity but no draft yet — trigger generation
+        // Have an opportunity chosen — trigger generation
         handleGenerateContent(selectedOpportunity.id);
-      } else if (analyzeResult?.opportunities && analyzeResult.opportunities.length > 0) {
-        // Automatically start crafting for the #1 top recommendation (Hero Opportunity)
-        const heroOpp = analyzeResult.opportunities[0];
-        setSelectedOpportunity(heroOpp);
-        handleGenerateContent(heroOpp.id);
       } else {
+        // Direct to Content Studio's Opportunity Picker screen
         navigate({ name: 'create' });
       }
     } else if (tab === 'calendar') {
