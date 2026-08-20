@@ -17,25 +17,6 @@ import {
 import { useUser, useClerk } from '@clerk/nextjs';
 import UserProfileModal from './UserProfileModal';
 
-function InstagramIcon({ size = 14, color = 'currentColor' }: { size?: number; color?: string }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke={color}
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-    </svg>
-  );
-}
-
 export type Tab = 'opportunities' | 'create' | 'calendar' | 'brand';
 
 interface SidebarProps {
@@ -51,7 +32,7 @@ interface SidebarProps {
 }
 
 const workspaceItems = [
-  { id: 'opportunities' as Tab, label: 'Opportunities', icon: Lightbulb },
+  { id: 'opportunities' as Tab, label: 'Opportunities',  icon: Lightbulb },
   { id: 'create'        as Tab, label: 'Content Studio', icon: Wand2 },
   { id: 'calendar'      as Tab, label: 'Calendar',        icon: Calendar },
 ];
@@ -76,15 +57,7 @@ export default function Sidebar({
 
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [isInstagramClicked, setIsInstagramClicked] = useState(false);
   const accountMenuRef = useRef<HTMLDivElement>(null);
-
-  const handleConnectInstagram = () => {
-    setIsInstagramClicked(true);
-    setTimeout(() => {
-      setIsInstagramClicked(false);
-    }, 2800);
-  };
 
   // Close popover when clicking outside
   useEffect(() => {
@@ -356,78 +329,6 @@ export default function Sidebar({
           {isCollapsed && <div style={{ height: 16 }} />}
           {brandItems.map(({ id, label, icon }) => navItem(id, label, icon))}
         </nav>
-
-        {/* Personalized Insights / Connect Instagram Card */}
-        {!isCollapsed && (
-          <div
-            style={{
-              margin: '0 10px 10px',
-              padding: '12px 12px',
-              background: 'rgba(238, 231, 220, 0.55)',
-              border: '1px solid var(--border)',
-              borderRadius: 8,
-              boxSizing: 'border-box',
-            }}
-          >
-            <div
-              style={{
-                fontSize: 12.5,
-                fontWeight: 600,
-                color: 'var(--text-primary)',
-                lineHeight: 1.3,
-                marginBottom: 3,
-                letterSpacing: '-0.01em',
-              }}
-            >
-              Want more personalised insights?
-            </div>
-            <div
-              style={{
-                fontSize: 11.5,
-                color: 'var(--text-secondary)',
-                lineHeight: 1.35,
-                marginBottom: 10,
-              }}
-            >
-              Connect your Instagram account
-            </div>
-            <button
-              onClick={handleConnectInstagram}
-              style={{
-                width: '100%',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 7,
-                padding: '6px 12px',
-                background: isInstagramClicked ? 'var(--brown-soft)' : 'var(--surface)',
-                border: `1px solid ${isInstagramClicked ? 'var(--brown-primary)' : 'var(--border)'}`,
-                borderRadius: 6,
-                fontSize: 12,
-                fontWeight: 500,
-                color: isInstagramClicked ? 'var(--brown-primary)' : 'var(--text-primary)',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease',
-                boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
-              }}
-              onMouseEnter={e => {
-                if (!isInstagramClicked) {
-                  (e.currentTarget as HTMLElement).style.background = 'var(--bg-subtle)';
-                  (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-strong)';
-                }
-              }}
-              onMouseLeave={e => {
-                if (!isInstagramClicked) {
-                  (e.currentTarget as HTMLElement).style.background = 'var(--surface)';
-                  (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
-                }
-              }}
-            >
-              <InstagramIcon size={14} color={isInstagramClicked ? 'var(--brown-primary)' : 'var(--text-primary)'} />
-              <span>{isInstagramClicked ? 'Coming Soon' : 'Connect Instagram'}</span>
-            </button>
-          </div>
-        )}
 
         {/* Bottom Utility & Workspace / Account Section */}
         <div

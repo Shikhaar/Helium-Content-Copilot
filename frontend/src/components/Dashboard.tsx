@@ -71,10 +71,37 @@ function AnalyzingState({ brandName, step }: { brandName: string; step: number }
   );
 }
 
+function InstagramIcon({ size = 14, color = 'currentColor' }: { size?: number; color?: string }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+    </svg>
+  );
+}
+
 export default function Dashboard({
   brand, productsCount, performance, analyzeResult, isAnalyzing, onAnalyze, onViewOpportunity, onViewCalendar, scheduledCount,
 }: DashboardProps) {
   const [loadingStep, setLoadingStep] = React.useState(0);
+  const [isInstagramClicked, setIsInstagramClicked] = React.useState(false);
+
+  const handleConnectInstagram = () => {
+    setIsInstagramClicked(true);
+    setTimeout(() => {
+      setIsInstagramClicked(false);
+    }, 2800);
+  };
 
   React.useEffect(() => {
     if (!isAnalyzing) { setLoadingStep(0); return; }
@@ -96,22 +123,107 @@ export default function Dashboard({
 
   return (
     <div className="page-container">
-      {/* Page Header */}
-      <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em', marginBottom: 4 }}>
-          What should {brandName} post next?
-        </h1>
-        <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.55 }}>
-          The strongest opportunities based on what has worked, what's selling, and what's relevant now.
-        </p>
-      </div>
+      {/* Top Header & Connect Instagram Card Grid */}
+      <div
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          gap: 20,
+          marginBottom: 24,
+        }}
+      >
+        <div style={{ flex: '1 1 480px', minWidth: 280 }}>
+          {/* Page Header */}
+          <div style={{ marginBottom: 18 }}>
+            <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em', marginBottom: 4 }}>
+              What should {brandName} post next?
+            </h1>
+            <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.55 }}>
+              The strongest opportunities based on what has worked, what's selling, and what's relevant now.
+            </p>
+          </div>
 
-      {/* Metrics Strip — single information band, light borders */}
-      <div className="metrics-strip" style={{ marginBottom: 24 }}>
-        <MetricItem value={prodCount}    label="Products"      sub="In catalog" />
-        <MetricItem value={totalPosts}   label="Posts analysed" sub="Historical" />
-        <MetricItem value={avgEr}        label="Avg engagement" sub="Feed posts" />
-        <MetricItem value={scheduledCount} label="Scheduled"   sub="This week" />
+          {/* Metrics Strip */}
+          <div className="metrics-strip">
+            <MetricItem value={prodCount}    label="Products"      sub="In catalog" />
+            <MetricItem value={totalPosts}   label="Posts analysed" sub="Historical" />
+            <MetricItem value={avgEr}        label="Avg engagement" sub="Feed posts" />
+            <MetricItem value={scheduledCount} label="Scheduled"   sub="This week" />
+          </div>
+        </div>
+
+        {/* Right Side: Personalized Insights Card */}
+        <div
+          style={{
+            flex: '0 0 280px',
+            width: 280,
+            padding: '16px 18px',
+            background: 'rgba(238, 231, 220, 0.45)',
+            border: '1px solid var(--border)',
+            borderRadius: 8,
+            boxSizing: 'border-box',
+          }}
+        >
+          <div
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              color: 'var(--text-primary)',
+              lineHeight: 1.3,
+              marginBottom: 3,
+              letterSpacing: '-0.01em',
+            }}
+          >
+            Want more personalised insights?
+          </div>
+          <div
+            style={{
+              fontSize: 12,
+              color: 'var(--text-secondary)',
+              lineHeight: 1.35,
+              marginBottom: 12,
+            }}
+          >
+            Connect your Instagram account
+          </div>
+          <button
+            onClick={handleConnectInstagram}
+            style={{
+              width: '100%',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              padding: '7px 12px',
+              background: isInstagramClicked ? 'var(--brown-soft)' : 'var(--surface)',
+              border: `1px solid ${isInstagramClicked ? 'var(--brown-primary)' : 'var(--border)'}`,
+              borderRadius: 6,
+              fontSize: 12,
+              fontWeight: 500,
+              color: isInstagramClicked ? 'var(--brown-primary)' : 'var(--text-primary)',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
+            }}
+            onMouseEnter={e => {
+              if (!isInstagramClicked) {
+                (e.currentTarget as HTMLElement).style.background = 'var(--bg-subtle)';
+                (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-strong)';
+              }
+            }}
+            onMouseLeave={e => {
+              if (!isInstagramClicked) {
+                (e.currentTarget as HTMLElement).style.background = 'var(--surface)';
+                (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
+              }
+            }}
+          >
+            <InstagramIcon size={14} color={isInstagramClicked ? 'var(--brown-primary)' : 'var(--text-primary)'} />
+            <span>{isInstagramClicked ? 'Coming Soon' : 'Connect Instagram'}</span>
+          </button>
+        </div>
       </div>
 
       {/* Demo mode */}
