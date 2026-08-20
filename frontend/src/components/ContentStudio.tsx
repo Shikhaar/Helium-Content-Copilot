@@ -94,12 +94,16 @@ function CarouselPreview({
   totalSlides,
   cta,
   brandName = 'SNITCH',
+  onPrev,
+  onNext,
 }: {
   slide: CarouselSlide;
   slideIndex: number;
   totalSlides: number;
   cta: string;
   brandName?: string;
+  onPrev?: () => void;
+  onNext?: () => void;
 }) {
   const bgImg = getSlideImage(slideIndex + 1);
 
@@ -118,6 +122,7 @@ function CarouselPreview({
         flexDirection: 'column',
         justifyContent: 'space-between',
         boxShadow: '0 8px 24px rgba(33, 25, 20, 0.08)',
+        userSelect: 'none',
       }}
     >
       {/* Background High-res Asset Image */}
@@ -131,6 +136,36 @@ function CarouselPreview({
           height: '100%',
           objectFit: 'cover',
           transition: 'opacity 0.3s ease',
+        }}
+      />
+
+      {/* Left Tap Zone (Previous Slide) */}
+      <div
+        onClick={onPrev}
+        title={slideIndex > 0 ? "Click left for previous slide" : undefined}
+        style={{
+          position: 'absolute',
+          left: 0,
+          top: 44,
+          bottom: 60,
+          width: '50%',
+          zIndex: 4,
+          cursor: slideIndex > 0 ? 'pointer' : 'default',
+        }}
+      />
+
+      {/* Right Tap Zone (Next Slide) */}
+      <div
+        onClick={onNext}
+        title={slideIndex < totalSlides - 1 ? "Click right for next slide" : undefined}
+        style={{
+          position: 'absolute',
+          right: 0,
+          top: 44,
+          bottom: 60,
+          width: '50%',
+          zIndex: 4,
+          cursor: slideIndex < totalSlides - 1 ? 'pointer' : 'default',
         }}
       />
 
@@ -301,12 +336,16 @@ function ReelPreview({
   totalSlides,
   cta,
   brandName = 'SNITCH',
+  onPrev,
+  onNext,
 }: {
   slide: CarouselSlide;
   slideIndex: number;
   totalSlides: number;
   cta: string;
   brandName?: string;
+  onPrev?: () => void;
+  onNext?: () => void;
 }) {
   const bgImg = getSlideImage(slideIndex + 1);
 
@@ -325,6 +364,7 @@ function ReelPreview({
         flexDirection: 'column',
         justifyContent: 'space-between',
         boxShadow: '0 8px 24px rgba(33, 25, 20, 0.08)',
+        userSelect: 'none',
       }}
     >
       {/* Background High-res Asset Image */}
@@ -338,6 +378,36 @@ function ReelPreview({
           height: '100%',
           objectFit: 'cover',
           transition: 'opacity 0.3s ease',
+        }}
+      />
+
+      {/* Left Tap Zone (Previous Scene) */}
+      <div
+        onClick={onPrev}
+        title={slideIndex > 0 ? "Click left for previous scene" : undefined}
+        style={{
+          position: 'absolute',
+          left: 0,
+          top: 44,
+          bottom: 70,
+          width: '50%',
+          zIndex: 4,
+          cursor: slideIndex > 0 ? 'pointer' : 'default',
+        }}
+      />
+
+      {/* Right Tap Zone (Next Scene) */}
+      <div
+        onClick={onNext}
+        title={slideIndex < totalSlides - 1 ? "Click right for next scene" : undefined}
+        style={{
+          position: 'absolute',
+          right: 0,
+          top: 44,
+          bottom: 70,
+          width: '50%',
+          zIndex: 4,
+          cursor: slideIndex < totalSlides - 1 ? 'pointer' : 'default',
         }}
       />
 
@@ -657,6 +727,14 @@ export default function ContentStudio({
     setShowScheduler(false);
   };
 
+  const handlePrevSlide = () => {
+    setActiveSlide(prev => (prev > 0 ? prev - 1 : prev));
+  };
+
+  const handleNextSlide = () => {
+    setActiveSlide(prev => (prev < totalSlidesCount - 1 ? prev + 1 : prev));
+  };
+
   const currentTitle = opportunity?.title || draft.opportunity_id || 'Content Draft';
 
   return (
@@ -725,7 +803,7 @@ export default function ContentStudio({
       {/* ── B. MAIN CONTENT WORKSPACE (Two-Column Layout) ───────────── */}
       <div className="studio-grid" style={{ marginBottom: 28, alignItems: 'start' }}>
 
-        {/* LEFT COLUMN: Format-Aware Preview */}
+        {/* LEFT COLUMN: Format-Aware Preview with Tap Navigation */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           {isCarousel ? (
             <CarouselPreview
@@ -734,6 +812,8 @@ export default function ContentStudio({
               totalSlides={totalSlidesCount}
               cta={cta}
               brandName="SNITCH"
+              onPrev={handlePrevSlide}
+              onNext={handleNextSlide}
             />
           ) : (
             <ReelPreview
@@ -742,6 +822,8 @@ export default function ContentStudio({
               totalSlides={totalSlidesCount}
               cta={cta}
               brandName="SNITCH"
+              onPrev={handlePrevSlide}
+              onNext={handleNextSlide}
             />
           )}
         </div>
