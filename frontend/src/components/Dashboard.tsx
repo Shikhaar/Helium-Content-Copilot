@@ -132,6 +132,48 @@ export default function Dashboard({
   const prodCount = productsCount ?? 8;
   const avgEr = performance ? `${performance.brand_avg_engagement_rate.toFixed(1)}%` : '4.8%';
 
+  // ── Dynamically compute insights from active performance & brand data ─────
+  const brandAvgErVal = performance?.brand_avg_engagement_rate ?? 4.8;
+  const topFormat = performance?.top_performing_format || 'Reel';
+  const formatStats = performance?.by_format?.find(f => f.format === topFormat);
+  const topFormatEr = formatStats?.avg_engagement_rate ?? (topFormat === 'Reel' ? 8.8 : 7.2);
+  const formatMultiplier = (topFormatEr / Math.max(brandAvgErVal, 0.1)).toFixed(1);
+
+  const topAudience = performance?.top_performing_audience || brand?.audience?.interests?.[0] || 'Young Millennial';
+  const audienceStats = performance?.by_audience?.find(a => a.audience === topAudience);
+  const audienceEr = audienceStats?.avg_engagement_rate ? `${audienceStats.avg_engagement_rate.toFixed(1)}%` : '5.8%';
+
+  const activeCampaign = brand?.campaign || 'Summer 2026';
+
+  const dynamicInsights = [
+    {
+      id: 'format-winner',
+      icon: TrendingUp,
+      title: `${topFormat}s are winning`,
+      description: `${topFormat} posts get ${formatMultiplier}× more engagement (${topFormatEr.toFixed(1)}%) than brand avg (${brandAvgErVal.toFixed(1)}%).`,
+    },
+    {
+      id: 'campaign-momentum',
+      icon: Shirt,
+      title: `${activeCampaign} momentum`,
+      description: `High seasonal demand and catalog velocity for active ${activeCampaign} collection.`,
+    },
+    {
+      id: 'audience-affinity',
+      icon: Users,
+      title: `${topAudience} affinity`,
+      description: `Target segment drives ${audienceEr} average interaction across recent feed posts.`,
+    },
+    {
+      id: 'publishing-cadence',
+      icon: Calendar,
+      title: scheduledCount > 0 ? `${scheduledCount} posts scheduled` : 'Best days to post',
+      description: scheduledCount > 0
+        ? `Publishing target on track. Recommended posting windows: Wed, Thu, Sat.`
+        : `Wed, Thu, Sat show 20–30% higher engagement historically.`,
+    },
+  ];
+
   return (
     <div className="page-container">
       {/* Page Header */}
@@ -397,113 +439,36 @@ export default function Dashboard({
               }}
             >
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                {/* Item 1 */}
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                  <div
-                    style={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: 6,
-                      background: 'rgba(238, 231, 220, 0.65)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
-                      color: 'var(--brown-dark)',
-                    }}
-                  >
-                    <TrendingUp size={15} />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>
-                      Carousels are winning
+                {dynamicInsights.map(insight => {
+                  const Icon = insight.icon;
+                  return (
+                    <div key={insight.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                      <div
+                        style={{
+                          width: 32,
+                          height: 32,
+                          borderRadius: 6,
+                          background: 'rgba(238, 231, 220, 0.65)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
+                          color: 'var(--brown-dark)',
+                        }}
+                      >
+                        <Icon size={15} />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>
+                          {insight.title}
+                        </div>
+                        <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+                          {insight.description}
+                        </div>
+                      </div>
                     </div>
-                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.4 }}>
-                      Carousel posts get 2.3x more engagement than single images.
-                    </div>
-                  </div>
-                </div>
-
-                {/* Item 2 */}
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                  <div
-                    style={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: 6,
-                      background: 'rgba(238, 231, 220, 0.65)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
-                      color: 'var(--brown-dark)',
-                    }}
-                  >
-                    <Shirt size={15} />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>
-                      Linen is trending
-                    </div>
-                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.4 }}>
-                      Linen-category content is seeing high saves and shares.
-                    </div>
-                  </div>
-                </div>
-
-                {/* Item 3 */}
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                  <div
-                    style={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: 6,
-                      background: 'rgba(238, 231, 220, 0.65)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
-                      color: 'var(--brown-dark)',
-                    }}
-                  >
-                    <Users size={15} />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>
-                      Your audience loves styling
-                    </div>
-                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.4 }}>
-                      Styling and outfit ideas drive the highest engagement.
-                    </div>
-                  </div>
-                </div>
-
-                {/* Item 4 */}
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                  <div
-                    style={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: 6,
-                      background: 'rgba(238, 231, 220, 0.65)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
-                      color: 'var(--brown-dark)',
-                    }}
-                  >
-                    <Calendar size={15} />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>
-                      Best days to post
-                    </div>
-                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.4 }}>
-                      Wed, Thu, Sat show 20–30% higher engagement historically.
-                    </div>
-                  </div>
-                </div>
+                  );
+                })}
               </div>
             </div>
 
