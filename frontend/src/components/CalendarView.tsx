@@ -3,10 +3,12 @@ import React from 'react';
 import {
   Trash2,
   Clock,
-  Calendar as CalendarIcon,
+  ChevronLeft,
+  ChevronRight,
   GripVertical,
   Check,
   X,
+  Plus,
 } from 'lucide-react';
 import type { CalendarEntry } from '../lib/types';
 
@@ -17,10 +19,14 @@ interface CalendarViewProps {
   onRescheduleEntry?: (entryId: string, draftId: string, newDate: string, newTime?: string) => Promise<any> | void;
 }
 
-const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const DAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const FULL_MONTHS = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+];
 
-// Peak social engagement times for D2C brands
+// Optimal D2C posting times
 const PRESET_TIMES = [
   { label: 'Morning Drop', time: '09:00' },
   { label: 'Lunch Break', time: '13:00' },
@@ -37,20 +43,6 @@ function getCalendarDays(year: number, month: number) {
   return days;
 }
 
-const STATUS_DOT: Record<string, string> = {
-  scheduled: 'var(--brown-primary)',
-  approved: 'var(--green)',
-  published: '#55705A',
-  draft: 'var(--text-muted)',
-};
-
-const STATUS_LABEL_CLASS: Record<string, string> = {
-  scheduled: 'badge badge-accent',
-  approved: 'badge badge-green',
-  published: 'badge badge-green',
-  draft: 'badge badge-neutral',
-};
-
 export default function CalendarView({
   entries,
   onDeleteEntry,
@@ -62,10 +54,13 @@ export default function CalendarView({
   const [month, setMonth] = React.useState(today.getMonth());
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
 
-  // Drag-and-drop state
+  // Drag and drop state
   const [draggedEntry, setDraggedEntry] = React.useState<CalendarEntry | null>(null);
   const [dragOverDate, setDragOverDate] = React.useState<string | null>(null);
   const [rescheduleToast, setRescheduleToast] = React.useState<string | null>(null);
+
+  // Expanded Day Popover (for days with +X more posts)
+  const [expandedDate, setExpandedDate] = React.useState<string | null>(null);
 
   // Quick Time/Date Edit Modal State
   const [editingEntry, setEditingEntry] = React.useState<{
@@ -77,6 +72,7 @@ export default function CalendarView({
 
   const days = getCalendarDays(year, month);
 
+  // Group entries by date YYYY-MM-DD
   const entriesByDate: Record<string, CalendarEntry[]> = {};
   entries.forEach(e => {
     const d = e.scheduled_datetime.split('T')[0];
@@ -84,7 +80,7 @@ export default function CalendarView({
     entriesByDate[d].push(e);
   });
 
-  const prev = () => {
+  const prevMonth = () => {
     if (month === 0) {
       setYear(y => y - 1);
       setMonth(11);
@@ -93,7 +89,7 @@ export default function CalendarView({
     }
   };
 
-  const next = () => {
+  const nextMonth = () => {
     if (month === 11) {
       setYear(y => y + 1);
       setMonth(0);
@@ -151,13 +147,12 @@ export default function CalendarView({
           entryToMove = entries.find(item => item.id === parsed.id) || null;
         }
       } catch {
-        // ignore parse fail
+        // ignore parse failure
       }
     }
 
     if (!entryToMove || !entryToMove.draft_id || !onRescheduleEntry) return;
 
-    // Check if target is already the same date
     const currentDateStr = entryToMove.scheduled_datetime.split('T')[0];
     if (currentDateStr === targetDateStr) return;
 
@@ -165,7 +160,7 @@ export default function CalendarView({
 
     try {
       await onRescheduleEntry(entryToMove.id, entryToMove.draft_id, targetDateStr, existingTime);
-      const [y, m, d] = targetDateStr.split('-');
+      const [, m, d] = targetDateStr.split('-');
       const monthLabel = MONTHS[parseInt(m, 10) - 1] || m;
       setRescheduleToast(`Moved to ${monthLabel} ${parseInt(d, 10)} at ${existingTime}`);
       setTimeout(() => setRescheduleToast(null), 3000);
@@ -188,7 +183,7 @@ export default function CalendarView({
         editingEntry.date,
         editingEntry.time,
       );
-      const [y, m, d] = editingEntry.date.split('-');
+      const [, m, d] = editingEntry.date.split('-');
       const monthLabel = MONTHS[parseInt(m, 10) - 1] || m;
       setRescheduleToast(`Rescheduled to ${monthLabel} ${parseInt(d, 10)} at ${editingEntry.time}`);
       setTimeout(() => setRescheduleToast(null), 3000);
@@ -200,8 +195,12 @@ export default function CalendarView({
     }
   };
 
+  const sortedEntries = entries
+    .slice()
+    .sort((a, b) => a.scheduled_datetime.localeCompare(b.scheduled_datetime));
+
   return (
-    <div className="page-container fade-up" style={{ maxWidth: 940 }}>
+    <div className="page-container fade-up" style={{ maxWidth: 980, width: '100%', boxSizing: 'border-box' }}>
       {/* Toast notification */}
       {rescheduleToast && (
         <div
@@ -210,7 +209,7 @@ export default function CalendarView({
             bottom: 24,
             right: 24,
             zIndex: 100,
-            background: 'var(--brown-primary)',
+            background: 'var(--brown-primary, #5A3021)',
             color: '#FFFCF7',
             padding: '10px 18px',
             borderRadius: 8,
@@ -227,378 +226,534 @@ export default function CalendarView({
         </div>
       )}
 
-      {/* Header */}
-      <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 16 }}>
-        <div>
-          <div className="label" style={{ marginBottom: 4 }}>TIMELINE</div>
-          <h1
-            className="serif-heading"
-            style={{ fontSize: 24, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}
-          >
-            Content Calendar
-          </h1>
-          <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
-            {entries.length} post{entries.length !== 1 ? 's' : ''} scheduled. Drag any post pill to reschedule across days.
-          </p>
+      {/* Header Section */}
+      <div style={{ marginBottom: 20 }}>
+        <div className="label" style={{ marginBottom: 4, letterSpacing: '0.08em', fontSize: 11 }}>
+          CONTENT TIMELINE
         </div>
-
-        {/* Legend */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 11, color: 'var(--text-muted)' }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--brown-primary)' }} />
-            Scheduled
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, flexWrap: 'wrap', marginBottom: 2 }}>
+          <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary, #171513)' }}>
+            {entries.length} {entries.length === 1 ? 'post' : 'posts'} scheduled.
           </span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--green)' }} />
-            Approved
+          <span style={{ fontSize: 13, color: 'var(--text-muted, #8F8275)' }}>
+            Drag any post pill to reschedule across days.
           </span>
         </div>
       </div>
 
-      {/* Calendar Card */}
+      {/* Main Calendar Card */}
       <div
         className="card"
         style={{
-          border: '1px solid var(--border)',
+          border: '1px solid #DDD3C5',
           borderRadius: 10,
-          background: 'var(--surface)',
-          padding: '20px 22px',
-          marginBottom: 28,
+          background: '#FFFCF7',
+          padding: '20px 20px 24px',
+          marginBottom: 32,
+          boxShadow: '0 4px 16px rgba(33, 25, 20, 0.03)',
+          width: '100%',
+          boxSizing: 'border-box',
         }}
       >
-        {/* Month nav */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
-          <button className="btn-ghost" onClick={prev} style={{ padding: '6px 12px', fontSize: 16, color: 'var(--text-secondary)' }}>
-            ‹
+        {/* Month Header Navigation (Centered Newsreader Serif) */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: 20,
+            padding: '0 4px',
+          }}
+        >
+          <button
+            type="button"
+            className="btn-ghost"
+            onClick={prevMonth}
+            aria-label="Previous month"
+            style={{
+              padding: '6px 10px',
+              fontSize: 14,
+              color: 'var(--text-secondary, #6F665D)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              borderRadius: 6,
+            }}
+          >
+            <ChevronLeft size={16} />
           </button>
-          <h2 className="serif-heading" style={{ fontSize: 17, fontWeight: 700, color: 'var(--text-primary)' }}>
-            {MONTHS[month]} {year}
+
+          <h2
+            className="serif-heading"
+            style={{
+              fontSize: 20,
+              fontWeight: 700,
+              color: 'var(--text-primary, #171513)',
+              margin: 0,
+              letterSpacing: '-0.01em',
+            }}
+          >
+            {FULL_MONTHS[month]} {year}
           </h2>
-          <button className="btn-ghost" onClick={next} style={{ padding: '6px 12px', fontSize: 16, color: 'var(--text-secondary)' }}>
-            ›
+
+          <button
+            type="button"
+            className="btn-ghost"
+            onClick={nextMonth}
+            aria-label="Next month"
+            style={{
+              padding: '6px 10px',
+              fontSize: 14,
+              color: 'var(--text-secondary, #6F665D)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              borderRadius: 6,
+            }}
+          >
+            <ChevronRight size={16} />
           </button>
         </div>
 
-        {/* Scrollable on mobile */}
-        <div style={{ overflowX: 'auto', width: '100%', WebkitOverflowScrolling: 'touch' }}>
-          <div style={{ minWidth: 540 }}>
-            {/* Day headers */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4, marginBottom: 8 }}>
-              {DAYS.map(d => (
-                <div
-                  key={d}
-                  style={{
-                    fontSize: 10,
-                    fontWeight: 700,
-                    color: 'var(--text-muted)',
-                    textAlign: 'center',
-                    padding: '4px 0',
-                    letterSpacing: '0.07em',
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  {d}
-                </div>
-              ))}
-            </div>
+        {/* ── 7 EQUAL-WIDTH COLUMNS GRID ───────────────────────────── */}
+        <div style={{ width: '100%', minWidth: 0, boxSizing: 'border-box' }}>
+          {/* Weekday Labels Header */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(7, minmax(0, 1fr))',
+              gap: 6,
+              marginBottom: 8,
+              width: '100%',
+              boxSizing: 'border-box',
+            }}
+          >
+            {DAYS.map(dayName => (
+              <div
+                key={dayName}
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: 'var(--text-muted, #8F8275)',
+                  textAlign: 'center',
+                  padding: '4px 0',
+                  letterSpacing: '0.09em',
+                  textTransform: 'uppercase',
+                  minWidth: 0,
+                  overflow: 'hidden',
+                }}
+              >
+                {dayName}
+              </div>
+            ))}
+          </div>
 
-            {/* Calendar grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 6 }}>
-              {days.map((day, i) => {
-                if (day === null) {
-                  return (
-                    <div
-                      key={`empty-${i}`}
-                      style={{
-                        minHeight: 88,
-                        borderRadius: 6,
-                        background: 'transparent',
-                        opacity: 0.2,
-                      }}
-                    />
-                  );
-                }
-
-                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                const dayEntries = entriesByDate[dateStr] || [];
-                const isToday =
-                  day === today.getDate() &&
-                  month === today.getMonth() &&
-                  year === today.getFullYear();
-                const isDragOver = dragOverDate === dateStr;
-
+          {/* 7-Column Days Grid */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(7, minmax(0, 1fr))',
+              gap: 6,
+              width: '100%',
+              boxSizing: 'border-box',
+            }}
+          >
+            {days.map((day, i) => {
+              if (day === null) {
                 return (
                   <div
-                    key={day}
-                    onDragOver={e => handleDragOverCell(dateStr, e)}
-                    onDragLeave={handleDragLeaveCell}
-                    onDrop={e => handleDropOnCell(dateStr, e)}
+                    key={`empty-${i}`}
                     style={{
-                      minHeight: 88,
-                      padding: '8px 8px',
-                      border: isDragOver
-                        ? '2px dashed var(--brown-primary)'
-                        : `1px solid ${isToday ? 'var(--brown-primary)' : 'var(--border)'}`,
+                      minHeight: 120,
                       borderRadius: 6,
-                      background: isDragOver
-                        ? 'var(--surface-subtle)'
-                        : isToday
-                        ? 'rgba(90, 56, 40, 0.04)'
-                        : 'var(--surface)',
-                      transition: 'all 0.15s ease',
-                      position: 'relative',
+                      background: 'transparent',
+                      border: '1px dashed rgba(221, 211, 197, 0.4)',
+                      opacity: 0.35,
+                      boxSizing: 'border-box',
+                      minWidth: 0,
+                    }}
+                  />
+                );
+              }
+
+              const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+              const dayEntries = entriesByDate[dateStr] || [];
+              const isToday =
+                day === today.getDate() &&
+                month === today.getMonth() &&
+                year === today.getFullYear();
+              const isDragOver = dragOverDate === dateStr;
+
+              // Display up to 2 posts directly, fold remainder into "+ X more"
+              const maxVisible = 2;
+              const visibleEntries = dayEntries.slice(0, maxVisible);
+              const overflowCount = dayEntries.length - maxVisible;
+
+              return (
+                <div
+                  key={day}
+                  onDragOver={e => handleDragOverCell(dateStr, e)}
+                  onDragLeave={handleDragLeaveCell}
+                  onDrop={e => handleDropOnCell(dateStr, e)}
+                  style={{
+                    minHeight: 120,
+                    height: '100%',
+                    padding: '8px 7px',
+                    borderRadius: 6,
+                    boxSizing: 'border-box',
+                    minWidth: 0,
+                    maxWidth: '100%',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'flex-start',
+                    border: isDragOver
+                      ? '2px dashed var(--brown-primary, #5A3021)'
+                      : `1px solid ${isToday ? 'var(--brown-primary, #5A3021)' : '#DDD3C5'}`,
+                    background: isDragOver
+                      ? '#EFE6D8'
+                      : isToday
+                      ? '#F9F5EE'
+                      : '#FFFCF7',
+                    transition: 'all 0.12s ease',
+                    position: 'relative',
+                  }}
+                >
+                  {/* Date Header Top Row */}
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'baseline',
+                      marginBottom: 6,
+                      width: '100%',
+                      minWidth: 0,
                     }}
                   >
-                    {/* Day number */}
-                    <div
+                    <span
                       style={{
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: isToday ? 700 : 500,
-                        color: isToday ? 'var(--brown-primary)' : 'var(--text-muted)',
-                        marginBottom: 6,
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
+                        color: isToday ? 'var(--brown-primary, #5A3021)' : 'var(--text-primary, #171513)',
+                        lineHeight: 1,
                       }}
                     >
-                      <span>{day}</span>
-                      {isToday && (
-                        <span style={{ fontSize: 9, fontWeight: 600, color: 'var(--brown-primary)' }}>Today</span>
-                      )}
-                    </div>
+                      {day}
+                    </span>
 
-                    {/* Post pills */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                      {dayEntries.map(entry => {
-                        const timeStr = entry.scheduled_datetime.split('T')[1]?.slice(0, 5) || '19:00';
-                        const isDraggingThis = draggedEntry?.id === entry.id;
+                    {isToday && (
+                      <span
+                        style={{
+                          fontSize: 9,
+                          fontWeight: 700,
+                          color: 'var(--brown-primary, #5A3021)',
+                          letterSpacing: '0.04em',
+                          textTransform: 'uppercase',
+                        }}
+                      >
+                        Today
+                      </span>
+                    )}
+                  </div>
 
-                        return (
-                          <div
-                            key={entry.id}
-                            draggable={Boolean(entry.draft_id && onRescheduleEntry)}
-                            onDragStart={e => handleDragStart(entry, e)}
-                            onClick={() => entry.draft_id && onSelectDraft?.(entry.draft_id)}
-                            title={`${entry.title} (${timeStr}) — Drag to move or click to edit`}
+                  {/* Day Content / Stacked Post Pills */}
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 4,
+                      width: '100%',
+                      minWidth: 0,
+                      maxWidth: '100%',
+                      flex: 1,
+                    }}
+                  >
+                    {visibleEntries.map(entry => {
+                      const timeStr = entry.scheduled_datetime.split('T')[1]?.slice(0, 5) || '19:00';
+                      const isDraggingThis = draggedEntry?.id === entry.id;
+
+                      return (
+                        <div
+                          key={entry.id}
+                          draggable={Boolean(entry.draft_id && onRescheduleEntry)}
+                          onDragStart={e => handleDragStart(entry, e)}
+                          onClick={e => {
+                            e.stopPropagation();
+                            if (entry.draft_id) onSelectDraft?.(entry.draft_id);
+                          }}
+                          title={`${entry.title} (${timeStr}) — Click to edit or drag to move`}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 4,
+                            padding: '3px 5px',
+                            borderRadius: 4,
+                            background: '#E8DCCB',
+                            border: '1px solid #D6C7B5',
+                            color: '#422217',
+                            width: '100%',
+                            minWidth: 0,
+                            maxWidth: '100%',
+                            boxSizing: 'border-box',
+                            cursor: entry.draft_id ? 'grab' : 'default',
+                            opacity: isDraggingThis ? 0.35 : 1,
+                            transition: 'background 0.12s ease, border-color 0.12s ease',
+                            userSelect: 'none',
+                          }}
+                          onMouseEnter={e => {
+                            (e.currentTarget as HTMLElement).style.background = '#DCCEB9';
+                          }}
+                          onMouseLeave={e => {
+                            (e.currentTarget as HTMLElement).style.background = '#E8DCCB';
+                          }}
+                        >
+                          <span
                             style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 5,
-                              padding: '3px 6px',
-                              borderRadius: 4,
-                              background: 'var(--surface-subtle)',
-                              border: '1px solid var(--border)',
-                              cursor: entry.draft_id ? 'grab' : 'default',
-                              opacity: isDraggingThis ? 0.35 : 1,
-                              transition: 'all 0.12s ease',
-                              overflow: 'hidden',
-                              userSelect: 'none',
+                              width: 4,
+                              height: 4,
+                              borderRadius: '50%',
+                              background: '#5A3021',
+                              flexShrink: 0,
+                              display: 'inline-block',
                             }}
-                            onMouseEnter={e => {
-                              (e.currentTarget as HTMLElement).style.background = 'var(--brown-soft)';
-                            }}
-                            onMouseLeave={e => {
-                              (e.currentTarget as HTMLElement).style.background = 'var(--surface-subtle)';
+                          />
+                          <span
+                            style={{
+                              fontSize: 9,
+                              fontWeight: 700,
+                              color: '#5A3021',
+                              flexShrink: 0,
+                              lineHeight: 1,
                             }}
                           >
-                            <GripVertical size={10} color="var(--text-muted)" style={{ flexShrink: 0 }} />
-                            <div
-                              style={{
-                                width: 5,
-                                height: 5,
-                                borderRadius: '50%',
-                                background: STATUS_DOT[entry.status] || 'var(--brown-primary)',
-                                flexShrink: 0,
-                              }}
-                            />
-                            <span
-                              style={{
-                                fontSize: 10,
-                                color: 'var(--text-primary)',
-                                fontWeight: 600,
-                                overflow: 'hidden',
-                                whiteSpace: 'nowrap',
-                                textOverflow: 'ellipsis',
-                                flex: 1,
-                              }}
-                            >
-                              {entry.title.split(' ').slice(0, 3).join(' ')}
-                            </span>
-                            <span
-                              style={{
-                                fontSize: 9,
-                                color: 'var(--text-secondary)',
-                                fontWeight: 500,
-                                flexShrink: 0,
-                              }}
-                            >
-                              {timeStr}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
+                            {timeStr}
+                          </span>
+                          <span
+                            style={{
+                              fontSize: 10,
+                              fontWeight: 500,
+                              color: '#211914',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              minWidth: 0,
+                              flex: 1,
+                              lineHeight: 1.2,
+                            }}
+                          >
+                            {entry.title}
+                          </span>
+                        </div>
+                      );
+                    })}
+
+                    {/* Overflow Pill for Multiple Posts */}
+                    {overflowCount > 0 && (
+                      <button
+                        type="button"
+                        onClick={e => {
+                          e.stopPropagation();
+                          setExpandedDate(dateStr);
+                        }}
+                        style={{
+                          fontSize: 9,
+                          fontWeight: 600,
+                          color: 'var(--brown-primary, #5A3021)',
+                          background: 'rgba(232, 220, 203, 0.5)',
+                          border: '1px dashed #D6C7B5',
+                          borderRadius: 3,
+                          padding: '2px 4px',
+                          textAlign: 'center',
+                          cursor: 'pointer',
+                          width: '100%',
+                          minWidth: 0,
+                          lineHeight: 1.2,
+                        }}
+                      >
+                        + {overflowCount} more
+                      </button>
+                    )}
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
 
-      {/* Upcoming Scheduled List */}
-      {entries.length > 0 && (
-        <div>
-          <div className="label" style={{ marginBottom: 14 }}>Scheduled Posts ({entries.length})</div>
+      {/* ── SCHEDULED POSTS AGENDA / LIST VIEW ──────────────────────── */}
+      {sortedEntries.length > 0 && (
+        <div style={{ marginTop: 24 }}>
+          <div className="label" style={{ marginBottom: 12, letterSpacing: '0.08em', fontSize: 11 }}>
+            SCHEDULED POSTS ({sortedEntries.length})
+          </div>
+
           <div
             className="card"
             style={{
-              border: '1px solid var(--border)',
+              border: '1px solid #DDD3C5',
               borderRadius: 8,
-              background: 'var(--surface)',
+              background: '#FFFCF7',
               overflow: 'hidden',
+              boxShadow: '0 2px 8px rgba(33, 25, 20, 0.02)',
             }}
           >
-            {entries
-              .slice()
-              .sort((a, b) => a.scheduled_datetime.localeCompare(b.scheduled_datetime))
-              .map((entry, i) => {
-                const dt = new Date(entry.scheduled_datetime);
-                const isDeleting = deletingId === entry.id;
-                const timeStr = entry.scheduled_datetime.split('T')[1]?.slice(0, 5) || '19:00';
-                const dateStr = entry.scheduled_datetime.split('T')[0];
+            {sortedEntries.map((entry, i) => {
+              const dt = new Date(entry.scheduled_datetime);
+              const isDeleting = deletingId === entry.id;
+              const timeStr = entry.scheduled_datetime.split('T')[1]?.slice(0, 5) || '19:00';
+              const dateStr = entry.scheduled_datetime.split('T')[0];
 
-                return (
+              return (
+                <div
+                  key={entry.id}
+                  draggable={Boolean(entry.draft_id && onRescheduleEntry)}
+                  onDragStart={e => handleDragStart(entry, e)}
+                  style={{
+                    padding: '14px 18px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 14,
+                    borderBottom: i < sortedEntries.length - 1 ? '1px solid #DDD3C5' : 'none',
+                    transition: 'background 0.12s ease',
+                    background: 'transparent',
+                  }}
+                  onMouseEnter={e => {
+                    (e.currentTarget as HTMLElement).style.background = 'rgba(90, 48, 33, 0.03)';
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLElement).style.background = 'transparent';
+                  }}
+                >
+                  {/* Drag Grip Handle */}
                   <div
-                    key={entry.id}
-                    draggable={Boolean(entry.draft_id && onRescheduleEntry)}
-                    onDragStart={e => handleDragStart(entry, e)}
+                    style={{ cursor: 'grab', color: '#8F8275', display: 'flex', alignItems: 'center' }}
+                    title="Drag to a day cell on the calendar above to reschedule"
+                  >
+                    <GripVertical size={14} />
+                  </div>
+
+                  {/* Date Block */}
+                  <div
+                    onClick={() => entry.draft_id && onSelectDraft?.(entry.draft_id)}
                     style={{
-                      padding: '14px 18px',
+                      width: 44,
+                      height: 44,
+                      borderRadius: 6,
+                      background: '#E8DCCB',
+                      border: '1px solid #D6C7B5',
                       display: 'flex',
+                      flexDirection: 'column',
                       alignItems: 'center',
-                      gap: 14,
-                      borderBottom: i < entries.length - 1 ? '1px solid var(--border)' : 'none',
-                      transition: 'background 0.12s ease',
-                      background: 'transparent',
-                    }}
-                    onMouseEnter={e => {
-                      (e.currentTarget as HTMLElement).style.background = 'rgba(90, 56, 40, 0.03)';
-                    }}
-                    onMouseLeave={e => {
-                      (e.currentTarget as HTMLElement).style.background = 'transparent';
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                      cursor: 'pointer',
                     }}
                   >
-                    {/* Drag Handle */}
-                    <div style={{ cursor: 'grab', color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }} title="Drag to calendar to change date">
-                      <GripVertical size={14} />
-                    </div>
-
-                    {/* Date Block */}
                     <div
-                      onClick={() => entry.draft_id && onSelectDraft?.(entry.draft_id)}
                       style={{
-                        width: 44,
-                        height: 44,
-                        borderRadius: 6,
-                        background: 'var(--surface-subtle)',
-                        border: '1px solid var(--border)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0,
-                        cursor: 'pointer',
+                        fontSize: 9,
+                        color: '#8F8275',
+                        fontWeight: 700,
+                        letterSpacing: '0.06em',
+                        textTransform: 'uppercase',
+                        lineHeight: 1,
                       }}
                     >
-                      <div
-                        style={{
-                          fontSize: 9,
-                          color: 'var(--text-muted)',
-                          fontWeight: 700,
-                          letterSpacing: '0.06em',
-                          textTransform: 'uppercase',
-                        }}
-                      >
-                        {MONTHS[dt.getMonth()]}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: 16,
-                          fontWeight: 700,
-                          color: 'var(--text-primary)',
-                          lineHeight: 1,
-                        }}
-                      >
-                        {dt.getDate()}
-                      </div>
+                      {MONTHS[dt.getMonth()]}
                     </div>
-
-                    {/* Content Info */}
                     <div
-                      style={{ flex: 1, minWidth: 0, cursor: 'pointer' }}
-                      onClick={() => entry.draft_id && onSelectDraft?.(entry.draft_id)}
+                      style={{
+                        fontSize: 16,
+                        fontWeight: 700,
+                        color: '#171513',
+                        lineHeight: 1.1,
+                        marginTop: 2,
+                      }}
                     >
-                      <div
-                        style={{
-                          fontSize: 14,
-                          fontWeight: 600,
-                          color: 'var(--text-primary)',
-                          marginBottom: 3,
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {entry.title}
-                      </div>
-                      <div style={{ fontSize: 12, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <span>{entry.platform}</span>
-                        <span>·</span>
-                        <span>{entry.format}</span>
-                        <span>·</span>
-                        <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{timeStr} IST</span>
-                      </div>
+                      {dt.getDate()}
                     </div>
+                  </div>
 
-                    {/* Quick Reschedule Time Button */}
+                  {/* Content Title & Details */}
+                  <div
+                    style={{ flex: 1, minWidth: 0, cursor: 'pointer' }}
+                    onClick={() => entry.draft_id && onSelectDraft?.(entry.draft_id)}
+                  >
+                    <div
+                      style={{
+                        fontSize: 14,
+                        fontWeight: 600,
+                        color: '#171513',
+                        marginBottom: 3,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {entry.title}
+                    </div>
+                    <div style={{ fontSize: 12, color: '#8F8275', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span>{entry.platform}</span>
+                      <span>·</span>
+                      <span>{entry.format}</span>
+                      <span>·</span>
+                      <span style={{ color: '#171513', fontWeight: 600 }}>{timeStr} IST</span>
+                    </div>
+                  </div>
+
+                  {/* Time pill with quick edit */}
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={() => setEditingEntry({ entry, date: dateStr, time: timeStr })}
+                    style={{
+                      fontSize: 11,
+                      padding: '5px 10px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 4,
+                      flexShrink: 0,
+                      background: '#FFFCF7',
+                      borderColor: '#DDD3C5',
+                    }}
+                    title="Change date & time"
+                  >
+                    <Clock size={12} />
+                    <span>{timeStr}</span>
+                  </button>
+
+                  {/* Status Badge */}
+                  <span
+                    className="badge badge-accent"
+                    style={{
+                      fontSize: 11,
+                      padding: '4px 8px',
+                      background: '#E8D9C8',
+                      color: '#5A3828',
+                      flexShrink: 0,
+                    }}
+                  >
+                    Scheduled
+                  </span>
+
+                  {/* Delete Button */}
+                  {onDeleteEntry && (
                     <button
                       type="button"
-                      className="btn-secondary"
-                      onClick={() => setEditingEntry({ entry, date: dateStr, time: timeStr })}
-                      style={{ fontSize: 11, padding: '5px 10px', display: 'inline-flex', alignItems: 'center', gap: 4, flexShrink: 0 }}
-                      title="Adjust date & time"
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleDelete(entry.id);
+                      }}
+                      disabled={isDeleting}
+                      className="btn-danger"
+                      style={{ padding: '6px 8px', flexShrink: 0 }}
+                      title="Remove from calendar"
                     >
-                      <Clock size={12} />
-                      <span>{timeStr}</span>
+                      <Trash2 size={13} />
                     </button>
-
-                    {/* Status Badge */}
-                    <span
-                      className={STATUS_LABEL_CLASS[entry.status] || 'badge badge-neutral'}
-                      style={{ fontSize: 10, flexShrink: 0 }}
-                    >
-                      {entry.status.charAt(0).toUpperCase() + entry.status.slice(1)}
-                    </span>
-
-                    {/* Delete button */}
-                    {onDeleteEntry && (
-                      <button
-                        onClick={e => {
-                          e.stopPropagation();
-                          handleDelete(entry.id);
-                        }}
-                        disabled={isDeleting}
-                        className="btn-danger"
-                        style={{ padding: '6px 8px', flexShrink: 0 }}
-                        title="Remove from calendar"
-                      >
-                        <Trash2 size={13} />
-                      </button>
-                    )}
-                  </div>
-                );
-              })}
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -607,11 +762,97 @@ export default function CalendarView({
       {entries.length === 0 && (
         <div style={{ marginTop: 48, textAlign: 'center', padding: '40px 0' }}>
           <div style={{ fontSize: 32, marginBottom: 12, opacity: 0.3 }}>—</div>
-          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 5 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-secondary, #6F665D)', marginBottom: 5 }}>
             No posts scheduled yet
           </div>
-          <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+          <div style={{ fontSize: 13, color: 'var(--text-muted, #8F8275)' }}>
             Generate and approve content from opportunities to schedule posts on your timeline.
+          </div>
+        </div>
+      )}
+
+      {/* ── EXPANDED DAY VIEW POPOVER (For days with +X posts) ──────── */}
+      {expandedDate && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 1000,
+            background: 'rgba(23, 21, 19, 0.45)',
+            backdropFilter: 'blur(3px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 20,
+          }}
+          onClick={() => setExpandedDate(null)}
+        >
+          <div
+            className="card fade-up"
+            style={{
+              maxWidth: 420,
+              width: '100%',
+              background: '#FFFCF7',
+              padding: '22px 24px',
+              borderRadius: 10,
+              border: '1px solid #DDD3C5',
+              boxShadow: '0 20px 40px rgba(33, 25, 20, 0.2)',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <div>
+                <div className="label" style={{ marginBottom: 2 }}>SCHEDULED FOR</div>
+                <h3 className="serif-heading" style={{ fontSize: 18, color: '#171513' }}>
+                  {expandedDate}
+                </h3>
+              </div>
+              <button
+                type="button"
+                className="btn-ghost"
+                onClick={() => setExpandedDate(null)}
+                style={{ padding: 4 }}
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {(entriesByDate[expandedDate] || []).map(entry => {
+                const timeStr = entry.scheduled_datetime.split('T')[1]?.slice(0, 5) || '19:00';
+                return (
+                  <div
+                    key={entry.id}
+                    onClick={() => {
+                      setExpandedDate(null);
+                      if (entry.draft_id) onSelectDraft?.(entry.draft_id);
+                    }}
+                    style={{
+                      padding: '10px 12px',
+                      borderRadius: 6,
+                      background: '#E8DCCB',
+                      border: '1px solid #D6C7B5',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: '#211914', marginBottom: 2 }}>
+                        {entry.title}
+                      </div>
+                      <div style={{ fontSize: 11, color: '#5A3828' }}>
+                        {entry.format} · {entry.platform}
+                      </div>
+                    </div>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: '#5A3021' }}>
+                      {timeStr}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}
@@ -637,9 +878,10 @@ export default function CalendarView({
             style={{
               maxWidth: 440,
               width: '100%',
-              background: 'var(--surface)',
+              background: '#FFFCF7',
               padding: '24px 26px',
               borderRadius: 10,
+              border: '1px solid #DDD3C5',
               boxShadow: '0 20px 40px rgba(33, 25, 20, 0.2)',
             }}
             onClick={e => e.stopPropagation()}
@@ -647,23 +889,28 @@ export default function CalendarView({
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
               <div>
                 <div className="label" style={{ marginBottom: 4 }}>RESCHEDULE POST</div>
-                <h3 className="serif-heading" style={{ fontSize: 18, color: 'var(--text-primary)' }}>
+                <h3 className="serif-heading" style={{ fontSize: 18, color: '#171513' }}>
                   Change Publication Date & Time
                 </h3>
               </div>
-              <button className="btn-ghost" onClick={() => setEditingEntry(null)} style={{ padding: 4 }}>
+              <button
+                type="button"
+                className="btn-ghost"
+                onClick={() => setEditingEntry(null)}
+                style={{ padding: 4 }}
+              >
                 <X size={16} />
               </button>
             </div>
 
-            <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 18 }}>
+            <p style={{ fontSize: 12, color: '#6F665D', marginBottom: 18, lineHeight: 1.4 }}>
               {editingEntry.entry.title}
             </p>
 
             <form onSubmit={handleQuickRescheduleSubmit}>
               {/* Date Input */}
               <div style={{ marginBottom: 16 }}>
-                <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>
+                <label style={{ fontSize: 11, fontWeight: 600, color: '#6F665D', display: 'block', marginBottom: 6 }}>
                   Date
                 </label>
                 <input
@@ -678,7 +925,7 @@ export default function CalendarView({
 
               {/* Preset Time Pills */}
               <div style={{ marginBottom: 16 }}>
-                <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>
+                <label style={{ fontSize: 11, fontWeight: 600, color: '#6F665D', display: 'block', marginBottom: 6 }}>
                   Optimal D2C Posting Times
                 </label>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
@@ -692,9 +939,9 @@ export default function CalendarView({
                         style={{
                           padding: '8px 10px',
                           borderRadius: 6,
-                          border: isSelected ? '1px solid var(--brown-primary)' : '1px solid var(--border)',
-                          background: isSelected ? 'var(--brown-primary)' : 'var(--surface-subtle)',
-                          color: isSelected ? '#FFFCF7' : 'var(--text-primary)',
+                          border: isSelected ? '1px solid #5A3021' : '1px solid #DDD3C5',
+                          background: isSelected ? '#5A3021' : '#E8DCCB',
+                          color: isSelected ? '#FFFCF7' : '#171513',
                           fontSize: 11,
                           fontWeight: 600,
                           textAlign: 'left',
@@ -715,7 +962,7 @@ export default function CalendarView({
 
               {/* Custom Time */}
               <div style={{ marginBottom: 22 }}>
-                <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>
+                <label style={{ fontSize: 11, fontWeight: 600, color: '#6F665D', display: 'block', marginBottom: 6 }}>
                   Custom Time (IST)
                 </label>
                 <input
@@ -728,7 +975,7 @@ export default function CalendarView({
                 />
               </div>
 
-              {/* Action buttons */}
+              {/* Action Buttons */}
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
                 <button
                   type="button"
