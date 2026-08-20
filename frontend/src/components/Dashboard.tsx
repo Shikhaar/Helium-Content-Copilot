@@ -192,9 +192,17 @@ export default function Dashboard({
             {/* HERO OPPORTUNITY */}
             {topOpp && (
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    height: 28,
+                    marginBottom: 10,
+                  }}
+                >
                   <div className="label">YOUR NEXT BEST OPPORTUNITY</div>
-                  <button className="btn-ghost" onClick={onAnalyze} style={{ fontSize: 11, gap: 4 }}>
+                  <button className="btn-ghost" onClick={onAnalyze} style={{ fontSize: 11, gap: 4, padding: '4px 8px' }}>
                     <RefreshCw size={11} /> Re-analyse
                   </button>
                 </div>
@@ -366,8 +374,20 @@ export default function Dashboard({
           </div>
 
           {/* ── Right Column: Insights & Instagram Connect Card ─────────────────── */}
-          <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {/* THIS WEEK'S INSIGHTS */}
+          <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: 20 }}>
+            {/* Header sitting on identical horizontal baseline */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                height: 28,
+                marginBottom: 10,
+              }}
+            >
+              <div className="label">THIS WEEK'S INSIGHTS</div>
+            </div>
+
+            {/* THIS WEEK'S INSIGHTS CARD */}
             <div
               style={{
                 border: '1px solid var(--border)',
@@ -376,19 +396,6 @@ export default function Dashboard({
                 padding: '20px 20px',
               }}
             >
-              <div
-                style={{
-                  fontSize: 10,
-                  fontWeight: 700,
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
-                  color: 'var(--text-muted)',
-                  marginBottom: 16,
-                }}
-              >
-                THIS WEEK'S INSIGHTS
-              </div>
-
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 {/* Item 1 */}
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
