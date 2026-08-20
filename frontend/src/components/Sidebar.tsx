@@ -244,81 +244,129 @@ export default function Sidebar({
           {brandItems.map(({ id, label, icon }) => navItem(id, label, icon))}
         </nav>
 
-        {/* Desktop Collapse Toggle */}
-        {onToggleCollapse && (
-          <div
-            className="desktop-only"
-            style={{
-              padding: '8px 10px',
-              borderTop: '1px solid var(--border)',
-              justifyContent: isCollapsed ? 'center' : 'flex-end',
-            }}
-          >
+        {/* Bottom Utility & Workspace Identity Section */}
+        <div
+          style={{
+            borderTop: '1px solid var(--border)',
+            padding: isCollapsed ? '8px 6px 12px' : '8px 10px 12px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 4,
+            background: 'var(--sidebar)',
+          }}
+        >
+          {/* Desktop Collapse Toggle */}
+          {onToggleCollapse && (
             <button
               onClick={onToggleCollapse}
               title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              className="desktop-only"
               style={{
-                display: 'flex', alignItems: 'center', gap: 5,
-                background: 'none', border: 'none',
-                color: 'var(--text-muted)', cursor: 'pointer',
-                padding: '5px 7px', borderRadius: 5,
-                fontSize: 11, fontFamily: 'var(--font-sans)',
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: isCollapsed ? 'center' : 'flex-start',
+                gap: isCollapsed ? 0 : 8,
+                padding: isCollapsed ? '8px 0' : '6px 8px',
+                borderRadius: 5,
+                border: 'none',
+                background: 'transparent',
+                color: 'var(--text-muted)',
+                fontSize: 12,
+                fontFamily: 'var(--font-sans)',
+                fontWeight: 500,
+                cursor: 'pointer',
                 transition: 'all 0.15s ease',
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.color = 'var(--text-primary)';
-                e.currentTarget.style.background = 'var(--bg-subtle)';
+                (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)';
+                (e.currentTarget as HTMLElement).style.background = 'rgba(217, 200, 181, 0.45)';
               }}
               onMouseLeave={e => {
-                e.currentTarget.style.color = 'var(--text-muted)';
-                e.currentTarget.style.background = 'none';
+                (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)';
+                (e.currentTarget as HTMLElement).style.background = 'transparent';
               }}
             >
-              {isCollapsed ? <PanelLeft size={14} /> : (
+              {isCollapsed ? (
+                <PanelLeft size={15} strokeWidth={1.75} />
+              ) : (
                 <>
-                  <PanelLeftClose size={13} />
+                  <PanelLeftClose size={14} strokeWidth={1.75} />
                   <span>Collapse</span>
                 </>
               )}
             </button>
-          </div>
-        )}
+          )}
 
-        {/* Brand Selector Footer */}
-        {!isCollapsed && (
-          <div style={{
-            padding: '12px 14px',
-            borderTop: '1px solid var(--border)',
-          }}>
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 9,
-              padding: '8px 10px',
-              background: 'var(--surface)',
+          {/* Integrated Workspace / Brand Identity */}
+          <div
+            title={isCollapsed ? `${brandName} · ${campaign}` : undefined}
+            style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: isCollapsed ? 'center' : 'flex-start',
+              gap: 9,
+              padding: isCollapsed ? '6px 0' : '7px 8px',
               borderRadius: 6,
-              border: '1px solid var(--border)',
-            }}>
-              {/* Brand initial */}
-              <div style={{
-                width: 26, height: 26, borderRadius: 5,
-                background: 'var(--accent-soft)',
-                border: '1px solid var(--accent-border)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 10, fontWeight: 700, color: 'var(--accent)',
+              background: 'transparent',
+              userSelect: 'none',
+            }}
+          >
+            {/* Refined Brand Avatar */}
+            <div
+              style={{
+                width: 24,
+                height: 24,
+                borderRadius: 5,
+                background: 'var(--brown-soft)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 11,
+                fontWeight: 700,
+                color: 'var(--brown-primary)',
                 flexShrink: 0,
-              }}>
-                {brandName.charAt(0)}
-              </div>
-              <div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>
+                fontFamily: 'var(--font-sans)',
+              }}
+            >
+              {brandName.charAt(0)}
+            </div>
+
+            {!isCollapsed && (
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: 'var(--text-primary)',
+                    lineHeight: 1.2,
+                    letterSpacing: '0.02em',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
                   {brandName}
                 </div>
-                <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 1 }}>
+                <div
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 500,
+                    color: 'var(--text-muted)',
+                    lineHeight: 1.2,
+                    marginTop: 1,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
                   {campaign}
                 </div>
               </div>
-            </div>
+            )}
           </div>
-        )}
+        </div>
       </aside>
     </>
   );
