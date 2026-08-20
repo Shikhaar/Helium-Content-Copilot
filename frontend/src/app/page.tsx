@@ -61,44 +61,6 @@ export default function Home() {
   // Error state
   const [error, setError] = React.useState<string | null>(null);
 
-  // Smooth loading state while Clerk initializes
-  if (process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && !isLoaded) {
-    return (
-      <div
-        style={{
-          minHeight: '100vh',
-          background: 'var(--bg)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontFamily: 'var(--font-sans)',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div
-            style={{
-              width: 28,
-              height: 28,
-              borderRadius: 6,
-              background: 'var(--brown-dark)',
-              color: 'var(--surface)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: 800,
-              fontSize: 14,
-            }}
-          >
-            B
-          </div>
-          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>
-            Loading BrandBrew workspace...
-          </span>
-        </div>
-      </div>
-    );
-  }
-
   // Load initial data
   React.useEffect(() => {
     const loadBootstrap = async () => {
@@ -445,6 +407,43 @@ export default function Home() {
         return null;
     }
   };
+
+  if (process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && !isLoaded) {
+    return (
+      <div
+        style={{
+          minHeight: '100vh',
+          background: 'var(--bg)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontFamily: 'var(--font-sans)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div
+            style={{
+              width: 28,
+              height: 28,
+              borderRadius: 6,
+              background: 'var(--brown-dark)',
+              color: 'var(--surface)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontWeight: 800,
+              fontSize: 14,
+            }}
+          >
+            B
+          </div>
+          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>
+            Loading BrandBrew workspace...
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-primary)' }}>
