@@ -245,23 +245,25 @@ function CarouselPreview({
           ))}
         </div>
 
-        {/* CTA Preview pill */}
-        <div
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            background: 'var(--brown-primary)',
-            color: '#FFFCF7',
-            padding: '6px 12px',
-            borderRadius: 6,
-            fontSize: 11,
-            fontWeight: 600,
-          }}
-        >
-          <span>{cta || 'Discover your style'}</span>
-          <span>→</span>
-        </div>
+        {/* CTA Preview pill (renders only when selected) */}
+        {cta ? (
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              background: 'var(--brown-primary)',
+              color: '#FFFCF7',
+              padding: '6px 12px',
+              borderRadius: 6,
+              fontSize: 11,
+              fontWeight: 600,
+            }}
+          >
+            <span>{cta}</span>
+            <span>→</span>
+          </div>
+        ) : null}
       </div>
     </div>
   );
@@ -471,23 +473,25 @@ function ReelPreview({
           <span>Trending Audio · Lo-Fi Beats</span>
         </div>
 
-        {/* CTA Preview pill */}
-        <div
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            background: 'var(--brown-primary)',
-            color: '#FFFCF7',
-            padding: '6px 12px',
-            borderRadius: 6,
-            fontSize: 11,
-            fontWeight: 600,
-          }}
-        >
-          <span>{cta || 'Shop the look'}</span>
-          <span>→</span>
-        </div>
+        {/* CTA Preview pill (renders only when selected) */}
+        {cta ? (
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              background: 'var(--brown-primary)',
+              color: '#FFFCF7',
+              padding: '6px 12px',
+              borderRadius: 6,
+              fontSize: 11,
+              fontWeight: 600,
+            }}
+          >
+            <span>{cta}</span>
+            <span>→</span>
+          </div>
+        ) : null}
       </div>
     </div>
   );
@@ -519,11 +523,14 @@ export default function ContentStudio({
   const [schedTime, setSchedTime] = React.useState('19:00');
   const [saveToast, setSaveToast] = React.useState(false);
 
+  const [showAllCtas, setShowAllCtas] = React.useState(false);
+
   // Local slides state for immediate responsive edits
   const [slides, setSlides] = React.useState<CarouselSlide[]>([]);
 
   // Detect format accurately
   const isCarousel = (draft?.format || opportunity?.format || '').toLowerCase().includes('carousel');
+  const contextualCtas = getContextualCtas(opportunity?.content_angle || '', draft?.format || '');
 
   React.useEffect(() => {
     if (draft) {
@@ -570,10 +577,12 @@ export default function ContentStudio({
     setTimeout(() => setSaveToast(false), 2400);
   };
 
-  const handleSelectCta = (newCta: string) => {
-    setCta(newCta);
+  const handleSelectCta = (option: string) => {
+    // If clicking already selected option, unselect it (toggle off)
+    const nextCta = cta === option ? '' : option;
+    setCta(nextCta);
     if (onUpdateDraft) {
-      onUpdateDraft({ cta: newCta });
+      onUpdateDraft({ cta: nextCta });
     }
   };
 
@@ -796,9 +805,16 @@ export default function ContentStudio({
 
             {/* Call To Action Selector */}
             <div style={{ marginBottom: 18 }}>
-              <div className="label" style={{ marginBottom: 8 }}>CALL TO ACTION</div>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                {ctaOptions.map(option => {
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <div className="label">CALL TO ACTION</div>
+                <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                  {showAllCtas ? 'All 8 options' : 'Recommended for this angle'}
+                </span>
+              </div>
+
+              {/* Contextual CTA Options */}
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
+                {(showAllCtas ? contextualCtas : contextualCtas.slice(0, 4)).map(option => {
                   const isSelected = cta === option;
                   return (
                     <button
@@ -809,18 +825,52 @@ export default function ContentStudio({
                         padding: '6px 12px',
                         borderRadius: 6,
                         border: isSelected ? '1px solid var(--brown-primary)' : '1px solid var(--border)',
-                        background: isSelected ? 'var(--surface-subtle)' : 'var(--surface)',
-                        color: isSelected ? 'var(--brown-primary)' : 'var(--text-secondary)',
+                        background: isSelected ? 'var(--brown-primary)' : 'var(--surface)',
+                        color: isSelected ? '#FFFCF7' : 'var(--text-secondary)',
                         fontSize: 12,
                         fontWeight: isSelected ? 600 : 400,
                         cursor: 'pointer',
                         transition: 'all 0.15s ease',
                       }}
+                      onMouseEnter={e => {
+                        if (!isSelected) {
+                          (e.currentTarget as HTMLElement).style.background = 'var(--surface-subtle)';
+                          (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)';
+                        }
+                      }}
+                      onMouseLeave={e => {
+                        if (!isSelected) {
+                          (e.currentTarget as HTMLElement).style.background = 'var(--surface)';
+                          (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)';
+                        }
+                      }}
+                      title={isSelected ? 'Click to deselect CTA' : `Select "${option}"`}
                     >
                       {option}
+                      {isSelected && <span style={{ marginLeft: 5, fontSize: 10, opacity: 0.8 }}>✕</span>}
                     </button>
                   );
                 })}
+              </div>
+
+              {/* Show More Toggle and Preview Feedback */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowAllCtas(s => !s)}
+                  className="btn-ghost"
+                  style={{ fontSize: 11, padding: '2px 6px', color: 'var(--text-muted)' }}
+                >
+                  {showAllCtas ? '▴ Show fewer' : '▾ More CTA options (8)'}
+                </button>
+
+                <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>
+                  Preview: {cta ? (
+                    <strong style={{ color: 'var(--brown-primary)' }}>{cta} →</strong>
+                  ) : (
+                    <span style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>None (no CTA button overlay)</span>
+                  )}
+                </span>
               </div>
             </div>
 
