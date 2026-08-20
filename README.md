@@ -1,8 +1,8 @@
-# Helium Content Copilot
+# BrandBrew — Content Copilot
 
-> ## Turn brand data into content worth creating.
+> ## Brew your next winning content idea.
 
-**Helium Content Copilot** is an AI-powered content strategist for D2C brands that identifies high-value content opportunities, explains why they matter, and turns them into ready-to-review social content.
+**BrandBrew** is an AI-powered content strategist for D2C brands that identifies high-value content opportunities from catalog demand, explains why they matter, and turns them into ready-to-review social campaigns.
 
 **[Live App Demo](https://helium-content-copilot.onrender.com)** · [User Guide](docs/USER_GUIDE.md) · [Architecture](docs/ARCHITECTURE.md) · [Scoring Model](docs/SCORING_MODEL.md) · [AI Prompts](docs/AI_PROMPTS.md) · [Product Thinking](docs/PRODUCT_THINKING.md) · [Roadmap](docs/FUTURE_SCOPE_ROADMAP.md)
 
@@ -19,12 +19,12 @@
 Most AI content tools start with:
 > **"What should I write?"**
 
-Helium starts one step earlier:
+BrandBrew starts one step earlier:
 > **"What is actually worth creating — and why?"**
 
 For D2C marketers, generating another caption is easy. Deciding **which product, audience, format, and content angle deserves creative effort** is harder.
 
-Helium combines **Brand Context + Product Velocity + Historical Performance + Audience Signals + Seasonality + Business Objectives** to identify the strongest content opportunities.
+BrandBrew combines **Brand Context + Product Velocity + Historical Performance + Audience Signals + Seasonality + Business Objectives** to identify the strongest content opportunities.
 
 ---
 

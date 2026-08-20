@@ -19,8 +19,8 @@ const newsreader = Newsreader({
 });
 
 export const metadata: Metadata = {
-  title: 'Helium Content Copilot',
-  description: 'Know what to post. Know why. Create it in seconds. AI-powered content strategy for D2C brands.',
+  title: 'BrandBrew — Content Copilot',
+  description: 'Brew your next winning content idea. AI-powered content strategy for D2C brands.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

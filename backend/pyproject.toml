@@ -1,11 +1,13 @@
+[tool.poetry]
+package-mode = false
+
 [project]
-name = "helium-content-copilot"
+name = "brandbrew-content-copilot"
 version = "0.1.0"
-description = "AI-powered content opportunity and generation tool for D2C brands"
+description = "Brew your next winning content idea — AI content strategist for D2C brands"
 authors = [
     {name = "Shikhar Srivastava"}
 ]
-readme = "README.md"
 requires-python = "^3.11"
 dependencies = [
     "fastapi (>=0.141.1,<0.142.0)",

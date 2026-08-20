@@ -50,13 +50,13 @@ export default function SignUpPage() {
             <span
               style={{
                 fontFamily: 'var(--font-sans)',
-                fontSize: 15,
+                fontSize: 16,
                 fontWeight: 800,
                 color: 'var(--surface)',
                 letterSpacing: '-0.04em',
               }}
             >
-              H
+              B
             </span>
           </div>
           <div style={{ textAlign: 'left' }}>
@@ -70,7 +70,7 @@ export default function SignUpPage() {
                 textTransform: 'uppercase',
               }}
             >
-              Helium
+              BrandBrew
             </div>
             <div
               style={{
@@ -98,7 +98,7 @@ export default function SignUpPage() {
             letterSpacing: '-0.01em',
           }}
         >
-          Create your Helium Workspace
+          Create your BrandBrew Workspace
         </h1>
         <p
           style={{
@@ -108,7 +108,7 @@ export default function SignUpPage() {
             lineHeight: 1.45,
           }}
         >
-          Join leading D2C fashion brands turning customer signals into high-converting editorial campaigns.
+          Brew high-converting editorial social campaigns from real customer signals.
         </p>
       </div>
 

@@ -50,13 +50,13 @@ export default function SignInPage() {
             <span
               style={{
                 fontFamily: 'var(--font-sans)',
-                fontSize: 15,
+                fontSize: 16,
                 fontWeight: 800,
                 color: 'var(--surface)',
                 letterSpacing: '-0.04em',
               }}
             >
-              H
+              B
             </span>
           </div>
           <div style={{ textAlign: 'left' }}>
@@ -70,7 +70,7 @@ export default function SignInPage() {
                 textTransform: 'uppercase',
               }}
             >
-              Helium
+              BrandBrew
             </div>
             <div
               style={{
@@ -98,7 +98,7 @@ export default function SignInPage() {
             letterSpacing: '-0.01em',
           }}
         >
-          Welcome to your Content Studio
+          Welcome back to BrandBrew
         </h1>
         <p
           style={{
@@ -108,7 +108,7 @@ export default function SignInPage() {
             lineHeight: 1.45,
           }}
         >
-          Sign in to access real-time brand intelligence, ranked opportunities, and editorial generation.
+          Brew your next winning content idea from catalog signals and real customer demand.
         </p>
       </div>
 

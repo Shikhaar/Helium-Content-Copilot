@@ -370,5 +370,6 @@ async def get_me(
 
 @router.get("/health")
 async def health():
-    return {"status": "ok", "service": "helium-content-copilot"}
+    return {"status": "ok", "service": "brandbrew-content-copilot"}
+
 

@@ -84,14 +84,14 @@ export default function Sidebar({
     if (onCloseMobile) onCloseMobile();
   };
 
-  const displayName = user?.fullName || user?.firstName || 'Helium User';
-  const email = user?.primaryEmailAddress?.emailAddress || 'user@helium.internal';
+  const displayName = user?.fullName || user?.firstName || 'BrandBrew User';
+  const email = user?.primaryEmailAddress?.emailAddress || 'user@brandbrew.internal';
   const initials = displayName
     .split(' ')
     .map(n => n[0])
     .join('')
     .toUpperCase()
-    .slice(0, 2) || 'H';
+    .slice(0, 2) || 'BB';
 
   const navItem = (id: Tab, label: string, Icon: React.ElementType) => {
     const isActive = activeTab === id;
@@ -199,7 +199,7 @@ export default function Sidebar({
         >
           <button
             onClick={handleHomeClick}
-            title="Helium Content Copilot"
+            title="BrandBrew Content Copilot"
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -212,7 +212,7 @@ export default function Sidebar({
               overflow: 'hidden',
             }}
           >
-            {/* H mark */}
+            {/* B mark */}
             <div
               style={{
                 width: 26,
@@ -228,13 +228,13 @@ export default function Sidebar({
               <span
                 style={{
                   fontFamily: 'var(--font-sans)',
-                  fontSize: 12,
+                  fontSize: 13,
                   fontWeight: 800,
                   color: 'var(--surface)',
                   letterSpacing: '-0.04em',
                 }}
               >
-                H
+                B
               </span>
             </div>
             {!isCollapsed && (
@@ -249,7 +249,7 @@ export default function Sidebar({
                     textTransform: 'uppercase',
                   }}
                 >
-                  Helium
+                  BrandBrew
                 </div>
                 <div
                   style={{

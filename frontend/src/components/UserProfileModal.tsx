@@ -25,14 +25,14 @@ export default function UserProfileModal({
 }: UserProfileModalProps) {
   if (!isOpen) return null;
 
-  const displayName = user?.fullName || user?.firstName || 'Helium User';
-  const email = user?.primaryEmailAddress?.emailAddress || 'user@helium.internal';
+  const displayName = user?.fullName || user?.firstName || 'BrandBrew User';
+  const email = user?.primaryEmailAddress?.emailAddress || 'user@brandbrew.internal';
   const initials = displayName
     .split(' ')
     .map(n => n[0])
     .join('')
     .toUpperCase()
-    .slice(0, 2) || 'H';
+    .slice(0, 2) || 'BB';
 
   return (
     <div

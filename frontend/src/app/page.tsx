@@ -92,7 +92,7 @@ export default function Home() {
         }
       } catch (e) {
         console.error('Bootstrap failed:', e);
-        setError('Could not connect to Helium backend. Is it running on port 8000?');
+        setError('Could not connect to BrandBrew backend. Is it running on port 8000?');
       }
     };
     loadBootstrap();
