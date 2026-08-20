@@ -14,6 +14,7 @@ import {
   Layers,
   Plus,
   X,
+  Sparkles,
 } from 'lucide-react';
 import type { CarouselSlide, ContentDraft, Opportunity, ScheduleRequest } from '../lib/types';
 
@@ -44,7 +45,7 @@ function getSlideImage(slideNum: number) {
   return SLIDE_IMAGES[(slideNum - 1) % SLIDE_IMAGES.length];
 }
 
-const REEL_SCENE_NAMES = ['HOOK', 'THE PRODUCT', 'STYLING', 'CTA'];
+const REEL_SCENE_NAMES = ['HOOK', 'PRODUCT', 'STYLING', 'CTA'];
 const REEL_SCENE_TIMINGS = ['0:00 - 0:03', '0:03 - 0:07', '0:07 - 0:11', '0:11 - 0:15'];
 
 const ALL_D2C_CTAS = [
@@ -78,10 +79,10 @@ function getContextualCtas(angle: string = '', format: string = ''): string[] {
 
 function Skeleton() {
   return (
-    <div className="page-container">
-      <div className="skeleton" style={{ width: 140, height: 16, marginBottom: 28 }} />
-      <div className="skeleton" style={{ width: 320, height: 32, marginBottom: 16 }} />
-      <div className="skeleton" style={{ width: '100%', height: 420, borderRadius: 10 }} />
+    <div className="page-container" style={{ maxWidth: 980 }}>
+      <div className="skeleton" style={{ width: 140, height: 16, marginBottom: 24 }} />
+      <div className="skeleton" style={{ width: 340, height: 32, marginBottom: 16 }} />
+      <div className="skeleton" style={{ width: '100%', height: 440, borderRadius: 10 }} />
     </div>
   );
 }
@@ -113,17 +114,17 @@ function CarouselPreview({
     <div
       style={{
         width: '100%',
-        maxWidth: 330,
+        maxWidth: 340,
         aspectRatio: '4/5',
         background: '#191512',
         borderRadius: 12,
-        border: '1px solid var(--border)',
+        border: '1px solid #DDD3C5',
         position: 'relative',
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-        boxShadow: '0 8px 24px rgba(33, 25, 20, 0.08)',
+        boxShadow: '0 12px 32px rgba(33, 25, 20, 0.12)',
         userSelect: 'none',
       }}
     >
@@ -176,15 +177,15 @@ function CarouselPreview({
         style={{
           position: 'absolute',
           top: 0, left: 0, right: 0, height: '28%',
-          background: 'linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%)',
+          background: 'linear-gradient(180deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0) 100%)',
           pointerEvents: 'none',
         }}
       />
       <div
         style={{
           position: 'absolute',
-          bottom: 0, left: 0, right: 0, height: '60%',
-          background: 'linear-gradient(0deg, rgba(17,14,12,0.92) 0%, rgba(17,14,12,0.6) 45%, rgba(0,0,0,0) 100%)',
+          bottom: 0, left: 0, right: 0, height: '62%',
+          background: 'linear-gradient(0deg, rgba(17,14,12,0.94) 0%, rgba(17,14,12,0.65) 50%, rgba(0,0,0,0) 100%)',
           pointerEvents: 'none',
         }}
       />
@@ -204,7 +205,7 @@ function CarouselPreview({
           <span style={{ fontSize: 12, fontWeight: 800, color: '#FFFFFF', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             {brandName}
           </span>
-          <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)', display: 'inline-block' }} />
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#49634A', display: 'inline-block' }} />
         </div>
 
         <div
@@ -235,7 +236,7 @@ function CarouselPreview({
             fontWeight: 600,
             color: '#FFFFFF',
             lineHeight: 1.3,
-            textShadow: '0 2px 8px rgba(0,0,0,0.8)',
+            textShadow: '0 2px 8px rgba(0,0,0,0.85)',
             marginBottom: 6,
           }}
         >
@@ -247,7 +248,7 @@ function CarouselPreview({
               fontSize: 12,
               color: 'rgba(255,255,255,0.88)',
               lineHeight: 1.45,
-              textShadow: '0 1px 4px rgba(0,0,0,0.7)',
+              textShadow: '0 1px 4px rgba(0,0,0,0.75)',
               maxWidth: 240,
               margin: '0 auto',
             }}
@@ -315,7 +316,7 @@ function CarouselPreview({
               display: 'inline-flex',
               alignItems: 'center',
               gap: 6,
-              background: 'var(--brown-primary)',
+              background: '#5A3828',
               color: '#FFFCF7',
               padding: '6px 12px',
               borderRadius: 6,
@@ -355,17 +356,17 @@ function ReelPreview({
     <div
       style={{
         width: '100%',
-        maxWidth: 330,
+        maxWidth: 320,
         aspectRatio: '9/16',
         background: '#191512',
         borderRadius: 12,
-        border: '1px solid var(--border)',
+        border: '1px solid #DDD3C5',
         position: 'relative',
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-        boxShadow: '0 8px 24px rgba(33, 25, 20, 0.08)',
+        boxShadow: '0 12px 32px rgba(33, 25, 20, 0.12)',
         userSelect: 'none',
       }}
     >
@@ -462,7 +463,7 @@ function ReelPreview({
           <span style={{ fontSize: 12, fontWeight: 800, color: '#FFFFFF', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             {brandName}
           </span>
-          <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)', display: 'inline-block' }} />
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#49634A', display: 'inline-block' }} />
         </div>
 
         <div
@@ -492,7 +493,7 @@ function ReelPreview({
             fontWeight: 700,
             color: '#FFFFFF',
             lineHeight: 1.3,
-            textShadow: '0 2px 8px rgba(0,0,0,0.8)',
+            textShadow: '0 2px 8px rgba(0,0,0,0.85)',
             marginBottom: 8,
           }}
         >
@@ -578,7 +579,7 @@ function ReelPreview({
               display: 'inline-flex',
               alignItems: 'center',
               gap: 6,
-              background: 'var(--brown-primary)',
+              background: '#5A3828',
               color: '#FFFCF7',
               padding: '6px 12px',
               borderRadius: 6,
@@ -658,7 +659,7 @@ export default function ContentStudio({
 
   if (!draft) {
     return (
-      <div className="page-container fade-up" style={{ maxWidth: 940 }}>
+      <div className="page-container fade-up" style={{ maxWidth: 980 }}>
         {/* Header */}
         <div style={{ marginBottom: 24 }}>
           <button
@@ -668,11 +669,11 @@ export default function ContentStudio({
           >
             <ArrowLeft size={14} /> Back to opportunities
           </button>
-          <div className="label" style={{ marginBottom: 4 }}>Content Studio</div>
+          <div className="label" style={{ marginBottom: 4, letterSpacing: '0.09em' }}>CONTENT STUDIO</div>
           <h1 className="serif-heading" style={{ fontSize: 24, color: 'var(--text-primary)', marginBottom: 4 }}>
             Select an Opportunity to Craft
           </h1>
-          <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+          <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>
             Choose a high-confidence recommendation to generate format-tailored social content (Instagram Reels & Carousels).
           </div>
         </div>
@@ -818,7 +819,6 @@ export default function ContentStudio({
   };
 
   const handleSelectCta = (option: string) => {
-    // If clicking already selected option, unselect it (toggle off)
     const nextCta = cta === option ? '' : option;
     setCta(nextCta);
     if (onUpdateDraft) {
@@ -869,30 +869,49 @@ export default function ContentStudio({
     (isCarousel ? '5 Ways to Style the Cuban Collar Shirt' : 'Summer Layering with Oversized Linen Shirt');
 
   return (
-    <div className="page-container fade-up" style={{ maxWidth: 940 }}>
-      {/* ── A. HEADER ──────────────────────────────────────────────── */}
+    <div className="page-container fade-up" style={{ maxWidth: 980, boxSizing: 'border-box' }}>
+      {/* ── A. EDITORIAL HEADER ────────────────────────────────────── */}
       <div style={{ marginBottom: 24 }}>
         <button
           className="btn-ghost"
           onClick={onBack}
-          style={{ padding: '4px 0', fontSize: 13, color: 'var(--text-secondary)', marginBottom: 12, display: 'inline-flex', alignItems: 'center', gap: 6 }}
+          style={{
+            padding: '4px 0',
+            fontSize: 13,
+            color: 'var(--text-secondary)',
+            marginBottom: 12,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+          }}
         >
           <ArrowLeft size={14} /> Back to opportunities
         </button>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
           <div>
-            <div className="label" style={{ marginBottom: 4 }}>Content Studio</div>
+            <div className="label" style={{ marginBottom: 4, letterSpacing: '0.09em' }}>CONTENT STUDIO</div>
             <h1
               className="serif-heading"
-              style={{ fontSize: 24, color: 'var(--text-primary)', lineHeight: 1.25, marginBottom: 4 }}
+              style={{ fontSize: 24, color: 'var(--text-primary)', lineHeight: 1.25, marginBottom: 6 }}
             >
               {currentTitle}
             </h1>
-            <div style={{ fontSize: 12, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span>{isCarousel ? 'Instagram Carousel' : 'Instagram Reel'}</span>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                {isCarousel ? 'Instagram Carousel' : 'Instagram Reel'}
+              </span>
               <span>·</span>
-              <span style={{ color: 'var(--green)', fontWeight: 600 }}>High confidence recommendation</span>
+              <span style={{ color: '#49634A', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#49634A' }} />
+                High confidence recommendation
+              </span>
+              {opportunity?.audience && (
+                <>
+                  <span>·</span>
+                  <span>Target: <strong>{opportunity.audience}</strong></span>
+                </>
+              )}
               {draft.is_demo && (
                 <>
                   <span>·</span>
@@ -905,48 +924,69 @@ export default function ContentStudio({
           {/* Header Action Buttons */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             {saveToast && (
-              <span style={{ fontSize: 12, color: 'var(--green)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span
+                style={{
+                  fontSize: 12,
+                  color: '#49634A',
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  padding: '5px 10px',
+                  background: '#E7EFE8',
+                  borderRadius: 6,
+                }}
+              >
                 <Check size={14} /> {saveToast}
               </span>
             )}
             <button
+              type="button"
               className="btn-secondary"
               onClick={() => handleSaveDraft(true)}
               disabled={isSaving}
-              style={{ fontSize: 12, padding: '7px 14px', minWidth: 84 }}
+              style={{ fontSize: 12, padding: '7px 15px', minWidth: 88, background: '#FFFCF7' }}
             >
               {isSaving ? 'Saving...' : 'Save draft'}
             </button>
+
             {!isApproved && (
               <button
+                type="button"
                 id="approve-btn"
                 className="btn-primary"
                 onClick={handleApproveAndOpenSchedule}
-                style={{ fontSize: 12, padding: '7px 16px', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                style={{ fontSize: 12, padding: '7px 18px', display: 'inline-flex', alignItems: 'center', gap: 6 }}
               >
                 <Check size={14} /> Approve & schedule
               </button>
             )}
+
             {isApproved && !isScheduled && (
               <button
+                type="button"
                 id="schedule-btn"
                 className="btn-primary"
-                onClick={() => setShowScheduler(s => !s)}
-                style={{ fontSize: 12, padding: '7px 16px', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                onClick={() => setShowScheduler(true)}
+                style={{ fontSize: 12, padding: '7px 18px', display: 'inline-flex', alignItems: 'center', gap: 6 }}
               >
                 <CalendarClock size={14} /> Schedule post
               </button>
             )}
+
             {isScheduled && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span className="badge badge-accent" style={{ fontSize: 12, padding: '5px 10px' }}>
+                <span
+                  className="badge badge-accent"
+                  style={{ fontSize: 12, padding: '6px 12px', background: '#E8D9C8', color: '#5A3828' }}
+                >
                   Scheduled for {draft.scheduled_date}
                 </span>
                 <button
                   type="button"
                   className="btn-secondary"
-                  onClick={() => setShowScheduler(s => !s)}
-                  style={{ fontSize: 11, padding: '5px 10px', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                  onClick={() => setShowScheduler(true)}
+                  style={{ fontSize: 11, padding: '6px 12px', display: 'inline-flex', alignItems: 'center', gap: 4 }}
                 >
                   <CalendarClock size={12} /> Reschedule
                 </button>
@@ -956,58 +996,178 @@ export default function ContentStudio({
         </div>
       </div>
 
-      {/* ── B. MAIN CONTENT WORKSPACE (Two-Column Layout) ───────────── */}
-      <div className="studio-grid" style={{ marginBottom: 28, alignItems: 'start' }}>
+      {/* ── B. BALANCED TWO-COLUMN WORKSPACE ────────────────────────── */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'minmax(320px, 360px) 1fr',
+          gap: 28,
+          alignItems: 'start',
+          marginBottom: 32,
+        }}
+      >
+        {/* ── LEFT COLUMN: CREATIVE PREVIEW + STORYBOARD STRIP ──────── */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          {/* Creative Preview */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+            {isCarousel ? (
+              <CarouselPreview
+                slide={currentSlide}
+                slideIndex={activeSlide}
+                totalSlides={totalSlidesCount}
+                cta={cta}
+                brandName="SNITCH"
+                onPrev={handlePrevSlide}
+                onNext={handleNextSlide}
+              />
+            ) : (
+              <ReelPreview
+                slide={currentSlide}
+                slideIndex={activeSlide}
+                totalSlides={totalSlidesCount}
+                cta={cta}
+                brandName="SNITCH"
+                onPrev={handlePrevSlide}
+                onNext={handleNextSlide}
+              />
+            )}
+          </div>
 
-        {/* LEFT COLUMN: Format-Aware Preview with Tap Navigation */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          {isCarousel ? (
-            <CarouselPreview
-              slide={currentSlide}
-              slideIndex={activeSlide}
-              totalSlides={totalSlidesCount}
-              cta={cta}
-              brandName="SNITCH"
-              onPrev={handlePrevSlide}
-              onNext={handleNextSlide}
-            />
-          ) : (
-            <ReelPreview
-              slide={currentSlide}
-              slideIndex={activeSlide}
-              totalSlides={totalSlidesCount}
-              cta={cta}
-              brandName="SNITCH"
-              onPrev={handlePrevSlide}
-              onNext={handleNextSlide}
-            />
-          )}
+          {/* Storyboard Frame Navigation Strip */}
+          <div
+            className="card"
+            style={{
+              padding: '16px 16px 18px',
+              background: '#FFFCF7',
+              border: '1px solid #DDD3C5',
+              borderRadius: 10,
+              width: '100%',
+              boxSizing: 'border-box',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <div className="label" style={{ letterSpacing: '0.08em' }}>
+                {isCarousel ? `STORYBOARD (${totalSlidesCount} SLIDES)` : `TIMELINE (${totalSlidesCount} SCENES)`}
+              </div>
+              <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>
+                Click to inspect frame
+              </span>
+            </div>
+
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: `repeat(${totalSlidesCount}, minmax(0, 1fr))`,
+                gap: 8,
+                width: '100%',
+              }}
+            >
+              {currentSlidesList.map((slide, i) => {
+                const isSelected = i === activeSlide;
+                const sceneThumb = getSlideImage(i + 1);
+
+                let roleName = `0${i + 1}`;
+                if (isCarousel) {
+                  if (i === 0) roleName = '01 Hook';
+                  else if (i === totalSlidesCount - 1) roleName = `0${i + 1} CTA`;
+                  else roleName = `0${i + 1} Slide`;
+                } else {
+                  roleName = `0${i + 1} ${REEL_SCENE_NAMES[i] || 'Beat'}`;
+                }
+
+                return (
+                  <div
+                    key={slide.slide_number || i}
+                    onClick={() => setActiveSlide(i)}
+                    style={{
+                      cursor: 'pointer',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 4,
+                      minWidth: 0,
+                    }}
+                  >
+                    {/* Thumbnail Frame */}
+                    <div
+                      style={{
+                        width: '100%',
+                        aspectRatio: isCarousel ? '4/5' : '9/16',
+                        borderRadius: 6,
+                        overflow: 'hidden',
+                        position: 'relative',
+                        border: isSelected ? '2px solid #5A3021' : '1px solid #DDD3C5',
+                        boxShadow: isSelected ? '0 0 0 2px rgba(90, 48, 33, 0.15)' : 'none',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      <img
+                        src={sceneThumb}
+                        alt={roleName}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          filter: isSelected ? 'brightness(1)' : 'brightness(0.7)',
+                          transition: 'filter 0.2s ease',
+                        }}
+                      />
+                    </div>
+
+                    {/* Frame Index / Role Label */}
+                    <div
+                      style={{
+                        fontSize: 10,
+                        fontWeight: isSelected ? 700 : 500,
+                        color: isSelected ? '#5A3021' : '#8F8275',
+                        textAlign: 'center',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        lineHeight: 1.2,
+                      }}
+                      title={slide.headline}
+                    >
+                      {roleName}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
 
-        {/* RIGHT COLUMN: Format-Aware Content Editor Panel */}
+        {/* ── RIGHT COLUMN: EDITORIAL CONTENT EDITOR ────────────────── */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div className="card" style={{ padding: 22, background: 'var(--surface)' }}>
-
-            {/* Metadata Bar */}
-            <div style={{ marginBottom: 18, borderBottom: '1px solid var(--border)', paddingBottom: 14 }}>
-              <div className="label" style={{ marginBottom: 8 }}>CONTENT</div>
+          <div
+            className="card"
+            style={{
+              padding: '24px 26px',
+              background: '#FFFCF7',
+              border: '1px solid #DDD3C5',
+              borderRadius: 10,
+              boxShadow: '0 4px 16px rgba(33, 25, 20, 0.02)',
+            }}
+          >
+            {/* 1. FORMAT & STRATEGIC ANGLE */}
+            <div style={{ marginBottom: 20, borderBottom: '1px solid #DDD3C5', paddingBottom: 16 }}>
+              <div className="label" style={{ marginBottom: 8, letterSpacing: '0.08em' }}>CONTENT STRATEGY</div>
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
                   Format: <strong style={{ color: 'var(--text-primary)' }}>{isCarousel ? 'Instagram Carousel' : 'Instagram Reel'}</strong>
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
-                  Content angle: <strong style={{ color: 'var(--text-primary)' }}>{opportunity?.content_angle || 'Product styling'}</strong>
+                  Angle: <strong style={{ color: 'var(--text-primary)' }}>{opportunity?.content_angle || 'Product styling'}</strong>
                 </div>
               </div>
             </div>
 
-            {/* Slide / Scene Details */}
+            {/* 2. ACTIVE SLIDE / SCENE COPY */}
             {isCarousel ? (
-              /* CAROUSEL EDITOR FIELDS */
+              /* CAROUSEL FIELDS */
               <>
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                    <div className="label">SLIDE TITLE</div>
+                    <div className="label" style={{ letterSpacing: '0.08em' }}>SLIDE {activeSlide + 1} TITLE</div>
                     <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Slide {activeSlide + 1} of {totalSlidesCount}</span>
                   </div>
                   <input
@@ -1016,30 +1176,30 @@ export default function ContentStudio({
                     onChange={e => handleUpdateCurrentSlide('headline', e.target.value)}
                     placeholder="e.g. 5 Ways to Style the Cuban Collar Shirt"
                     className="input-field"
-                    style={{ fontSize: 13, fontWeight: 600 }}
+                    style={{ fontSize: 13, fontWeight: 600, width: '100%' }}
                   />
                 </div>
 
                 <div style={{ marginBottom: 18 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                    <div className="label">SLIDE COPY</div>
+                    <div className="label" style={{ letterSpacing: '0.08em' }}>SLIDE COPY</div>
                     <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{(currentSlide.body || '').length} characters</span>
                   </div>
                   <textarea
                     value={currentSlide.body || ''}
                     onChange={e => handleUpdateCurrentSlide('body', e.target.value)}
                     className="input-field"
-                    style={{ minHeight: 70, lineHeight: 1.55, resize: 'vertical' }}
+                    style={{ minHeight: 74, lineHeight: 1.55, resize: 'vertical', width: '100%' }}
                     placeholder="Pair with shorts and sandals for a relaxed summer look..."
                   />
                 </div>
               </>
             ) : (
-              /* REEL EDITOR FIELDS */
+              /* REEL FIELDS */
               <>
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                    <div className="label">{activeSlide === 0 ? 'HOOK' : `SCENE ${activeSlide + 1} HEADLINE`}</div>
+                    <div className="label" style={{ letterSpacing: '0.08em' }}>{activeSlide === 0 ? 'HOOK / HEADLINE' : `SCENE ${activeSlide + 1} HEADLINE`}</div>
                     <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{(currentSlide.headline || '').length} characters</span>
                   </div>
                   <input
@@ -1048,51 +1208,72 @@ export default function ContentStudio({
                     onChange={e => handleUpdateCurrentSlide('headline', e.target.value)}
                     placeholder="One linen shirt. Three ways to wear it this summer."
                     className="input-field"
-                    style={{ fontSize: 13, fontWeight: 600 }}
+                    style={{ fontSize: 13, fontWeight: 600, width: '100%' }}
                   />
                 </div>
 
                 <div style={{ marginBottom: 18 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                    <div className="label">VOICEOVER / SCRIPT</div>
+                    <div className="label" style={{ letterSpacing: '0.08em' }}>VOICEOVER / SCRIPT</div>
                     <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{(currentSlide.body || '').length} characters</span>
                   </div>
                   <textarea
                     value={currentSlide.body || ''}
                     onChange={e => handleUpdateCurrentSlide('body', e.target.value)}
                     className="input-field"
-                    style={{ minHeight: 70, lineHeight: 1.55, resize: 'vertical' }}
+                    style={{ minHeight: 74, lineHeight: 1.55, resize: 'vertical', width: '100%' }}
                     placeholder="Voiceover narration or dialogue..."
                   />
                 </div>
               </>
             )}
 
-            {/* Caption Section */}
-            <div style={{ marginBottom: 18 }}>
+            {/* Visual Direction Cue */}
+            {currentSlide.visual_cue && (
+              <div
+                style={{
+                  background: 'var(--surface-subtle, #E8D9C8)',
+                  border: '1px solid #DDD3C5',
+                  borderRadius: 6,
+                  padding: '8px 12px',
+                  marginBottom: 18,
+                  fontSize: 11,
+                  color: 'var(--text-secondary, #735F52)',
+                  display: 'flex',
+                  alignItems: 'baseline',
+                  gap: 6,
+                }}
+              >
+                <span style={{ fontWeight: 700, color: 'var(--brown-primary, #5A3021)', flexShrink: 0 }}>ART DIRECTION:</span>
+                <span>{currentSlide.visual_cue}</span>
+              </div>
+            )}
+
+            {/* 3. CAPTION SECTION */}
+            <div style={{ marginBottom: 20 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                <div className="label">CAPTION</div>
+                <div className="label" style={{ letterSpacing: '0.08em' }}>CAPTION</div>
                 <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{caption.length} characters</span>
               </div>
               <textarea
                 value={caption}
                 onChange={e => setCaption(e.target.value)}
                 className="input-field"
-                style={{ minHeight: 90, lineHeight: 1.6, resize: 'vertical' }}
+                style={{ minHeight: 90, lineHeight: 1.6, resize: 'vertical', width: '100%' }}
                 placeholder="Write your post caption..."
               />
             </div>
 
-            {/* Call To Action Selector */}
-            <div style={{ marginBottom: 18 }}>
+            {/* 4. CALL TO ACTION (CTA) */}
+            <div style={{ marginBottom: 20 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <div className="label">CALL TO ACTION</div>
+                <div className="label" style={{ letterSpacing: '0.08em' }}>CALL TO ACTION</div>
                 <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
                   {showAllCtas ? 'All 8 options' : 'Recommended for this angle'}
                 </span>
               </div>
 
-              {/* Contextual CTA Options */}
+              {/* Contextual CTA Pills */}
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
                 {(showAllCtas ? contextualCtas : contextualCtas.slice(0, 4)).map(option => {
                   const isSelected = cta === option;
@@ -1104,25 +1285,13 @@ export default function ContentStudio({
                       style={{
                         padding: '6px 12px',
                         borderRadius: 6,
-                        border: isSelected ? '1px solid var(--brown-primary)' : '1px solid var(--border)',
-                        background: isSelected ? 'var(--brown-primary)' : 'var(--surface)',
-                        color: isSelected ? '#FFFCF7' : 'var(--text-secondary)',
+                        border: isSelected ? '1px solid #5A3021' : '1px solid #DDD3C5',
+                        background: isSelected ? '#5A3021' : '#FFFCF7',
+                        color: isSelected ? '#FFFCF7' : '#735F52',
                         fontSize: 12,
                         fontWeight: isSelected ? 600 : 400,
                         cursor: 'pointer',
                         transition: 'all 0.15s ease',
-                      }}
-                      onMouseEnter={e => {
-                        if (!isSelected) {
-                          (e.currentTarget as HTMLElement).style.background = 'var(--surface-subtle)';
-                          (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)';
-                        }
-                      }}
-                      onMouseLeave={e => {
-                        if (!isSelected) {
-                          (e.currentTarget as HTMLElement).style.background = 'var(--surface)';
-                          (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)';
-                        }
                       }}
                       title={isSelected ? 'Click to deselect CTA' : `Select "${option}"`}
                     >
@@ -1133,7 +1302,6 @@ export default function ContentStudio({
                 })}
               </div>
 
-              {/* Show More Toggle and Preview Feedback */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <button
                   type="button"
@@ -1146,26 +1314,27 @@ export default function ContentStudio({
 
                 <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>
                   Preview: {cta ? (
-                    <strong style={{ color: 'var(--brown-primary)' }}>{cta} →</strong>
+                    <strong style={{ color: '#5A3021' }}>{cta} →</strong>
                   ) : (
-                    <span style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>None (no CTA button overlay)</span>
+                    <span style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>None</span>
                   )}
                 </span>
               </div>
             </div>
 
-            {/* Hashtags Section */}
-            <div style={{ marginBottom: 20 }}>
-              <div className="label" style={{ marginBottom: 8 }}>HASHTAGS ({hashtags.length})</div>
+            {/* 5. HASHTAGS SECTION */}
+            <div style={{ marginBottom: 22 }}>
+              <div className="label" style={{ marginBottom: 8, letterSpacing: '0.08em' }}>HASHTAGS ({hashtags.length})</div>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
                 {hashtags.map(tag => (
                   <span
                     key={tag}
                     className="badge badge-accent"
-                    style={{ fontSize: 11, padding: '3px 8px', display: 'inline-flex', alignItems: 'center', gap: 5 }}
+                    style={{ fontSize: 11, padding: '4px 8px', display: 'inline-flex', alignItems: 'center', gap: 5, background: '#E8D9C8', color: '#5A3828' }}
                   >
                     <span>#{tag.replace(/^#/, '')}</span>
                     <button
+                      type="button"
                       onClick={() => handleRemoveTag(tag)}
                       style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--text-muted)', display: 'flex' }}
                       title="Remove hashtag"
@@ -1184,12 +1353,12 @@ export default function ContentStudio({
                       placeholder="tag"
                       autoFocus
                       style={{
-                        width: 75,
-                        padding: '2px 6px',
+                        width: 80,
+                        padding: '3px 6px',
                         fontSize: 11,
                         borderRadius: 4,
-                        border: '1px solid var(--border)',
-                        background: 'var(--surface)',
+                        border: '1px solid #DDD3C5',
+                        background: '#FFFCF7',
                         outline: 'none',
                       }}
                     />
@@ -1203,7 +1372,7 @@ export default function ContentStudio({
                     type="button"
                     onClick={() => setIsAddingTag(true)}
                     className="btn-ghost"
-                    style={{ fontSize: 11, padding: '3px 8px', border: '1px dashed var(--border)', borderRadius: 4, gap: 3 }}
+                    style={{ fontSize: 11, padding: '4px 8px', border: '1px dashed #DDD3C5', borderRadius: 4, gap: 3 }}
                   >
                     <Plus size={11} /> Add tag
                   </button>
@@ -1211,189 +1380,75 @@ export default function ContentStudio({
               </div>
             </div>
 
-            {/* Why This Works (Content Intelligence) */}
+            {/* 6. CONTENT STRATEGY / WHY THIS WORKS */}
             <div
               style={{
-                background: 'var(--surface-subtle)',
-                border: '1px solid var(--border)',
+                background: '#F9F5EE',
+                border: '1px solid #DDD3C5',
                 borderRadius: 8,
                 padding: '14px 16px',
               }}
             >
-              <div className="label-accent" style={{ marginBottom: 4 }}>WHY THIS WORKS</div>
-              <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 10, lineHeight: 1.45 }}>
-                {isCarousel
-                  ? "Carousels are currently SNITCH's highest-saving format for styling and discovery."
-                  : "Reels are currently SNITCH's strongest format for top-of-funnel reach."}
-              </p>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, borderTop: '1px solid var(--border)', paddingTop: 10 }}>
-                <div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1 }}>
-                    {isCarousel ? '8.4%' : '8.8%'}
-                  </div>
-                  <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>
-                    avg {isCarousel ? 'Carousel' : 'Reel'} ER
-                  </div>
+              <div className="label-accent" style={{ marginBottom: 6, letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 5 }}>
+                <Sparkles size={12} /> WHY THIS CREATIVE
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 5, fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.45 }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                  <span style={{ color: '#49634A', fontWeight: 700 }}>✓</span>
+                  <span>{isCarousel ? "Highest-saving format for styling and discovery (8.4% ER)." : "Strongest top-of-funnel reach format (8.8% ER)."}</span>
                 </div>
-                <div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1 }}>14.2K</div>
-                  <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>product views</div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                  <span style={{ color: '#49634A', fontWeight: 700 }}>✓</span>
+                  <span>High-demand product with 14.2K views & 1,050 recent sales.</span>
                 </div>
-                <div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1 }}>1,050</div>
-                  <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>product sales</div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                  <span style={{ color: '#49634A', fontWeight: 700 }}>✓</span>
+                  <span>Optimized for Instagram Young Millennial audience tone.</span>
                 </div>
               </div>
             </div>
-
           </div>
 
-          {/* Action Bar */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap', paddingTop: 4 }}>
-            <button className="btn-ghost" onClick={onRegenerate} style={{ fontSize: 12, gap: 5 }}>
+          {/* 7. FOOTER ACTION BAR */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap', padding: '0 4px' }}>
+            <button type="button" className="btn-ghost" onClick={onRegenerate} style={{ fontSize: 12, gap: 5 }}>
               <RefreshCw size={12} /> Regenerate copy
             </button>
+
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               {!isApproved ? (
                 <button
+                  type="button"
                   id="bottom-approve-btn"
                   className="btn-primary"
                   onClick={handleApproveAndOpenSchedule}
-                  style={{ fontSize: 12, padding: '8px 18px', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                  style={{ fontSize: 12, padding: '8px 20px', display: 'inline-flex', alignItems: 'center', gap: 6 }}
                 >
                   <Check size={13} /> Approve & schedule →
                 </button>
               ) : !isScheduled ? (
                 <button
+                  type="button"
                   id="bottom-schedule-btn"
                   className="btn-primary"
-                  onClick={() => setShowScheduler(s => !s)}
-                  style={{ fontSize: 12, padding: '8px 18px', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                  onClick={() => setShowScheduler(true)}
+                  style={{ fontSize: 12, padding: '8px 20px', display: 'inline-flex', alignItems: 'center', gap: 6 }}
                 >
                   <CalendarClock size={13} /> Schedule post →
                 </button>
               ) : (
                 <button
+                  type="button"
                   id="bottom-reschedule-btn"
                   className="btn-secondary"
-                  onClick={() => setShowScheduler(s => !s)}
-                  style={{ fontSize: 12, padding: '8px 18px', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                  onClick={() => setShowScheduler(true)}
+                  style={{ fontSize: 12, padding: '8px 20px', display: 'inline-flex', alignItems: 'center', gap: 6, background: '#FFFCF7' }}
                 >
                   <CalendarClock size={13} /> Reschedule post
                 </button>
               )}
+            </div>
           </div>
-        </div>
-      </div>
-    </div>
-
-      {/* ── C. STORYBOARD (Format-Aware Timeline / Slides) ─────────── */}
-      <div style={{ marginTop: 12 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-          <div className="label">
-            {isCarousel ? `STORYBOARD (${totalSlidesCount} SLIDES)` : 'STORYBOARD (0:00 – 0:15)'}
-          </div>
-          <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-            {isCarousel ? 'Click slide to preview' : 'Click scene to preview'}
-          </span>
-        </div>
-
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: `repeat(auto-fit, minmax(170px, 1fr))`,
-            gap: 12,
-          }}
-        >
-          {currentSlidesList.map((slide, i) => {
-            const isSelected = i === activeSlide;
-            const sceneThumb = getSlideImage(i + 1);
-
-            // Role label depending on Carousel vs Reel
-            let roleName = `SLIDE 0${i + 1}`;
-            let timingText = '';
-
-            if (isCarousel) {
-              if (i === 0) roleName = '01 COVER';
-              else if (i === totalSlidesCount - 1) roleName = `0${i + 1} CTA`;
-              else roleName = `0${i + 1} SLIDE`;
-            } else {
-              roleName = `0${i + 1} ${REEL_SCENE_NAMES[i] || 'BEAT'}`;
-              timingText = REEL_SCENE_TIMINGS[i] || '';
-            }
-
-            return (
-              <div
-                key={slide.slide_number || i}
-                id={`storyboard-item-${i + 1}`}
-                onClick={() => setActiveSlide(i)}
-                style={{
-                  border: isSelected ? '1px solid var(--brown-primary)' : '1px solid var(--border)',
-                  borderRadius: 8,
-                  background: isSelected ? 'var(--surface-subtle)' : 'var(--surface)',
-                  padding: '10px 12px',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease',
-                  position: 'relative',
-                }}
-              >
-                {/* Top label */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                  <span
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 700,
-                      color: isSelected ? 'var(--brown-primary)' : 'var(--text-muted)',
-                      letterSpacing: '0.04em',
-                    }}
-                  >
-                    {roleName}
-                  </span>
-                  {timingText && <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{timingText}</span>}
-                </div>
-
-                {/* Thumbnail image */}
-                <div
-                  style={{
-                    width: '100%',
-                    height: 60,
-                    borderRadius: 5,
-                    overflow: 'hidden',
-                    marginBottom: 8,
-                    background: '#110F0E',
-                  }}
-                >
-                  <img
-                    src={sceneThumb}
-                    alt={roleName}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      filter: isSelected ? 'brightness(1)' : 'brightness(0.75)',
-                      transition: 'filter 0.2s ease',
-                    }}
-                  />
-                </div>
-
-                {/* Headline Snippet */}
-                <div
-                  style={{
-                    fontSize: 11,
-                    fontWeight: isSelected ? 600 : 400,
-                    color: isSelected ? 'var(--text-primary)' : 'var(--text-secondary)',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    lineHeight: 1.3,
-                  }}
-                  title={slide.headline}
-                >
-                  {slide.headline || `Slide ${i + 1}`}
-                </div>
-              </div>
-            );
-          })}
         </div>
       </div>
 
@@ -1418,10 +1473,10 @@ export default function ContentStudio({
             style={{
               maxWidth: 440,
               width: '100%',
-              background: 'var(--surface)',
+              background: '#FFFCF7',
               padding: '26px 28px',
               borderRadius: 12,
-              border: '1px solid var(--border)',
+              border: '1px solid #DDD3C5',
               boxShadow: '0 24px 48px rgba(33, 25, 20, 0.22)',
             }}
             onClick={e => e.stopPropagation()}
@@ -1429,7 +1484,7 @@ export default function ContentStudio({
             {/* Modal Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
               <div>
-                <div className="label" style={{ marginBottom: 4 }}>
+                <div className="label" style={{ marginBottom: 4, letterSpacing: '0.08em' }}>
                   {isScheduled ? 'RESCHEDULE PUBLICATION' : 'SCHEDULE PUBLICATION'}
                 </div>
                 <h3 className="serif-heading" style={{ fontSize: 20, color: 'var(--text-primary)' }}>
@@ -1492,9 +1547,9 @@ export default function ContentStudio({
                         style={{
                           padding: '8px 10px',
                           borderRadius: 6,
-                          border: isSelected ? '1px solid var(--brown-primary)' : '1px solid var(--border)',
-                          background: isSelected ? 'var(--brown-primary)' : 'var(--surface-subtle)',
-                          color: isSelected ? '#FFFCF7' : 'var(--text-primary)',
+                          border: isSelected ? '1px solid #5A3021' : '1px solid #DDD3C5',
+                          background: isSelected ? '#5A3021' : '#E8DCCB',
+                          color: isSelected ? '#FFFCF7' : '#171513',
                           fontSize: 11,
                           fontWeight: 600,
                           textAlign: 'left',
