@@ -1,6 +1,6 @@
 /**
- * API client for Helium Content Copilot backend.
- * All calls are to the FastAPI server at localhost:8000.
+ * API client for BrandBrew Content Copilot backend.
+ * All calls are to the FastAPI server.
  */
 
 import type {

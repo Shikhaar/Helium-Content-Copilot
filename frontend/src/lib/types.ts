@@ -1,5 +1,5 @@
 /**
- * TypeScript interfaces for Helium Content Copilot frontend.
+ * TypeScript interfaces for BrandBrew Content Copilot frontend.
  * Mirrors the Pydantic schemas from the backend exactly.
  */
 

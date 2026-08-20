@@ -41,8 +41,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Helium Content Copilot",
-    description="AI-powered content opportunity and generation tool for D2C brands",
+    title="BrandBrew — Content Copilot",
+    description="Brew your next winning content idea — AI-powered content strategy for D2C brands",
     version="1.0.0",
     lifespan=lifespan,
 )

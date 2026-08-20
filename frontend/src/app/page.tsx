@@ -506,10 +506,10 @@ export default function Home() {
                 background: 'var(--brown-dark)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--surface)' }}>H</span>
+                <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--surface)' }}>B</span>
               </div>
               <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--brown-dark)', letterSpacing: '0.08em' }}>
-                HELIUM
+                BRANDBREW
               </span>
             </button>
           </div>
