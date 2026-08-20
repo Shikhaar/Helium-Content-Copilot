@@ -256,7 +256,8 @@ export default function Home() {
       if (draft) {
         setCurrentDraft(draft);
         const opp = analyzeResult?.opportunities.find(o => o.id === draft.opportunity_id)
-          || await api.getOpportunity(draft.opportunity_id).catch(() => null);
+          || await api.getOpportunity(draft.opportunity_id).catch(() => null)
+          || (analyzeResult?.opportunities.find(o => o.format.toLowerCase() === draft.format.toLowerCase()) || analyzeResult?.opportunities[0] || null);
         if (opp) {
           setSelectedOpportunity(opp);
         }

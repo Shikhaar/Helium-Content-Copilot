@@ -805,7 +805,10 @@ export default function ContentStudio({
     setActiveSlide(prev => (prev < totalSlidesCount - 1 ? prev + 1 : prev));
   };
 
-  const currentTitle = opportunity?.title || draft.opportunity_id || 'Content Draft';
+  const currentTitle =
+    opportunity?.title ||
+    draft.slides?.[0]?.headline ||
+    (isCarousel ? '5 Ways to Style the Cuban Collar Shirt' : 'Summer Layering with Oversized Linen Shirt');
 
   return (
     <div className="page-container fade-up" style={{ maxWidth: 940 }}>
