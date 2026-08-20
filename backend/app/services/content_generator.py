@@ -125,7 +125,7 @@ class ContentGeneratorService:
         return await self._content_repo.update(draft)
 
     async def schedule(self, draft_id: str, schedule: ScheduleRequest) -> ContentDraft:
-        """Schedule an approved draft and add it to the calendar."""
+        """Schedule or reschedule a draft and add/update it in the calendar."""
         logger.info(
             "Scheduling draft | id=%s | date=%s | time=%s",
             draft_id, schedule.scheduled_date, schedule.scheduled_time,
@@ -135,7 +135,8 @@ class ContentGeneratorService:
         if not draft:
             raise ValueError(f"Draft not found: {draft_id}")
 
-        if draft.status not in (ContentStatus.APPROVED, ContentStatus.DRAFT):
+        # Allow scheduling from DRAFT, APPROVED, or already SCHEDULED (rescheduling)
+        if draft.status not in (ContentStatus.APPROVED, ContentStatus.DRAFT, ContentStatus.SCHEDULED):
             raise ValueError(f"Draft status '{draft.status}' cannot be scheduled")
 
         opportunity = await self._opportunity_repo.get_by_id(draft.opportunity_id)
@@ -148,8 +149,12 @@ class ContentGeneratorService:
         })
         await self._content_repo.update(draft)
 
+        # Check if an existing calendar entry exists for this draft (rescheduling scenario)
+        existing_entry = await self._calendar_repo.get_by_draft_id(draft.id)
+        entry_id = existing_entry.id if existing_entry else str(uuid.uuid4())
+
         calendar_entry = CalendarEntry(
-            id=str(uuid.uuid4()),
+            id=entry_id,
             draft_id=draft.id,
             title=title,
             platform=draft.platform,
@@ -158,6 +163,6 @@ class ContentGeneratorService:
             scheduled_datetime=f"{schedule.scheduled_date}T{schedule.scheduled_time}:00",
         )
         await self._calendar_repo.upsert(calendar_entry)
-        logger.info("Calendar entry created for draft %s", draft_id)
+        logger.info("Calendar entry %s for draft %s", "updated" if existing_entry else "created", draft_id)
 
         return draft

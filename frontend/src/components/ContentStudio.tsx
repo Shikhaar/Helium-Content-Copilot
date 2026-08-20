@@ -862,9 +862,19 @@ export default function ContentStudio({
               </button>
             )}
             {isScheduled && (
-              <span className="badge badge-accent" style={{ fontSize: 12, padding: '5px 10px' }}>
-                Scheduled for {draft.scheduled_date}
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span className="badge badge-accent" style={{ fontSize: 12, padding: '5px 10px' }}>
+                  Scheduled for {draft.scheduled_date}
+                </span>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => setShowScheduler(s => !s)}
+                  style={{ fontSize: 11, padding: '5px 10px', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                >
+                  <CalendarClock size={12} /> Reschedule
+                </button>
+              </div>
             )}
           </div>
         </div>
@@ -1177,7 +1187,7 @@ export default function ContentStudio({
                 </button>
               ) : (
                 <button id="bottom-schedule-btn" className="btn-primary" onClick={() => setShowScheduler(s => !s)} style={{ fontSize: 12 }}>
-                  <CalendarClock size={13} /> Schedule post
+                  <CalendarClock size={13} /> {isScheduled ? 'Reschedule post' : 'Schedule post'}
                 </button>
               )}
             </div>
