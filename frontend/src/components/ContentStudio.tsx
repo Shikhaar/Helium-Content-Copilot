@@ -750,14 +750,44 @@ export default function ContentStudio({
     }
   };
 
-  const handleSaveDraft = () => {
-    if (onUpdateDraft) {
-      onUpdateDraft({ slides: currentSlidesList, caption, cta, hashtags });
-    } else if (onUpdateCaption) {
-      onUpdateCaption(caption);
+  const [isSaving, setIsSaving] = React.useState(false);
+
+  const handleSaveDraft = async (showFeedback = true) => {
+    setIsSaving(true);
+    try {
+      if (onUpdateDraft) {
+        await onUpdateDraft({ slides: currentSlidesList, caption, cta, hashtags });
+      } else if (onUpdateCaption) {
+        await onUpdateCaption(caption);
+      }
+      if (showFeedback) {
+        setSaveToast(true);
+        setTimeout(() => setSaveToast(false), 2400);
+      }
+    } catch (err) {
+      console.error('Save draft failed:', err);
+    } finally {
+      setIsSaving(false);
     }
-    setSaveToast(true);
-    setTimeout(() => setSaveToast(false), 2400);
+  };
+
+  const handleApproveAndOpenSchedule = async () => {
+    try {
+      // 1. Auto-save any local edits
+      await handleSaveDraft(false);
+      // 2. Approve draft in backend
+      await onApprove();
+      // 3. Set default date to tomorrow if not set
+      if (!schedDate) {
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        setSchedDate(tomorrow.toISOString().split('T')[0]);
+      }
+      // 4. Open scheduler for seamless 1-step scheduling
+      setShowScheduler(true);
+    } catch (err) {
+      console.error('Approve failed:', err);
+    }
   };
 
   const handleSelectCta = (option: string) => {
@@ -791,9 +821,10 @@ export default function ContentStudio({
     }
   };
 
-  const handleScheduleConfirm = () => {
+  const handleScheduleConfirm = async () => {
     if (!schedDate || !schedTime) return;
-    onSchedule({ scheduled_date: schedDate, scheduled_time: schedTime, platform: 'Instagram' });
+    await handleSaveDraft(false);
+    await onSchedule({ scheduled_date: schedDate, scheduled_time: schedTime, platform: 'Instagram' });
     setShowScheduler(false);
   };
 
@@ -848,20 +879,35 @@ export default function ContentStudio({
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             {saveToast && (
               <span style={{ fontSize: 12, color: 'var(--green)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
-                <Check size={14} /> Saved
+                <Check size={14} /> Saved to draft
               </span>
             )}
-            <button className="btn-secondary" onClick={handleSaveDraft} style={{ fontSize: 12, padding: '7px 14px' }}>
-              Save draft
+            <button
+              className="btn-secondary"
+              onClick={() => handleSaveDraft(true)}
+              disabled={isSaving}
+              style={{ fontSize: 12, padding: '7px 14px', minWidth: 84 }}
+            >
+              {isSaving ? 'Saving...' : 'Save draft'}
             </button>
             {!isApproved && (
-              <button id="approve-btn" className="btn-primary" onClick={onApprove} style={{ fontSize: 12, padding: '7px 16px' }}>
+              <button
+                id="approve-btn"
+                className="btn-primary"
+                onClick={handleApproveAndOpenSchedule}
+                style={{ fontSize: 12, padding: '7px 16px', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+              >
                 <Check size={14} /> Approve & schedule
               </button>
             )}
             {isApproved && !isScheduled && (
-              <button id="schedule-btn" className="btn-primary" onClick={() => setShowScheduler(s => !s)} style={{ fontSize: 12, padding: '7px 16px' }}>
-                <CalendarClock size={14} /> Schedule
+              <button
+                id="schedule-btn"
+                className="btn-primary"
+                onClick={() => setShowScheduler(s => !s)}
+                style={{ fontSize: 12, padding: '7px 16px', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+              >
+                <CalendarClock size={14} /> Schedule post
               </button>
             )}
             {isScheduled && (
@@ -1176,21 +1222,37 @@ export default function ContentStudio({
           </div>
 
           {/* Action Bar */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap', paddingTop: 4 }}>
             <button className="btn-ghost" onClick={onRegenerate} style={{ fontSize: 12, gap: 5 }}>
-              <RefreshCw size={12} /> Regenerate content
+              <RefreshCw size={12} /> Regenerate copy
             </button>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <button className="btn-secondary" onClick={handleSaveDraft} style={{ fontSize: 12 }}>
-                Save draft
-              </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               {!isApproved ? (
-                <button id="bottom-approve-btn" className="btn-primary" onClick={onApprove} style={{ fontSize: 12 }}>
-                  <Check size={13} /> Approve
+                <button
+                  id="bottom-approve-btn"
+                  className="btn-primary"
+                  onClick={handleApproveAndOpenSchedule}
+                  style={{ fontSize: 12, padding: '8px 18px', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                >
+                  <Check size={13} /> Approve & schedule →
+                </button>
+              ) : !isScheduled ? (
+                <button
+                  id="bottom-schedule-btn"
+                  className="btn-primary"
+                  onClick={() => setShowScheduler(s => !s)}
+                  style={{ fontSize: 12, padding: '8px 18px', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                >
+                  <CalendarClock size={13} /> Schedule post →
                 </button>
               ) : (
-                <button id="bottom-schedule-btn" className="btn-primary" onClick={() => setShowScheduler(s => !s)} style={{ fontSize: 12 }}>
-                  <CalendarClock size={13} /> {isScheduled ? 'Reschedule post' : 'Schedule post'}
+                <button
+                  id="bottom-reschedule-btn"
+                  className="btn-secondary"
+                  onClick={() => setShowScheduler(s => !s)}
+                  style={{ fontSize: 12, padding: '8px 18px', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                >
+                  <CalendarClock size={13} /> Reschedule post
                 </button>
               )}
             </div>

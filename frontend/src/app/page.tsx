@@ -206,8 +206,10 @@ export default function Home() {
     try {
       const updated = await api.approveDraft(currentDraft.id);
       setCurrentDraft(updated);
+      return updated;
     } catch (e: any) {
       setError(e.message || 'Approval failed.');
+      throw e;
     }
   };
 
@@ -219,8 +221,10 @@ export default function Home() {
       setCurrentDraft(updated);
       const cal = await api.getCalendar();
       setCalendarEntries(cal);
+      return updated;
     } catch (e: any) {
       setError(e.message || 'Scheduling failed.');
+      throw e;
     }
   };
 
@@ -230,8 +234,10 @@ export default function Home() {
     try {
       const updated = await api.updateDraft(currentDraft.id, updates);
       setCurrentDraft(updated);
+      return updated;
     } catch (e: any) {
       setError(e.message || 'Update failed.');
+      throw e;
     }
   };
 
