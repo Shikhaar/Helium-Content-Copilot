@@ -156,19 +156,25 @@ export default function Home() {
 
   // Generate content
   const handleGenerateContent = async (opportunityId?: string) => {
-    const oppId = opportunityId || selectedOpportunity?.id;
-    if (!oppId || !selectedOpportunity) return;
+    const targetOpp = (opportunityId && analyzeResult?.opportunities.find(o => o.id === opportunityId))
+      || (selectedOpportunity?.id === opportunityId ? selectedOpportunity : null)
+      || selectedOpportunity;
+
+    if (!targetOpp) return;
+
+    setSelectedOpportunity(targetOpp);
+    setCurrentDraft(null); // Clear previous draft so user doesn't see old slides while generating
 
     const req: GenerateContentRequest = {
-      opportunity_id: oppId,
-      platform: selectedOpportunity.platform as Platform,
-      format: selectedOpportunity.format as PostFormat,
-      audience: selectedOpportunity.audience,
-      objective: selectedOpportunity.objective as Objective,
+      opportunity_id: targetOpp.id,
+      platform: targetOpp.platform as Platform,
+      format: targetOpp.format as PostFormat,
+      audience: targetOpp.audience,
+      objective: targetOpp.objective as Objective,
     };
     setGenerateRequest(req);
     setIsGenerating(true);
-    navigate({ name: 'create', opportunityId: oppId });
+    navigate({ name: 'create', opportunityId: targetOpp.id });
 
     try {
       const draft = await api.generateContent(req);
