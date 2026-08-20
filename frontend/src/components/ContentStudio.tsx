@@ -673,7 +673,7 @@ export default function ContentStudio({
 
       {/* ── B. MAIN CONTENT WORKSPACE (Two-Column Layout) ───────────── */}
       <div className="studio-grid" style={{ marginBottom: 28, alignItems: 'start' }}>
-        
+
         {/* LEFT COLUMN: Format-Aware Preview */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           {isCarousel ? (
@@ -698,7 +698,7 @@ export default function ContentStudio({
         {/* RIGHT COLUMN: Format-Aware Content Editor Panel */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div className="card" style={{ padding: 22, background: 'var(--surface)' }}>
-            
+
             {/* Metadata Bar */}
             <div style={{ marginBottom: 18, borderBottom: '1px solid var(--border)', paddingBottom: 14 }}>
               <div className="label" style={{ marginBottom: 8 }}>CONTENT</div>
