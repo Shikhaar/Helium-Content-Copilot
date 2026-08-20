@@ -1,13 +1,10 @@
 services:
-  # ── FastAPI Backend API ─────────────────────────────────────────────────────
   - type: web
-    name: brandbrew-api
-    runtime: python
-    rootDir: backend
+    name: brandbrew-app
+    runtime: docker
     plan: free
     region: oregon
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    dockerfilePath: ./Dockerfile
     envVars:
       - key: OPENAI_API_KEY
         sync: false
@@ -17,22 +14,7 @@ services:
         sync: false
       - key: CLERK_ISSUER_URL
         value: https://hot-walleye-4581.clerk.accounts.dev
-      - key: DATABASE_URL
-        value: ./helium.db
-
-  # ── Next.js Frontend Web App ────────────────────────────────────────────────
-  - type: web
-    name: brandbrew-web
-    runtime: node
-    rootDir: frontend
-    plan: free
-    region: oregon
-    buildCommand: npm install && npm run build
-    startCommand: npm run start
-    envVars:
       - key: NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
         value: pk_test_aG90LXdhbGxleWUtNDU4MS5jbGVyay5hY2NvdW50cy5kZXYk
-      - key: CLERK_SECRET_KEY
-        sync: false
-      - key: NEXT_PUBLIC_API_URL
-        sync: false
+      - key: DATABASE_URL
+        value: /app/helium.db
