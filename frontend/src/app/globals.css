@@ -445,12 +445,12 @@ h1, h2, h3, h4 {
 
 .dashboard-grid-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 300px;
+  grid-template-columns: minmax(0, 1fr) 290px;
   gap: 24px;
   align-items: stretch;
 }
 
-@media (max-width: 960px) {
+@media (max-width: 1040px) {
   .dashboard-grid-layout {
     grid-template-columns: 1fr;
   }
@@ -483,10 +483,10 @@ h1, h2, h3, h4 {
 .metrics-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 28px;
 }
-@media (min-width: 768px) {
+@media (min-width: 640px) {
   .metrics-grid {
     grid-template-columns: repeat(4, 1fr);
     gap: 12px;
@@ -579,8 +579,8 @@ h1, h2, h3, h4 {
 /* ── Hero Opportunity Card Layout ────────────────── */
 .hero-card-layout {
   display: grid;
-  grid-template-columns: 135px minmax(0, 1fr) 155px;
-  gap: 16px;
+  grid-template-columns: 165px minmax(0, 1fr) 210px;
+  gap: 24px;
   align-items: stretch;
 }
 @media (max-width: 900px) {

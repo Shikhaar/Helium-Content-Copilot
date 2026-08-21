@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { RefreshCw, TrendingUp, Shirt, Users, Calendar } from 'lucide-react';
+import { RefreshCw, TrendingUp, Shirt, Users, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
 import type { AnalyzeResponse, Brand, PerformanceSummary } from '../lib/types';
 
 interface DashboardProps {
@@ -38,6 +38,7 @@ const OTHER_OPP_THUMBNAILS = [
   'https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=100&auto=format&fit=crop&q=80',
   'https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?w=100&auto=format&fit=crop&q=80',
   'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=100&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=100&auto=format&fit=crop&q=80',
 ];
 
 function MetricItem({ value, label, sub }: { value: string | number; label: string; sub: string }) {
@@ -128,6 +129,7 @@ export default function Dashboard({
 }: DashboardProps) {
   const [loadingStep, setLoadingStep] = React.useState(0);
   const [isInstagramClicked, setIsInstagramClicked] = React.useState(false);
+  const [showAllOpportunities, setShowAllOpportunities] = React.useState(false);
 
   const handleConnectInstagram = () => {
     setIsInstagramClicked(true);
@@ -156,6 +158,11 @@ export default function Dashboard({
   const totalPosts = performance?.total_posts ?? 25;
   const prodCount = productsCount ?? 8;
   const avgEr = performance ? `${performance.brand_avg_engagement_rate.toFixed(1)}%` : '4.8%';
+
+  // Reset expanded view when brand changes
+  React.useEffect(() => {
+    setShowAllOpportunities(false);
+  }, [brand?.id]);
 
   // ── Dynamically compute insights & real-time multipliers ─────────────────
   const brandAvgErVal = performance?.brand_avg_engagement_rate ?? 4.8;
@@ -210,6 +217,8 @@ export default function Dashboard({
         : `Wed, Thu, Sat show 20–30% higher engagement historically.`,
     },
   ];
+
+  const visibleOtherOpps = showAllOpportunities ? otherOpps : otherOpps.slice(0, 3);
 
   return (
     <div className="page-container">
@@ -286,46 +295,38 @@ export default function Dashboard({
                   </button>
                 </div>
 
-                {/* Redesigned Hero Card Matching Exact Visual Aesthetic */}
+                {/* Spacious & Luxurious Hero Card Matching Exact Editorial Aesthetic */}
                 <div
                   id="hero-opportunity-card"
                   style={{
                     border: '1px solid var(--border)',
-                    borderRadius: 12,
+                    borderRadius: 14,
                     background: 'var(--surface)',
                     cursor: 'pointer',
                     transition: 'all 0.15s ease',
-                    padding: '16px 18px',
-                    boxShadow: '0 1px 3px rgba(32, 27, 23, 0.03)',
+                    padding: '22px 24px',
+                    boxShadow: '0 2px 8px rgba(32, 27, 23, 0.04)',
                   }}
                   onClick={() => onViewOpportunity(topOpp.id)}
                   onMouseEnter={e => {
                     (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-strong)';
-                    (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 14px rgba(32, 27, 23, 0.06)';
+                    (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 20px rgba(32, 27, 23, 0.07)';
                   }}
                   onMouseLeave={e => {
                     (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
-                    (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 3px rgba(32, 27, 23, 0.03)';
+                    (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(32, 27, 23, 0.04)';
                   }}
                 >
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: '135px minmax(0, 1fr) 160px',
-                      gap: 16,
-                      alignItems: 'stretch',
-                    }}
-                    className="hero-card-layout"
-                  >
-                    {/* ── Left: 3-Image Collage (135px x 135px) ── */}
+                  <div className="hero-card-layout">
+                    {/* ── Left: 3-Image Collage (165px x 160px) ── */}
                     <div
                       style={{
                         display: 'grid',
                         gridTemplateColumns: '1.2fr 0.9fr',
-                        gap: 3,
-                        width: 135,
-                        height: 135,
-                        borderRadius: 8,
+                        gap: 4,
+                        width: 165,
+                        height: 160,
+                        borderRadius: 10,
                         overflow: 'hidden',
                         background: 'rgba(238, 231, 220, 0.4)',
                         flexShrink: 0,
@@ -343,7 +344,7 @@ export default function Dashboard({
                         />
                       </div>
                       {/* Stacked 2 portraits on right */}
-                      <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr', gap: 3, height: '100%' }}>
+                      <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr', gap: 4, height: '100%' }}>
                         <div style={{ position: 'relative', overflow: 'hidden' }}>
                           <img
                             src={collage.top}
@@ -368,34 +369,31 @@ export default function Dashboard({
                     </div>
 
                     {/* ── Center: Strategic Content & Real-Time Multipliers ── */}
-                    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minWidth: 0 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minWidth: 0, padding: '2px 0' }}>
                       <div>
                         {/* Title in warm editorial serif */}
                         <h2
                           className="serif-heading"
                           style={{
-                            fontSize: 18,
+                            fontSize: 20,
                             fontWeight: 600,
                             color: 'var(--text-primary)',
-                            lineHeight: 1.25,
-                            marginBottom: 6,
+                            lineHeight: 1.3,
+                            marginBottom: 8,
                             letterSpacing: '-0.01em',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
                           }}
                         >
                           {topOpp.title}
                         </h2>
 
                         {/* Pill tags */}
-                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
+                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
                           <span
                             style={{
-                              fontSize: 10,
+                              fontSize: 11,
                               fontWeight: 600,
-                              padding: '2px 7px',
-                              borderRadius: 4,
+                              padding: '3px 9px',
+                              borderRadius: 5,
                               background: 'rgba(238, 231, 220, 0.85)',
                               color: 'var(--brown-dark)',
                               fontFamily: 'var(--font-sans)',
@@ -405,10 +403,10 @@ export default function Dashboard({
                           </span>
                           <span
                             style={{
-                              fontSize: 10,
+                              fontSize: 11,
                               fontWeight: 600,
-                              padding: '2px 7px',
-                              borderRadius: 4,
+                              padding: '3px 9px',
+                              borderRadius: 5,
                               background: 'rgba(238, 231, 220, 0.85)',
                               color: 'var(--brown-dark)',
                               fontFamily: 'var(--font-sans)',
@@ -417,7 +415,7 @@ export default function Dashboard({
                             {topOpp.platform} {topOpp.format}
                           </span>
                           {topOpp.is_demo && (
-                            <span className="demo-banner" style={{ margin: 0, padding: '2px 6px', fontSize: 9 }}>
+                            <span className="demo-banner" style={{ margin: 0, padding: '2px 7px', fontSize: 10 }}>
                               Demo
                             </span>
                           )}
@@ -426,10 +424,10 @@ export default function Dashboard({
                         {/* Strategic qualitative reasoning (clamped to 2 lines) */}
                         <p
                           style={{
-                            fontSize: 12,
+                            fontSize: 12.5,
                             color: 'var(--text-secondary)',
-                            lineHeight: 1.4,
-                            marginBottom: 8,
+                            lineHeight: 1.5,
+                            marginBottom: 12,
                             display: '-webkit-box',
                             WebkitLineClamp: 2,
                             WebkitBoxOrient: 'vertical',
@@ -441,60 +439,60 @@ export default function Dashboard({
                       </div>
 
                       {/* Dynamic Real-Time Multiplier Stats Row */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
                         <div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>
-                            <span style={{ color: 'var(--green)', fontSize: 13 }}>↑</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>
+                            <span style={{ color: 'var(--green)', fontSize: 14 }}>↑</span>
                             <span>{heroFormatEr.toFixed(1)}% engagement</span>
                           </div>
-                          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 1 }}>
+                          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>
                             Historical avg
                           </div>
                         </div>
 
-                        <div style={{ width: 1, height: 20, background: 'var(--border)' }} />
+                        <div style={{ width: 1, height: 24, background: 'var(--border)' }} />
 
                         <div>
-                          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>
                             {heroMultiplier}x
                           </div>
-                          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 1 }}>
+                          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>
                             vs brand average
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    {/* ── Right Column: Score Pillar & CTA Button ── */}
+                    {/* ── Right Column: Score Pillar & Full-Width CTA Button ── */}
                     <div
                       style={{
                         borderLeft: '1px solid var(--border)',
-                        paddingLeft: 16,
+                        paddingLeft: 22,
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'space-between',
-                        alignItems: 'flex-start',
-                        height: '100%',
-                        minHeight: 135,
+                        alignItems: 'stretch',
+                        minWidth: 210,
                         flexShrink: 0,
                       }}
                       className="hero-score-pillar"
                     >
                       <div>
                         {/* Big Score */}
-                        <div style={{ display: 'flex', alignItems: 'baseline', gap: 2 }}>
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: 3 }}>
                           <span
                             style={{
-                              fontSize: 38,
+                              fontSize: 44,
                               fontFamily: 'var(--font-serif)',
                               fontWeight: 600,
                               color: '#343B2A',
                               lineHeight: 1,
+                              letterSpacing: '-0.02em',
                             }}
                           >
                             {topOpp.score}
                           </span>
-                          <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'var(--font-serif)' }}>
+                          <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'var(--font-serif)' }}>
                             /100
                           </span>
                         </div>
@@ -502,10 +500,10 @@ export default function Dashboard({
                         {/* Confidence Badge */}
                         <div
                           style={{
-                            fontSize: 10,
+                            fontSize: 11,
                             fontWeight: 600,
                             color: topOpp.score >= 90 ? 'var(--green)' : topOpp.score >= 75 ? 'var(--amber)' : 'var(--text-muted)',
-                            marginTop: 4,
+                            marginTop: 5,
                           }}
                         >
                           {topOpp.score >= 90 ? 'High confidence' : topOpp.score >= 75 ? 'Good confidence' : 'Moderate'}
@@ -520,25 +518,29 @@ export default function Dashboard({
                           onViewOpportunity(topOpp.id);
                         }}
                         style={{
-                          fontSize: 11,
+                          width: '100%',
+                          fontSize: 12,
                           fontWeight: 600,
-                          borderRadius: 6,
-                          padding: '7px 11px',
+                          borderRadius: 7,
+                          padding: '10px 14px',
                           background: '#3A382C',
                           color: '#FAF8F5',
                           border: 'none',
                           cursor: 'pointer',
-                          display: 'inline-flex',
+                          display: 'flex',
                           alignItems: 'center',
-                          gap: 4,
+                          justifyContent: 'center',
+                          gap: 6,
                           whiteSpace: 'nowrap',
-                          boxShadow: '0 1px 2px rgba(0,0,0,0.08)',
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
                           transition: 'background 0.15s ease',
+                          boxSizing: 'border-box',
                         }}
                         onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = '#2B2A20')}
                         onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = '#3A382C')}
                       >
-                        See why this is recommended →
+                        <span>See why this is recommended</span>
+                        <span>→</span>
                       </button>
                     </div>
                   </div>
@@ -546,13 +548,46 @@ export default function Dashboard({
               </div>
             )}
 
-            {/* OTHER OPPORTUNITIES */}
+            {/* OTHER OPPORTUNITIES (Expandable: Show 3 + View More) */}
             {otherOpps.length > 0 && (
               <div>
-                <div className="label" style={{ marginBottom: 10 }}>OTHER OPPORTUNITIES</div>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: 10,
+                  }}
+                >
+                  <div className="label">
+                    OTHER OPPORTUNITIES ({otherOpps.length})
+                  </div>
+                  {otherOpps.length > 3 && (
+                    <button
+                      onClick={() => setShowAllOpportunities(!showAllOpportunities)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: 'var(--brown-primary)',
+                        fontSize: 11,
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 4,
+                        padding: 0,
+                      }}
+                    >
+                      {showAllOpportunities ? 'Show 3' : `View all ${otherOpps.length}`}
+                      {showAllOpportunities ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+                    </button>
+                  )}
+                </div>
+
                 <div style={{ border: '1px solid var(--border)', borderRadius: 10, background: 'var(--surface)', overflow: 'hidden' }}>
-                  {otherOpps.map((opp, i) => {
+                  {visibleOtherOpps.map((opp, i) => {
                     const thumbUrl = OTHER_OPP_THUMBNAILS[i % OTHER_OPP_THUMBNAILS.length];
+                    const isLast = i === visibleOtherOpps.length - 1 && (!otherOpps.length || otherOpps.length <= 3 || showAllOpportunities);
                     return (
                       <div
                         key={opp.id}
@@ -563,7 +598,7 @@ export default function Dashboard({
                           alignItems: 'center',
                           gap: 14,
                           padding: '12px 18px',
-                          borderBottom: i < otherOpps.length - 1 ? '1px solid var(--border)' : 'none',
+                          borderBottom: isLast ? 'none' : '1px solid var(--border)',
                           cursor: 'pointer',
                           transition: 'background 0.12s ease',
                         }}
@@ -637,6 +672,39 @@ export default function Dashboard({
                       </div>
                     );
                   })}
+
+                  {/* Bottom View More Button */}
+                  {otherOpps.length > 3 && (
+                    <button
+                      onClick={() => setShowAllOpportunities(!showAllOpportunities)}
+                      style={{
+                        width: '100%',
+                        padding: '11px 16px',
+                        background: 'rgba(255, 252, 247, 0.75)',
+                        borderTop: '1px solid var(--border)',
+                        borderLeft: 'none',
+                        borderRight: 'none',
+                        borderBottom: 'none',
+                        color: 'var(--brown-primary)',
+                        fontSize: 12,
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 6,
+                        transition: 'background 0.15s ease',
+                      }}
+                      onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'var(--surface-subtle)')}
+                      onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(255, 252, 247, 0.75)')}
+                    >
+                      <span>
+                        {showAllOpportunities
+                          ? 'Show fewer opportunities ↑'
+                          : `View ${otherOpps.length - 3} more opportunities (${otherOpps.length} total) ↓`}
+                      </span>
+                    </button>
+                  )}
                 </div>
               </div>
             )}
