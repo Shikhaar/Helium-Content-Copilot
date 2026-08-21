@@ -173,7 +173,7 @@ export default function UserProfileModal({
                   borderRadius: 4,
                 }}
               >
-                Lead Content Strategist
+                Authenticated
               </span>
             </div>
 

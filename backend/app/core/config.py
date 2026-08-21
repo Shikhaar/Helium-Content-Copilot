@@ -30,6 +30,9 @@ class Settings(BaseSettings):
     host: str = "0.0.0.0"
     port: int = 8000
 
+    # Test isolation — set BRANDBREW_TESTING=true in CI only, never in production
+    testing: bool = False
+
     # CORS
     frontend_origin: str = "http://localhost:3000"
 

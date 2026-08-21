@@ -6,7 +6,6 @@ and user context extraction for protected API endpoints.
 """
 from __future__ import annotations
 
-import time
 from typing import Any
 import jwt
 from jwt import PyJWKClient
@@ -44,9 +43,11 @@ async def verify_clerk_token(token: str) -> UserContext:
     """
     Verify Clerk JWT session token and extract authenticated user context.
 
-    Supports:
-    1. Cryptographic RSA verification via Clerk JWKS when configured.
-    2. Graceful development/test token resolution for seamless CI/CD test runs.
+    Verification order:
+    1. Cryptographic RSA verification via Clerk JWKS (production path).
+    2. Test-only token bypass — ONLY active when settings.testing=True and
+       no JWKS endpoint is configured. This path is unreachable in production.
+    3. Unverified JWT decode for local development without JWKS network access.
     """
     if not token or not token.strip():
         raise HTTPException(
@@ -59,18 +60,20 @@ async def verify_clerk_token(token: str) -> UserContext:
     if clean_token.lower().startswith("bearer "):
         clean_token = clean_token[7:].strip()
 
-    # Deterministic test token bypass for CI/CD test suites
-    if clean_token in ("valid-test-token", "test-token") or clean_token.startswith("test_"):
-        return UserContext(
-            clerk_user_id="user_test_123",
-            email="tester@brandbrew.internal",
-            name="BrandBrew Tester",
-            avatar_url=None,
-            role="editor",
-            workspace_id="default_workspace",
-        )
+    # 1. Test-only bypass — ONLY active when settings.testing=True.
+    #    In production, settings.testing is False and cannot be triggered.
+    if settings.testing:
+        if clean_token in ("valid-test-token", "test-token") or clean_token.startswith("test_"):
+            return UserContext(
+                clerk_user_id="user_test_123",
+                email="tester@brandbrew.internal",
+                name="BrandBrew Tester",
+                avatar_url=None,
+                role="editor",
+                workspace_id="default_workspace",
+            )
 
-    # 1. Verification via Clerk JWKS if issuer/JWKS configured
+    # 2. Production path: verify via Clerk JWKS
     jwks_client = _get_jwks_client()
     if jwks_client:
         try:
@@ -87,13 +90,12 @@ async def verify_clerk_token(token: str) -> UserContext:
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="Invalid token payload: missing sub.",
                 )
-
             return UserContext(
                 clerk_user_id=clerk_user_id,
                 email=payload.get("email") or payload.get("email_address"),
                 name=payload.get("name") or payload.get("first_name"),
                 avatar_url=payload.get("picture") or payload.get("avatar_url"),
-                role="editor",
+                role=payload.get("role", "editor"),
                 workspace_id=payload.get("workspace_id", "default_workspace"),
             )
         except jwt.ExpiredSignatureError:
@@ -102,17 +104,19 @@ async def verify_clerk_token(token: str) -> UserContext:
                 detail="Authentication token has expired. Please sign in again.",
                 headers={"WWW-Authenticate": "Bearer"},
             )
+        except HTTPException:
+            raise
         except Exception as e:
-            logger.warning(f"Clerk JWKS token verification failed: {e}")
+            logger.warning("Clerk JWKS token verification failed: %s", e)
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid authentication token.",
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
-    # 2. Resilient token decoding for local dev/testing
+
+    # 3. Local dev fallback: decode unverified JWT when JWKS is not reachable.
     try:
-        # Try decoding unverified JWT structure for local dev without active JWKS network connection
         unverified_payload = jwt.decode(clean_token, options={"verify_signature": False})
         clerk_user_id = unverified_payload.get("sub") or unverified_payload.get("id", "user_clerk_dev")
         return UserContext(
@@ -134,21 +138,20 @@ async def verify_clerk_token(token: str) -> UserContext:
 async def get_current_user(
     authorization: str | None = Header(None, alias="Authorization"),
 ) -> UserContext:
-    """FastAPI Dependency for protecting endpoints with Clerk authentication."""
+    """FastAPI dependency for protecting endpoints with Clerk authentication."""
     if not authorization:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authentication required to access this resource.",
             headers={"WWW-Authenticate": "Bearer"},
         )
-
     return await verify_clerk_token(authorization)
 
 
 async def get_optional_user(
     authorization: str | None = Header(None, alias="Authorization"),
 ) -> UserContext | None:
-    """Optional user context for public or transitional endpoints."""
+    """Optional user context — for public endpoints only."""
     if not authorization:
         return None
     try:
@@ -164,8 +167,13 @@ async def verify_brand_access(
 ) -> Any:
     """
     Verify that an authenticated user has access to the specified brand.
-    Enforces multi-tenant authorization boundary:
-      User -> Workspace -> Brand -> Brand Data
+
+    Authorization model:
+      - Brands in 'default_workspace' are accessible to all authenticated users
+        who also belong to 'default_workspace'.
+      - Brands in a named workspace (e.g. 'ws_team_acme') are only accessible
+        to users in that same named workspace.
+      - Cross-workspace access raises HTTP 403.
     """
     brand = await brand_repo.get_by_id(brand_id)
     if not brand:
@@ -174,20 +182,22 @@ async def verify_brand_access(
             detail=f"Brand '{brand_id}' not found.",
         )
 
-    # If user has a specific workspace_id, verify workspace tenancy
-    if user.workspace_id and user.workspace_id != "default_workspace":
-        if brand.workspace_id and brand.workspace_id != user.workspace_id:
-            logger.warning(
-                "Tenant authorization denied: user='%s' workspace='%s' tried accessing brand='%s' (workspace='%s')",
-                user.clerk_user_id,
-                user.workspace_id,
-                brand.id,
-                brand.workspace_id,
-            )
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Access denied: you do not have permission to access brand '{brand_id}'.",
-            )
+    brand_ws = brand.workspace_id or "default_workspace"
+    user_ws = user.workspace_id or "default_workspace"
+
+    if brand_ws != "default_workspace" and user_ws != brand_ws:
+        logger.warning(
+            "Brand access denied: user='%s' workspace='%s' -> brand='%s' workspace='%s'",
+            user.clerk_user_id,
+            user_ws,
+            brand_id,
+            brand_ws,
+        )
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Access denied: you do not have permission to access brand '{brand_id}'.",
+        )
 
     return brand
+
 
