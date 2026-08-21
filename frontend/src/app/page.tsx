@@ -54,7 +54,7 @@ export default function Home() {
   const [calendarEntries, setCalendarEntries] = React.useState<CalendarEntry[]>([]);
 
   // Loading state
-  const [isAnalyzing, setIsAnalyzing] = React.useState(false);
+  const [analyzingBrandId, setAnalyzingBrandId] = React.useState<string | null>(null);
   const [isGenerating, setIsGenerating] = React.useState(false);
 
   // Current selection
@@ -64,6 +64,10 @@ export default function Home() {
 
   // Error state
   const [error, setError] = React.useState<string | null>(null);
+
+  // Ref to track latest selected brand for async callbacks
+  const selectedBrandIdRef = React.useRef(selectedBrandId);
+  selectedBrandIdRef.current = selectedBrandId;
 
   // Function to load all data for a specific brand
   const loadBrandData = React.useCallback(async (brandId: string) => {
@@ -77,23 +81,28 @@ export default function Home() {
         api.getOpportunities(brandId),
       ]);
 
-      setBrand(b);
-      setProducts(p);
-      setPerformance(perf);
-      setCalendarEntries(cal);
+      // Only apply state if this brand is still the active one
+      if (selectedBrandIdRef.current === brandId) {
+        setBrand(b);
+        setProducts(p);
+        setPerformance(perf);
+        setCalendarEntries(cal);
 
-      if (opps.length > 0) {
-        setAnalyzeResult({
-          opportunities: opps,
-          performance_summary: perf,
-          is_demo: opps[0].is_demo,
-        });
-      } else {
-        setAnalyzeResult(null);
+        if (opps.length > 0) {
+          setAnalyzeResult({
+            opportunities: opps,
+            performance_summary: perf,
+            is_demo: opps[0].is_demo,
+          });
+        } else {
+          setAnalyzeResult(null);
+        }
       }
     } catch (e) {
       console.error(`Failed to load brand data for '${brandId}':`, e);
-      setError(`Could not load brand data for '${brandId}'.`);
+      if (selectedBrandIdRef.current === brandId) {
+        setError(`Could not load brand data for '${brandId}'.`);
+      }
     }
   }, []);
 
@@ -167,15 +176,20 @@ export default function Home() {
 
   // Analysis (Runs 2-Stage Recommendation Engine for the selected brand)
   const handleAnalyze = async () => {
-    setIsAnalyzing(true);
+    const targetBrand = selectedBrandId;
+    setAnalyzingBrandId(targetBrand);
     setError(null);
     try {
-      const result = await api.analyze(selectedBrandId);
-      setAnalyzeResult(result);
+      const result = await api.analyze(targetBrand);
+      if (selectedBrandIdRef.current === targetBrand) {
+        setAnalyzeResult(result);
+      }
     } catch (e: any) {
-      setError(e.message || 'Analysis failed. Please try again.');
+      if (selectedBrandIdRef.current === targetBrand) {
+        setError(e.message || 'Analysis failed. Please try again.');
+      }
     } finally {
-      setIsAnalyzing(false);
+      setAnalyzingBrandId(curr => (curr === targetBrand ? null : curr));
     }
   };
 
@@ -373,7 +387,7 @@ export default function Home() {
             productsCount={products.length}
             performance={performance}
             analyzeResult={analyzeResult}
-            isAnalyzing={isAnalyzing}
+            isAnalyzing={analyzingBrandId === selectedBrandId}
             onAnalyze={handleAnalyze}
             onViewOpportunity={handleViewOpportunity}
             onViewCalendar={() => navigate({ name: 'calendar' })}
