@@ -1377,7 +1377,12 @@ async def seed_database(db) -> None:
             post,
         )
 
+    from app.core.config import settings
+    is_demo_flag = 0 if settings.ai_enabled else 1
+
     for opp in INITIAL_OPPORTUNITIES:
+        opp_entry = dict(opp)
+        opp_entry["is_demo"] = is_demo_flag
         await db.execute(
             """INSERT OR REPLACE INTO opportunities (
                 id, brand_id, analysis_run_id, title, content_angle, audience, objective,
@@ -1390,12 +1395,13 @@ async def seed_database(db) -> None:
                 :product_signal, :audience_signal, :seasonal_signal, :business_signal,
                 :score, :score_breakdown, :confidence, :confidence_reason, :created_at, :is_demo
             )""",
-            opp,
+            opp_entry,
         )
 
     await db.commit()
     logger.info(
-        "Seed complete: %d brands, %d products, %d posts, %d opportunities",
-        len(BRANDS), len(PRODUCTS), len(HISTORICAL_POSTS), len(INITIAL_OPPORTUNITIES),
+        "Seed complete: %d brands, %d products, %d posts, %d opportunities | is_demo=%s",
+        len(BRANDS), len(PRODUCTS), len(HISTORICAL_POSTS), len(INITIAL_OPPORTUNITIES), is_demo_flag,
     )
+
 
