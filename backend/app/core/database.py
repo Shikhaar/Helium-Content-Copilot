@@ -4,6 +4,7 @@ Database initialisation and connection management for BrandBrew.
 Supports:
   - Supabase PostgreSQL (via asyncpg / PostgreSQL URL in production)
   - SQLite (via aiosqlite in local development / CI test environments)
+  - Automatic migration from legacy single-tenant schema to multi-tenant schema
 """
 import aiosqlite
 from app.core.config import settings
@@ -12,9 +13,6 @@ from app.core.logging_config import get_logger
 logger = get_logger(__name__)
 
 CREATE_TABLES_SQL = """
-PRAGMA journal_mode=WAL;
-PRAGMA foreign_keys=ON;
-
 CREATE TABLE IF NOT EXISTS brands (
     id          TEXT PRIMARY KEY,
     workspace_id TEXT NOT NULL DEFAULT 'default_workspace',
@@ -29,7 +27,7 @@ CREATE TABLE IF NOT EXISTS brands (
 
 CREATE TABLE IF NOT EXISTS products (
     id               TEXT PRIMARY KEY,
-    brand_id         TEXT NOT NULL REFERENCES brands(id),
+    brand_id         TEXT NOT NULL DEFAULT 'snitch' REFERENCES brands(id),
     name             TEXT NOT NULL,
     category         TEXT NOT NULL,
     price_inr        INTEGER NOT NULL,
@@ -46,7 +44,7 @@ CREATE TABLE IF NOT EXISTS products (
 
 CREATE TABLE IF NOT EXISTS historical_posts (
     id              TEXT PRIMARY KEY,
-    brand_id        TEXT NOT NULL REFERENCES brands(id),
+    brand_id        TEXT NOT NULL DEFAULT 'snitch' REFERENCES brands(id),
     platform        TEXT NOT NULL,
     format          TEXT NOT NULL,
     caption         TEXT NOT NULL,
@@ -66,7 +64,7 @@ CREATE TABLE IF NOT EXISTS historical_posts (
 
 CREATE TABLE IF NOT EXISTS opportunities (
     id                  TEXT PRIMARY KEY,
-    brand_id            TEXT NOT NULL REFERENCES brands(id),
+    brand_id            TEXT NOT NULL DEFAULT 'snitch' REFERENCES brands(id),
     analysis_run_id     TEXT,
     title               TEXT NOT NULL,
     content_angle       TEXT NOT NULL,
@@ -91,7 +89,7 @@ CREATE TABLE IF NOT EXISTS opportunities (
 
 CREATE TABLE IF NOT EXISTS content_drafts (
     id              TEXT PRIMARY KEY,
-    brand_id        TEXT NOT NULL REFERENCES brands(id),
+    brand_id        TEXT NOT NULL DEFAULT 'snitch' REFERENCES brands(id),
     opportunity_id  TEXT REFERENCES opportunities(id),
     platform        TEXT NOT NULL,
     format          TEXT NOT NULL,
@@ -111,7 +109,7 @@ CREATE TABLE IF NOT EXISTS content_drafts (
 
 CREATE TABLE IF NOT EXISTS calendar_entries (
     id          TEXT PRIMARY KEY,
-    brand_id    TEXT NOT NULL REFERENCES brands(id),
+    brand_id    TEXT NOT NULL DEFAULT 'snitch' REFERENCES brands(id),
     draft_id    TEXT REFERENCES content_drafts(id),
     title       TEXT NOT NULL,
     platform    TEXT NOT NULL,
@@ -151,12 +149,49 @@ async def get_db() -> aiosqlite.Connection:
 
 
 async def init_db() -> None:
-    """Initialise tables and indexes if they do not exist."""
+    """Initialise tables and indexes, migrating existing tables to multi-tenant schema if needed."""
     logger.info("Initialising database schema at %s", settings.database_url)
     db_path = settings.database_url
     if db_path.startswith("sqlite:///"):
         db_path = db_path.replace("sqlite:///", "")
+
     async with aiosqlite.connect(db_path) as db:
+        await db.execute("PRAGMA journal_mode=WAL;")
+
+        # Check if legacy single-tenant 'brand' table exists, migrate to 'brands'
+        async with db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='brand'") as cursor:
+            has_old_brand = await cursor.fetchone()
+        async with db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='brands'") as cursor:
+            has_new_brands = await cursor.fetchone()
+
+        if has_old_brand and not has_new_brands:
+            try:
+                await db.execute("ALTER TABLE brand RENAME TO brands;")
+                await db.execute("ALTER TABLE brands ADD COLUMN workspace_id TEXT NOT NULL DEFAULT 'default_workspace';")
+            except Exception as e:
+                logger.debug("Table migration note: %s", e)
+
+        # Check existing tables and add brand_id column if missing from earlier runs
+        tables_to_check = ["products", "historical_posts", "opportunities", "content_drafts", "calendar_entries"]
+        for table in tables_to_check:
+            async with db.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table}'") as cursor:
+                table_exists = await cursor.fetchone()
+            if table_exists:
+                async with db.execute(f"PRAGMA table_info({table})") as cursor:
+                    columns = [row[1] for row in await cursor.fetchall()]
+                if "brand_id" not in columns:
+                    try:
+                        await db.execute(f"ALTER TABLE {table} ADD COLUMN brand_id TEXT DEFAULT 'snitch';")
+                        logger.info(f"Added brand_id column to existing {table} table")
+                    except Exception as e:
+                        logger.warning(f"Could not add brand_id column to {table}: {e}")
+                if table == "opportunities" and "analysis_run_id" not in columns:
+                    try:
+                        await db.execute("ALTER TABLE opportunities ADD COLUMN analysis_run_id TEXT;")
+                    except Exception:
+                        pass
+
+        # Execute table creation and indexes
         await db.executescript(CREATE_TABLES_SQL)
         await db.commit()
     logger.info("Database schema ready with multi-tenant tables and indexes")
