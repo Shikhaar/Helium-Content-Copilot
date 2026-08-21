@@ -614,13 +614,19 @@ export default function Dashboard({
               </div>
 
               {/* Right 30%: Data Connection Panel */}
-              <div
-                style={{
-                  borderTop: '1px solid var(--border)',
-                  paddingTop: 20,
-                }}
-              >
-                <div className="label" style={{ marginBottom: 14 }}>Connect your Instagram</div>
+              <div>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    marginBottom: 4,
+                    paddingBottom: 12,
+                    borderBottom: '1px solid var(--border)',
+                  }}
+                >
+                  <div className="label">Connect your Instagram</div>
+                </div>
+
                 <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 20 }}>
                   Get live performance signals and audience insights to make BrandBrew's recommendations more precise.
                 </p>

@@ -68,7 +68,6 @@ export default function Sidebar({
   const accountMenuRef = useRef<HTMLDivElement>(null);
   const brandMenuRef = useRef<HTMLDivElement>(null);
 
-  // Close popovers when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (accountMenuRef.current && !accountMenuRef.current.contains(event.target as Node)) {
@@ -236,7 +235,6 @@ export default function Sidebar({
                 }}
                 title="BrandBrew Home"
               >
-                {/* BrandBrew Logo Icon */}
                 <div
                   style={{
                     width: 28,
@@ -403,7 +401,7 @@ export default function Sidebar({
 
           {/* Navigation Items */}
           <nav style={{ padding: isCollapsed ? '10px 8px' : '10px 8px' }}>
-            {/* Section: STRATEGY & WORKSPACE */}
+            {/* Section: STRATEGY */}
             {!isCollapsed && (
               <div
                 style={{
@@ -449,7 +447,7 @@ export default function Sidebar({
           </nav>
         </div>
 
-        {/* Bottom Workspace Selector & User Account Section */}
+        {/* ── Bottom: BRAND + ACCOUNT ── */}
         <div
           ref={accountMenuRef}
           style={{
@@ -462,7 +460,7 @@ export default function Sidebar({
             position: 'relative',
           }}
         >
-          {/* ── BRAND Section ── */}
+          {/* BRAND section label */}
           {!isCollapsed && (
             <div
               style={{
@@ -478,6 +476,8 @@ export default function Sidebar({
             </div>
           )}
 
+          {/* Brand Switcher */}
+          <div ref={brandMenuRef} style={{ position: 'relative', marginBottom: 0 }}>
             {!isCollapsed ? (
               <div
                 onClick={() => setIsBrandMenuOpen(!isBrandMenuOpen)}
@@ -506,7 +506,6 @@ export default function Sidebar({
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: 1 }}>
-                  {/* Brand Monogram Avatar Badge */}
                   <div
                     style={{
                       width: 30,
@@ -568,7 +567,6 @@ export default function Sidebar({
                 />
               </div>
             ) : (
-              /* Collapsed Brand Icon */
               <div
                 style={{
                   width: 34,
@@ -591,7 +589,7 @@ export default function Sidebar({
               </div>
             )}
 
-            {/* Brand Dropdown Menu */}
+            {/* Brand Dropdown */}
             {isBrandMenuOpen && (
               <div
                 style={{
@@ -614,7 +612,7 @@ export default function Sidebar({
               >
                 <div
                   style={{
-                    padding: '4px 8px 4px',
+                    padding: '4px 8px',
                     fontSize: 9,
                     fontWeight: 700,
                     letterSpacing: '0.07em',
@@ -622,7 +620,7 @@ export default function Sidebar({
                     textTransform: 'uppercase',
                   }}
                 >
-                  BRAND WORKSPACES
+                  YOUR BRANDS
                 </div>
                 {brands.map(b => {
                   const isSelected = b.id === activeBrandId;
@@ -648,14 +646,10 @@ export default function Sidebar({
                         transition: 'background 0.12s ease',
                       }}
                       onMouseEnter={e => {
-                        if (!isSelected) {
-                          (e.currentTarget as HTMLElement).style.background = 'rgba(217, 200, 181, 0.35)';
-                        }
+                        if (!isSelected) (e.currentTarget as HTMLElement).style.background = 'rgba(217, 200, 181, 0.35)';
                       }}
                       onMouseLeave={e => {
-                        if (!isSelected) {
-                          (e.currentTarget as HTMLElement).style.background = 'transparent';
-                        }
+                        if (!isSelected) (e.currentTarget as HTMLElement).style.background = 'transparent';
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
@@ -709,21 +703,17 @@ export default function Sidebar({
                     cursor: 'pointer',
                     textAlign: 'left',
                   }}
-                  onMouseEnter={e => {
-                    (e.currentTarget as HTMLElement).style.background = 'rgba(217, 200, 181, 0.35)';
-                  }}
-                  onMouseLeave={e => {
-                    (e.currentTarget as HTMLElement).style.background = 'transparent';
-                  }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(217, 200, 181, 0.35)'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
                 >
                   <Building2 size={12} />
-                  Manage Brand & Catalog
+                  Manage Brand &amp; Catalog
                 </button>
               </div>
             )}
+          </div>
 
-          {/* ── Separator + ACCOUNT Section ── */}
-
+          {/* Divider + ACCOUNT section label */}
           <div style={{ height: 1, background: 'var(--border)', margin: isCollapsed ? '8px 0' : '10px 0' }} />
           {!isCollapsed && (
             <div
@@ -740,9 +730,8 @@ export default function Sidebar({
             </div>
           )}
 
-          {/* Account Popover Menu */}
+          {/* Account Popover */}
           {isAccountMenuOpen && (
-
             <div
               style={{
                 position: 'absolute',
@@ -760,88 +749,31 @@ export default function Sidebar({
                 fontFamily: 'var(--font-sans)',
               }}
             >
-              {/* User Identity Header */}
-              <div
-                style={{
-                  padding: '8px 12px 10px',
-                  borderBottom: '1px solid var(--border)',
-                }}
-              >
-                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>
-                  {displayName}
-                </div>
-                <div
-                  style={{
-                    fontSize: 11,
-                    color: 'var(--text-muted)',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    marginTop: 1,
-                  }}
-                >
+              <div style={{ padding: '8px 12px 10px', borderBottom: '1px solid var(--border)' }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>{displayName}</div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 1 }}>
                   {email}
                 </div>
               </div>
 
-              {/* Account Section */}
               <div style={{ padding: '4px 0', borderBottom: '1px solid var(--border)' }}>
                 <button
-                  onClick={() => {
-                    setIsAccountMenuOpen(false);
-                    setIsProfileModalOpen(true);
-                  }}
-                  style={{
-                    width: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    padding: '7px 12px',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontSize: 12,
-                    color: 'var(--text-primary)',
-                    textAlign: 'left',
-                    transition: 'background 0.12s ease',
-                  }}
-                  onMouseEnter={e => {
-                    (e.currentTarget as HTMLElement).style.background = 'var(--bg-subtle)';
-                  }}
-                  onMouseLeave={e => {
-                    (e.currentTarget as HTMLElement).style.background = 'none';
-                  }}
+                  onClick={() => { setIsAccountMenuOpen(false); setIsProfileModalOpen(true); }}
+                  style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '7px 12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: 'var(--text-primary)', textAlign: 'left', transition: 'background 0.12s ease' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-subtle)'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'none'; }}
                 >
                   <UserIcon size={14} color="var(--text-secondary)" />
-                  <span>Profile & Details</span>
+                  <span>Profile &amp; Details</span>
                 </button>
               </div>
 
-              {/* Log out Button */}
               <div style={{ padding: '4px 0 0' }}>
                 <button
                   onClick={() => signOut({ redirectUrl: '/sign-in' })}
-                  style={{
-                    width: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    padding: '7px 12px',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontSize: 12,
-                    color: '#9C3426',
-                    fontWeight: 500,
-                    textAlign: 'left',
-                    transition: 'background 0.12s ease',
-                  }}
-                  onMouseEnter={e => {
-                    (e.currentTarget as HTMLElement).style.background = '#FDE8E4';
-                  }}
-                  onMouseLeave={e => {
-                    (e.currentTarget as HTMLElement).style.background = 'none';
-                  }}
+                  style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 8, padding: '7px 12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#9C3426', fontWeight: 500, textAlign: 'left', transition: 'background 0.12s ease' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#FDE8E4'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'none'; }}
                 >
                   <LogOut size={14} />
                   <span>Sign out</span>
@@ -850,7 +782,7 @@ export default function Sidebar({
             </div>
           )}
 
-          {/* Interactive User Account Row (Shikhar · Admin >) */}
+          {/* User Account Row */}
           <button
             onClick={() => setIsAccountMenuOpen(!isAccountMenuOpen)}
             title={isCollapsed ? `${displayName} (${role})` : undefined}
@@ -869,18 +801,13 @@ export default function Sidebar({
               transition: 'background 0.15s ease',
             }}
             onMouseEnter={e => {
-              if (!isAccountMenuOpen) {
-                (e.currentTarget as HTMLElement).style.background = 'rgba(217, 200, 181, 0.35)';
-              }
+              if (!isAccountMenuOpen) (e.currentTarget as HTMLElement).style.background = 'rgba(217, 200, 181, 0.35)';
             }}
             onMouseLeave={e => {
-              if (!isAccountMenuOpen) {
-                (e.currentTarget as HTMLElement).style.background = 'transparent';
-              }
+              if (!isAccountMenuOpen) (e.currentTarget as HTMLElement).style.background = 'transparent';
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-              {/* Circular Avatar with Initial */}
               <div
                 style={{
                   width: 32,
@@ -903,28 +830,10 @@ export default function Sidebar({
 
               {!isCollapsed && (
                 <div style={{ minWidth: 0, flex: 1 }}>
-                  <div
-                    style={{
-                      fontSize: 13,
-                      fontWeight: 700,
-                      color: 'var(--text-primary)',
-                      lineHeight: 1.2,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
+                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {firstName}
                   </div>
-                  <div
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 400,
-                      color: 'var(--text-secondary)',
-                      lineHeight: 1.2,
-                      marginTop: 2,
-                    }}
-                  >
+                  <div style={{ fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)', lineHeight: 1.2, marginTop: 2 }}>
                     {role}
                   </div>
                 </div>

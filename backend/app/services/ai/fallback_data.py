@@ -22,9 +22,9 @@ FALLBACK_OPPORTUNITIES: list[AIOpportunityRaw] = [
         format="Carousel",
         suggested_product_id="prod_001",
         why=(
-            "Styling carousels are currently your highest-performing format at 8.4% average engagement. "
-            "The Oversized Linen Shirt is also your highest-demand product with 14.2K views and 1,050 sales. "
-            "Why it matters: It combines a proven format, strong product demand, and your active Summer 2026 campaign."
+            "Styling carousels deliver 2.5× higher engagement than static catalog posts. "
+            "Pairing this high-intent format with the catalog's top-volume linen shirt turns proven customer interest "
+            "into immediate styling utility for peak summer."
         ),
         historical_signal=(
             "Styling carousel posts for SNITCH have averaged 8.4% engagement rate "
@@ -61,9 +61,8 @@ FALLBACK_OPPORTUNITIES: list[AIOpportunityRaw] = [
         format="Carousel",
         suggested_product_id="prod_002",
         why=(
-            "The Cargo Pants are the best-selling product by units (1,200 sold) but are currently "
-            "Low Stock — creating urgency. Social proof carousels have generated 5.8% avg ER "
-            "historically, and the low stock signal makes conversion the right objective right now."
+            "Cargo Pants are the catalog's top volume driver with 1,200 units sold, but inventory is running low. "
+            "A social proof fit-check converts high-intent consideration into urgency before the drop sells out."
         ),
         historical_signal=(
             "Social proof carousel posts (posts 18–20) averaged 5.8% ER with strong comment "
@@ -95,10 +94,9 @@ FALLBACK_OPPORTUNITIES: list[AIOpportunityRaw] = [
         format="Carousel",
         suggested_product_id="prod_001",
         why=(
-            "Educational carousel posts have averaged 6.2% ER for SNITCH — nearly 2× the brand "
-            "average. The heat-vs-style tension is a genuine pain point for the target audience in "
-            "Indian summers, and SNITCH's linen range is the perfect answer. This format builds "
-            "brand authority while driving product discovery organically."
+            "Extreme summer heat creates high search and save intent around breathable fabrics. "
+            "A practical heatwave styling guide positions the brand as a credible styling authority "
+            "while driving organic discovery for the linen collection."
         ),
         historical_signal=(
             "Educational posts (posts 9–11) averaged 6.2% ER with notably high save rates "
