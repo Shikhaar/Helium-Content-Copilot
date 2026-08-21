@@ -48,9 +48,12 @@ class ContentGeneratorService:
 
     async def generate(self, request: GenerateContentRequest) -> ContentDraft:
         """Generate platform-specific content for the selected opportunity."""
+        platform_str = request.platform.value if hasattr(request.platform, "value") else str(request.platform)
+        format_str = request.format.value if hasattr(request.format, "value") else str(request.format)
+        
         logger.info(
             "Generating content | opportunity_id=%s | platform=%s | format=%s",
-            request.opportunity_id, request.platform.value, request.format.value,
+            request.opportunity_id, platform_str, format_str,
         )
 
         opportunity = await self._opportunity_repo.get_by_id(request.opportunity_id)
@@ -77,7 +80,6 @@ class ContentGeneratorService:
             else:
                 raise ValueError(f"Product not found: {opportunity.suggested_product_id}")
 
-
         raw_content, is_demo = await self._ai.generate_content(
             opportunity=opportunity,
             product=product,
@@ -90,8 +92,8 @@ class ContentGeneratorService:
         draft = ContentDraft(
             id=str(uuid.uuid4()),
             opportunity_id=request.opportunity_id,
-            platform=request.platform.value,
-            format=request.format.value,
+            platform=platform_str,
+            format=format_str,
             audience=request.audience,
             objective=request.objective,
             slides=raw_content.slides,

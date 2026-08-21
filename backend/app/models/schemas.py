@@ -268,8 +268,10 @@ class GenerateContentRequest(BaseModel):
     opportunity_id: str
     platform: Platform = Platform.INSTAGRAM
     format: PostFormat = PostFormat.CAROUSEL
-    audience: str
-    objective: str  # plain str — AI may generate objectives outside the enum
+    audience: str = "Gen-Z"
+    objective: str = "Engagement + Product Discovery"
+
+
 
 
 class ContentDraft(BaseModel):
