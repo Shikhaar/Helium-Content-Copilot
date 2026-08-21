@@ -1,6 +1,6 @@
 /**
  * API client for BrandBrew Content Copilot backend.
- * All calls are to the FastAPI server.
+ * Supports multi-tenant brand scoping across all endpoints.
  */
 
 import type {
@@ -54,35 +54,63 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   return res.json();
 }
 
-// ── Brand & Data ──────────────────────────────────────────────────────────────
+// ── Brand & Multi-Tenant Data ────────────────────────────────────────────────
 export const api = {
   getMe: () => request<UserResponse>('/auth/me'),
-  getBrand: () => request<Brand>('/brand'),
-  updateBrand: (updates: UpdateBrandRequest) =>
-    request<Brand>('/brand', {
-      method: 'PATCH',
-      body: JSON.stringify(updates),
-    }),
-  getProducts: () => request<Product[]>('/products'),
-  createProduct: (body: CreateProductRequest) =>
-    request<Product>('/products', {
-      method: 'POST',
-      body: JSON.stringify(body),
-    }),
-  deleteProduct: (id: string) =>
-    request<{ status: string; message: string }>(`/products/${id}`, {
-      method: 'DELETE',
-    }),
-  getPerformance: () => request<PerformanceSummary>('/performance'),
+  listBrands: () => request<Brand[]>('/brands'),
+  getBrand: (brandId?: string) =>
+    brandId ? request<Brand>(`/brands/${brandId}`) : request<Brand>('/brand'),
+  updateBrand: (updates: UpdateBrandRequest, brandId?: string) =>
+    brandId
+      ? request<Brand>(`/brands/${brandId}`, {
+          method: 'PATCH',
+          body: JSON.stringify(updates),
+        })
+      : request<Brand>('/brand', {
+          method: 'PATCH',
+          body: JSON.stringify(updates),
+        }),
 
-  // ── Analysis ─────────────────────────────────────────────────────────────────
-  analyze: () => request<AnalyzeResponse>('/analyze', { method: 'POST' }),
+  getProducts: (brandId?: string) =>
+    brandId ? request<Product[]>(`/brands/${brandId}/products`) : request<Product[]>('/products'),
+  createProduct: (body: CreateProductRequest, brandId?: string) =>
+    brandId
+      ? request<Product>(`/brands/${brandId}/products`, {
+          method: 'POST',
+          body: JSON.stringify(body),
+        })
+      : request<Product>('/products', {
+          method: 'POST',
+          body: JSON.stringify(body),
+        }),
+  deleteProduct: (id: string, brandId?: string) =>
+    brandId
+      ? request<{ status: string; message: string }>(`/brands/${brandId}/products/${id}`, {
+          method: 'DELETE',
+        })
+      : request<{ status: string; message: string }>(`/products/${id}`, {
+          method: 'DELETE',
+        }),
 
-  // ── Opportunities ─────────────────────────────────────────────────────────────
-  getOpportunities: () => request<Opportunity[]>('/opportunities'),
-  getOpportunity: (id: string) => request<Opportunity>(`/opportunities/${id}`),
+  getPerformance: (brandId?: string) =>
+    brandId
+      ? request<PerformanceSummary>(`/brands/${brandId}/performance`)
+      : request<PerformanceSummary>('/performance'),
 
-  // ── Content ───────────────────────────────────────────────────────────────────
+  // ── Analysis & Opportunities ─────────────────────────────────────────────────
+  analyze: (brandId?: string) =>
+    brandId
+      ? request<AnalyzeResponse>(`/brands/${brandId}/analyze`, { method: 'POST' })
+      : request<AnalyzeResponse>('/analyze', { method: 'POST' }),
+
+  getOpportunities: (brandId?: string) =>
+    brandId
+      ? request<Opportunity[]>(`/brands/${brandId}/opportunities`)
+      : request<Opportunity[]>('/opportunities'),
+  getOpportunity: (id: string, brandId?: string) =>
+    request<Opportunity>(`/opportunities/${id}`),
+
+  // ── Content Studio ───────────────────────────────────────────────────────────
   generateContent: (body: GenerateContentRequest) =>
     request<ContentDraft>('/content/generate', {
       method: 'POST',
@@ -113,7 +141,10 @@ export const api = {
     }),
 
   // ── Calendar ──────────────────────────────────────────────────────────────────
-  getCalendar: () => request<CalendarEntry[]>('/calendar'),
+  getCalendar: (brandId?: string) =>
+    brandId
+      ? request<CalendarEntry[]>(`/brands/${brandId}/calendar`)
+      : request<CalendarEntry[]>('/calendar'),
   deleteCalendarEntry: (id: string) =>
     request<{ status: string; message: string }>(`/calendar/${id}`, {
       method: 'DELETE',

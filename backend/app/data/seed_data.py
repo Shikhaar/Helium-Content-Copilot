@@ -1,58 +1,105 @@
 """
-Seed data — SNITCH-inspired synthetic dataset for Helium Content Copilot.
+Seed data — Synthetic multi-brand datasets for BrandBrew.
 
 IMPORTANT DISCLAIMER:
-  This dataset is a fictional, synthetic representation inspired by the
-  SNITCH (snitch.co.in) brand aesthetic and product style. It is created
-  solely for demonstration purposes and is NOT affiliated with, endorsed
-  by, or representative of the actual SNITCH brand, its products, or its
-  real social media performance metrics.
+  This dataset contains fictional, synthetic representations inspired by the
+  aesthetic and product styles of modern Indian D2C brands:
+    1. SNITCH (Men's fast fashion / streetwear · Summer 2026)
+    2. BLISSCLUB (Women's activewear & movement apparel · Move in Freedom)
+    3. THE SOULED STORE (Pop culture & streetwear casuals · Fandom Street Drop)
 
-The data is designed so that the deterministic scoring engine naturally
-produces a top opportunity score of ~94/100 for the styling carousel.
+  It is created solely for demonstration purposes and is NOT affiliated with,
+  endorsed by, or representative of the actual brands or their live metrics.
 """
+from __future__ import annotations
+
 import json
 from app.core.logging_config import get_logger
 
 logger = get_logger(__name__)
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Brand
+# 1. BRANDS
 # ──────────────────────────────────────────────────────────────────────────────
 
-BRAND = {
-    "id": "brand_snitch",
-    "name": "SNITCH",
-    "description": (
-        "SNITCH is a modern Indian men's D2C fashion brand known for bold, "
-        "trend-forward clothing. Designed for the confident, style-conscious "
-        "young man in urban India who refuses to compromise between looking "
-        "good and spending smart."
-    ),
-    "tone": json.dumps(["Bold", "Confident", "Minimal", "Relatable", "Trend-First", "Aspirational"]),
-    "audience": json.dumps({
-        "age_range": "18–30",
-        "location": "India (Tier 1 & 2 cities)",
-        "interests": ["Streetwear", "Styling", "Korean fashion silhouettes", "Travel", "Fitness"],
-        "shopping_behavior": [
-            "Mobile-first shoppers",
-            "Price-conscious but quality-aware",
-            "Heavily influenced by Instagram & Reels",
-            "Look for outfit inspiration and styling guides",
-        ],
-    }),
-    "campaign": "Summer 2026",
-}
+BRANDS = [
+    {
+        "id": "snitch",
+        "workspace_id": "default_workspace",
+        "name": "SNITCH",
+        "description": (
+            "SNITCH is a modern Indian men's D2C fashion brand known for bold, "
+            "trend-forward clothing. Designed for the confident, style-conscious "
+            "young man in urban India who refuses to compromise between looking "
+            "good and spending smart."
+        ),
+        "tone": json.dumps(["Bold", "Confident", "Minimal", "Relatable", "Trend-First", "Aspirational"]),
+        "audience": json.dumps({
+            "age_range": "18–30",
+            "location": "India (Tier 1 & 2 cities)",
+            "interests": ["Streetwear", "Styling", "Korean fashion silhouettes", "Travel", "Fitness"],
+            "shopping_behavior": [
+                "Mobile-first shoppers",
+                "Price-conscious but quality-aware",
+                "Heavily influenced by Instagram & Reels",
+                "Look for outfit inspiration and styling guides",
+            ],
+        }),
+        "campaign": "Summer 2026",
+    },
+    {
+        "id": "blissclub",
+        "workspace_id": "default_workspace",
+        "name": "BLISSCLUB",
+        "description": (
+            "BLISSCLUB designs exceptionally comfortable, functional activewear "
+            "and lifestyle apparel engineered specifically for Indian women of all shapes and sizes."
+        ),
+        "tone": json.dumps(["Empowering", "Comfort-First", "Inclusive", "Joyful", "Practical"]),
+        "audience": json.dumps({
+            "age_range": "22–40",
+            "location": "Pan-India",
+            "interests": ["Movement", "Yoga", "Work-from-anywhere comfort", "Travel", "Wellness"],
+            "shopping_behavior": [
+                "Seek deep pockets and functional design",
+                "Value fabric softness and durability",
+                "Engage with relatable fit trials",
+            ],
+        }),
+        "campaign": "Move in Freedom",
+    },
+    {
+        "id": "souled_store",
+        "workspace_id": "default_workspace",
+        "name": "THE SOULED STORE",
+        "description": (
+            "THE SOULED STORE is India's premier fandom and casual pop-culture brand, "
+            "offering officially licensed merchandise, oversized tees, and urban street staples."
+        ),
+        "tone": json.dumps(["Playful", "Youthful", "Expressive", "Passionate", "Community-Driven"]),
+        "audience": json.dumps({
+            "age_range": "16–28",
+            "location": "Metro & Tier 1/2 Cities",
+            "interests": ["Anime", "Marvel/DC", "Gaming", "Streetwear", "Sneakers"],
+            "shopping_behavior": [
+                "Collector mentality for limited drops",
+                "Love graphic heavy oversized silhouettes",
+                "Active on community polls & drop hype",
+            ],
+        }),
+        "campaign": "Fandom Street Drop",
+    },
+]
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Products
-# Key design note: Linen Shirt has the highest views AND near-top sales,
-# ensuring the scoring engine gives it ~23/25 for Product Relevance.
+# 2. PRODUCTS
 # ──────────────────────────────────────────────────────────────────────────────
 
 PRODUCTS = [
+    # ── SNITCH Products ───────────────────────────────────────────────────────
     {
         "id": "prod_001",
+        "brand_id": "snitch",
         "name": "Oversized Korean Linen Shirt",
         "category": "Shirts",
         "price_inr": 1999,
@@ -66,6 +113,7 @@ PRODUCTS = [
     },
     {
         "id": "prod_002",
+        "brand_id": "snitch",
         "name": "Parachute 6-Pocket Cargo Pants",
         "category": "Bottoms",
         "price_inr": 2499,
@@ -79,355 +127,411 @@ PRODUCTS = [
     },
     {
         "id": "prod_003",
-        "name": "Cuban Collar Textured Shirt",
+        "brand_id": "snitch",
+        "name": "Textured Crochet Polo",
         "category": "Shirts",
         "price_inr": 1799,
-        "description": "A resort-ready textured Cuban collar shirt. Loose, camp-collar cut that goes from a beach afternoon to a rooftop evening without missing a beat.",
-        "features": json.dumps(["Camp/Cuban collar", "Textured fabric", "Relaxed fit", "Summer-ready", "Versatile styling"]),
-        "season": "Summer",
-        "target_audience": "Young Millennial",
-        "inventory_status": "In Stock",
-        "views": 9400,
-        "sales": 720,
-    },
-    {
-        "id": "prod_004",
-        "name": "Knitted Ribbed Polo",
-        "category": "Tops",
-        "price_inr": 1899,
-        "description": "A clean, ribbed polo that channels old-money aesthetics on a new-money budget. Structured enough for smart casual, relaxed enough for a day out.",
-        "features": json.dumps(["Ribbed knit fabric", "Polo collar", "Slim-relaxed fit", "Premium feel", "5 colorways"]),
-        "season": "All Season",
-        "target_audience": "Young Millennial",
-        "inventory_status": "In Stock",
-        "views": 8100,
-        "sales": 610,
-    },
-    {
-        "id": "prod_005",
-        "name": "Waffle Textured Co-ord Set",
-        "category": "Co-ords",
-        "price_inr": 2699,
-        "description": "A matching waffle-textured co-ord set designed for airport looks, vacation vibes, and everything in between. Minimal effort, maximum impact.",
-        "features": json.dumps(["Waffle texture", "Matching set", "Relaxed fit", "Airport-ready", "Available as separates"]),
+        "description": "Open-knit textured polo with retro collar and ribbed trims. Perfect for resort wear, date nights, and elevated summer layering.",
+        "features": json.dumps(["Textured crochet knit", "Camp collar", "Ribbed hem and cuffs", "Breathable open weave"]),
         "season": "Summer",
         "target_audience": "Gen-Z",
         "inventory_status": "In Stock",
         "views": 11200,
-        "sales": 890,
+        "sales": 820,
     },
     {
-        "id": "prod_006",
-        "name": "Relaxed Fit Pleated Trousers",
+        "id": "prod_004",
+        "brand_id": "snitch",
+        "name": "Relaxed Pleated Trousers",
         "category": "Bottoms",
-        "price_inr": 2199,
-        "description": "Korean-inspired pleated trousers with a high-rise, wide-leg silhouette. The trouser that makes every outfit look intentional.",
-        "features": json.dumps(["Pleated front", "Wide-leg fit", "High-rise waist", "Minimal design", "Versatile colourway"]),
+        "price_inr": 2299,
+        "description": "Old-money aesthetic meets modern streetwear. Double front pleats, clean wide leg, and a comfortable semi-elasticated waistband.",
+        "features": json.dumps(["Double front pleats", "Wide-leg silhouette", "Semi-elastic waistband", "Wrinkle-resistant blend"]),
         "season": "All Season",
         "target_audience": "Young Millennial",
         "inventory_status": "In Stock",
+        "views": 9800,
+        "sales": 710,
+    },
+    {
+        "id": "prod_005",
+        "brand_id": "snitch",
+        "name": "Waffle Knit Co-ord Set",
+        "category": "Sets",
+        "price_inr": 2999,
+        "description": "Matching waffle-texture shirt and shorts set. Zero effort styling, maximum visual impact. Wear together or break apart.",
+        "features": json.dumps(["Heavyweight waffle texture", "Matching top and bottom", "Elastic drawcord shorts", "Relaxed drop-shoulder top"]),
+        "season": "Summer",
+        "target_audience": "Gen-Z",
+        "inventory_status": "In Stock",
+        "views": 8400,
+        "sales": 590,
+    },
+    {
+        "id": "prod_006",
+        "brand_id": "snitch",
+        "name": "Cuban Collar Resort Shirt",
+        "category": "Shirts",
+        "price_inr": 1699,
+        "description": "Breezy Cuban collar shirt in fluid rayon blend with subtle vertical stripes. Vacation mood built into everyday wear.",
+        "features": json.dumps(["Cuban / camp collar", "Fluid rayon blend", "Subtle vertical stripe pattern", "Side vents for comfort"]),
+        "season": "Summer",
+        "target_audience": "Young Millennial",
+        "inventory_status": "Out of Stock",
         "views": 7600,
-        "sales": 540,
+        "sales": 440,
     },
     {
         "id": "prod_007",
-        "name": "Heavyweight Graphic Tee (240 GSM)",
-        "category": "Tops",
+        "brand_id": "snitch",
+        "name": "Vintage Wash Graphic Tee",
+        "category": "Tees",
         "price_inr": 1299,
-        "description": "A 240 GSM heavyweight tee with minimal graphic detailing. Built for daily wear, built to last — the brand's bestselling core product.",
-        "features": json.dumps(["240 GSM premium cotton", "Oversized fit", "Minimal graphic", "Pre-washed fabric", "Durable stitching"]),
+        "description": "Heavyweight 240 GSM combed cotton oversized tee with an authentic vintage acid wash and subtle typography print on chest.",
+        "features": json.dumps(["240 GSM heavy cotton", "Acid wash finish", "Boxy streetwear fit", "High-density screen print"]),
         "season": "All Season",
         "target_audience": "Gen-Z",
         "inventory_status": "In Stock",
-        "views": 12100,
-        "sales": 1680,
+        "views": 6900,
+        "sales": 480,
     },
     {
         "id": "prod_008",
-        "name": "Retro Court Chunky Sneakers",
+        "brand_id": "snitch",
+        "name": "Retro Court Low-Top Sneaker",
         "category": "Footwear",
-        "price_inr": 2999,
-        "description": "Retro-court inspired chunky sneakers with a padded collar and contrast sole. The finishing touch for any streetwear or smart-casual outfit.",
-        "features": json.dumps(["Chunky retro sole", "Padded collar", "Premium upper", "Contrast detailing", "True to size"]),
+        "price_inr": 3499,
+        "description": "Vintage basketball-inspired low-top sneaker in off-white vegan leather with beige suede accents and a vulcanised gum sole.",
+        "features": json.dumps(["Premium vegan leather", "Suede accent panels", "Vulcanised gum sole", "Cushioned memory-foam insole"]),
         "season": "All Season",
         "target_audience": "Gen-Z",
         "inventory_status": "In Stock",
-        "views": 10500,
-        "sales": 430,
+        "views": 5800,
+        "sales": 320,
+    },
+
+    # ── BLISSCLUB Products ────────────────────────────────────────────────────
+    {
+        "id": "prod_bc_01",
+        "brand_id": "blissclub",
+        "name": "The Ultimate Flare Pants with 4 Pockets",
+        "category": "Bottoms",
+        "price_inr": 2499,
+        "description": "Signature cloud-soft flare pants engineered with 4 deep pockets that fit smartphones, keys, and cards seamlessly.",
+        "features": json.dumps(["Cloud-soft micro-poly fabric", "4 deep secure pockets", "High-waist contour band", "Anti-chafing seams"]),
+        "season": "All Season",
+        "target_audience": "Women 22-38",
+        "inventory_status": "In Stock",
+        "views": 18200,
+        "sales": 1420,
+    },
+    {
+        "id": "prod_bc_02",
+        "brand_id": "blissclub",
+        "name": "Breathe-Easy Racerback Tank",
+        "category": "Tops",
+        "price_inr": 1299,
+        "description": "Sweat-wicking, ultra-breathable tank with curved hem and loose drape for high-intensity training or daily errands.",
+        "features": json.dumps(["Quick-dry technology", "Racerback ergonomic cut", "Anti-odor finish", "Extended hip coverage"]),
+        "season": "Summer",
+        "target_audience": "Fitness & Active Women",
+        "inventory_status": "In Stock",
+        "views": 11400,
+        "sales": 930,
+    },
+
+    # ── THE SOULED STORE Products ─────────────────────────────────────────────
+    {
+        "id": "prod_tss_01",
+        "brand_id": "souled_store",
+        "name": "Official Marvel Oversized Vintage Tee",
+        "category": "Tees",
+        "price_inr": 1499,
+        "description": "Heavyweight 260 GSM boxy tee featuring distressed retro Avengers comic art across the back.",
+        "features": json.dumps(["Licensed Marvel artwork", "260 GSM French Terry cotton", "Drop shoulder street silhouette"]),
+        "season": "All Season",
+        "target_audience": "Gen-Z / Pop Culture Fans",
+        "inventory_status": "In Stock",
+        "views": 22100,
+        "sales": 1890,
     },
 ]
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Historical Posts
-# Key design note: The data tells a coherent story:
-#   Styling Carousels → avg ~8.4% ER (high saves + shares)
-#   Transition Reels  → avg ~9.1% ER (high likes + comments)
-#   Educational       → avg ~6.2% ER
-#   Static Flat-Lays  → avg ~2.6% ER
-# Brand average ER across all 25 posts ≈ 3.4% (static posts pull it down).
-# Gen-Z audience posts average ≈ 8.2% ER (vs median 4.8% across all segments).
-# These numbers feed directly into the deterministic scoring engine.
+# 3. HISTORICAL POSTS (Full 25 SNITCH + BLISSCLUB + SOULED STORE)
 # ──────────────────────────────────────────────────────────────────────────────
 
 HISTORICAL_POSTS = [
-    # ── Styling Carousels (high engagement: 8.2–8.7%) ─────────────────────────
+    # ── SNITCH Posts ──────────────────────────────────────────────────────────
     {
         "id": "post_001",
+        "brand_id": "snitch",
         "platform": "Instagram",
         "format": "Carousel",
-        "caption": "3 ways to style the Cuban Collar Shirt this summer ☀️ Which look are you wearing first?",
-        "product_id": "prod_003",
-        "category": "Styling",
-        "audience": "Gen-Z",
-        "objective": "Engagement + Product Discovery",
-        "posted_date": "2026-07-15",
-        "impressions": 82000,
-        "likes": 3800,
-        "comments": 410,
-        "shares": 620,
-        "saves": 1890,
-        "clicks": 2100,
-        "conversions": 87,
-    },
-    {
-        "id": "post_002",
-        "platform": "Instagram",
-        "format": "Carousel",
-        "caption": "How to build 5 outfits from just 3 SNITCH pieces 🎯 Save this for your next drop.",
-        "product_id": "prod_007",
-        "category": "Styling",
-        "audience": "Gen-Z",
-        "objective": "Engagement + Product Discovery",
-        "posted_date": "2026-07-08",
-        "impressions": 74000,
-        "likes": 3200,
-        "comments": 390,
-        "shares": 540,
-        "saves": 2100,
-        "clicks": 1940,
-        "conversions": 112,
-    },
-    {
-        "id": "post_003",
-        "platform": "Instagram",
-        "format": "Carousel",
-        "caption": "Airport fit → Beach fit → Rooftop fit. One co-ord set, three looks. 🌴",
-        "product_id": "prod_005",
-        "category": "Styling",
-        "audience": "Gen-Z",
-        "objective": "Engagement + Product Discovery",
-        "posted_date": "2026-06-28",
-        "impressions": 91000,
-        "likes": 4100,
-        "comments": 470,
-        "shares": 710,
-        "saves": 2340,
-        "clicks": 2800,
-        "conversions": 143,
-    },
-    {
-        "id": "post_004",
-        "platform": "Instagram",
-        "format": "Carousel",
-        "caption": "Korean minimalism, Indian summer. The Pleated Trousers guide you didn't know you needed. 🇰🇷→🇮🇳",
-        "product_id": "prod_006",
-        "category": "Styling",
-        "audience": "Young Millennial",
-        "objective": "Engagement + Product Discovery",
-        "posted_date": "2026-06-15",
-        "impressions": 68000,
-        "likes": 2900,
-        "comments": 310,
-        "shares": 480,
-        "saves": 1780,
-        "clicks": 1620,
-        "conversions": 76,
-    },
-    {
-        "id": "post_005",
-        "platform": "Instagram",
-        "format": "Carousel",
-        "caption": "Old money summer. New money budget. The Ribbed Polo, 3 ways. 💸",
-        "product_id": "prod_004",
-        "category": "Styling",
-        "audience": "Young Millennial",
-        "objective": "Engagement + Product Discovery",
-        "posted_date": "2026-06-05",
-        "impressions": 61000,
-        "likes": 2600,
-        "comments": 280,
-        "shares": 410,
-        "saves": 1560,
-        "clicks": 1410,
-        "conversions": 64,
-    },
-    # ── Transition Reels (highest ER: 8.9–9.4%) ───────────────────────────────
-    {
-        "id": "post_006",
-        "platform": "Instagram",
-        "format": "Reel",
-        "caption": "POV: You found the summer fit. Linen Shirt + Cargo Pants. Link in bio. 🔗",
+        "caption": "3 ways to style our Oversized Linen Shirt this weekend. Drop 1, 2, or 3 in the comments 👇",
         "product_id": "prod_001",
         "category": "Styling",
         "audience": "Gen-Z",
         "objective": "Engagement",
-        "posted_date": "2026-07-20",
-        "impressions": 140000,
-        "likes": 8900,
-        "comments": 1100,
-        "shares": 1400,
-        "saves": 1400,
-        "clicks": 4200,
-        "conversions": 198,
+        "posted_date": "2026-08-03",
+        "impressions": 78000,
+        "likes": 3800,
+        "comments": 420,
+        "shares": 890,
+        "saves": 1240,
+        "clicks": 1820,
+        "conversions": 84,
     },
     {
-        "id": "post_007",
+        "id": "post_002",
+        "brand_id": "snitch",
         "platform": "Instagram",
-        "format": "Reel",
-        "caption": "Before SNITCH → After SNITCH 😤 The Cargo glow-up is real.",
+        "format": "Carousel",
+        "caption": "How to style parachute cargos without looking like you're going camping. Slide for 4 clean outfits 🛹",
         "product_id": "prod_002",
         "category": "Styling",
         "audience": "Gen-Z",
         "objective": "Engagement",
-        "posted_date": "2026-07-10",
-        "impressions": 165000,
-        "likes": 10200,
-        "comments": 1340,
-        "shares": 1820,
-        "saves": 1640,
-        "clicks": 5100,
-        "conversions": 231,
+        "posted_date": "2026-07-28",
+        "impressions": 84000,
+        "likes": 4200,
+        "comments": 510,
+        "shares": 1020,
+        "saves": 1450,
+        "clicks": 2100,
+        "conversions": 98,
     },
     {
-        "id": "post_008",
+        "id": "post_003",
+        "brand_id": "snitch",
         "platform": "Instagram",
         "format": "Reel",
-        "caption": "Outfit check ✅ Sneaker check ✅ Confidence check ✅",
-        "product_id": "prod_008",
+        "caption": "POV: You find the linen shirt you'll wear all summer. 🤍 Save this for fit inspiration.",
+        "product_id": "prod_001",
+        "category": "Styling",
+        "audience": "Gen-Z",
+        "objective": "Product Discovery",
+        "posted_date": "2026-07-15",
+        "impressions": 142000,
+        "likes": 8900,
+        "comments": 1100,
+        "shares": 1400,
+        "saves": 1600,
+        "clicks": 4200,
+        "conversions": 198,
+    },
+    {
+        "id": "post_004",
+        "brand_id": "snitch",
+        "platform": "Instagram",
+        "format": "Reel",
+        "caption": "Parachute cargos in 3 colorways. Which one goes in your cart? Link in bio.",
+        "product_id": "prod_002",
+        "category": "Product Discovery",
+        "audience": "Gen-Z",
+        "objective": "Conversion",
+        "posted_date": "2026-07-10",
+        "impressions": 165000,
+        "likes": 9800,
+        "comments": 1240,
+        "shares": 1620,
+        "saves": 1890,
+        "clicks": 5100,
+        "conversions": 245,
+    },
+    {
+        "id": "post_005",
+        "brand_id": "snitch",
+        "platform": "Instagram",
+        "format": "Carousel",
+        "caption": "Old money aesthetic on an Indian budget. Pleated trousers styled 3 ways for work & weekends. 💼",
+        "product_id": "prod_004",
+        "category": "Styling",
+        "audience": "Young Millennial",
+        "objective": "Engagement",
+        "posted_date": "2026-07-08",
+        "impressions": 62000,
+        "likes": 2900,
+        "comments": 310,
+        "shares": 680,
+        "saves": 980,
+        "clicks": 1450,
+        "conversions": 62,
+    },
+    {
+        "id": "post_006",
+        "brand_id": "snitch",
+        "platform": "Instagram",
+        "format": "Carousel",
+        "caption": "The crochet polo: Date night vs Sunday brunch vs airport fit. Which slide won? ✈️",
+        "product_id": "prod_003",
         "category": "Styling",
         "audience": "Gen-Z",
         "objective": "Engagement",
-        "posted_date": "2026-06-22",
-        "impressions": 128000,
-        "likes": 7600,
-        "comments": 920,
-        "shares": 1200,
-        "saves": 1080,
-        "clicks": 3800,
-        "conversions": 145,
+        "posted_date": "2026-06-28",
+        "impressions": 71000,
+        "likes": 3400,
+        "comments": 380,
+        "shares": 790,
+        "saves": 1120,
+        "clicks": 1680,
+        "conversions": 74,
     },
-    # ── Educational Posts (medium ER: 5.9–6.5%) ───────────────────────────────
     {
-        "id": "post_009",
+        "id": "post_007",
+        "brand_id": "snitch",
         "platform": "Instagram",
         "format": "Carousel",
-        "caption": "Linen vs Cotton: Which one actually wins in Indian summers? 🌡️ We tested both so you don't have to.",
-        "product_id": "prod_001",
-        "category": "Education",
+        "caption": "Monochrome outfit formula that never fails. Black on black done right. 🖤",
+        "product_id": "prod_007",
+        "category": "Styling",
         "audience": "Gen-Z",
-        "objective": "Education",
-        "posted_date": "2026-07-02",
+        "objective": "Engagement",
+        "posted_date": "2026-06-18",
         "impressions": 55000,
-        "likes": 1800,
-        "comments": 420,
-        "shares": 380,
-        "saves": 820,
-        "clicks": 1100,
-        "conversions": 42,
+        "likes": 2400,
+        "comments": 220,
+        "shares": 490,
+        "saves": 720,
+        "clicks": 1120,
+        "conversions": 48,
+    },
+    {
+        "id": "post_008",
+        "brand_id": "snitch",
+        "platform": "Instagram",
+        "format": "Reel",
+        "caption": "How to layer in Indian summer (yes, it's actually possible). ☀️ Save for when you're getting dressed tomorrow.",
+        "product_id": "prod_001",
+        "category": "Styling",
+        "audience": "Gen-Z",
+        "objective": "Engagement",
+        "posted_date": "2026-07-25",
+        "impressions": 185000,
+        "likes": 12400,
+        "comments": 1620,
+        "shares": 2100,
+        "saves": 2800,
+        "clicks": 5800,
+        "conversions": 268,
+    },
+    {
+        "id": "post_009",
+        "brand_id": "snitch",
+        "platform": "Instagram",
+        "format": "Reel",
+        "caption": "Stop wearing skinny jeans. Here's why wide-leg & parachute pants look 10x better. 👖",
+        "product_id": "prod_002",
+        "category": "Styling",
+        "audience": "Gen-Z",
+        "objective": "Engagement",
+        "posted_date": "2026-07-18",
+        "impressions": 210000,
+        "likes": 14800,
+        "comments": 1950,
+        "shares": 2700,
+        "saves": 3400,
+        "clicks": 6900,
+        "conversions": 312,
     },
     {
         "id": "post_010",
+        "brand_id": "snitch",
         "platform": "Instagram",
-        "format": "Carousel",
-        "caption": "Why 240 GSM matters for your tee. A no-BS fabric guide for men. 🧵",
-        "product_id": "prod_007",
-        "category": "Education",
+        "format": "Reel",
+        "caption": "Get ready with me for a casual Friday at a design agency. ☕",
+        "product_id": "prod_004",
+        "category": "Styling",
         "audience": "Young Millennial",
-        "objective": "Education",
-        "posted_date": "2026-06-18",
-        "impressions": 48000,
-        "likes": 1500,
-        "comments": 360,
-        "shares": 310,
-        "saves": 740,
-        "clicks": 890,
-        "conversions": 31,
+        "objective": "Engagement",
+        "posted_date": "2026-07-04",
+        "impressions": 128000,
+        "likes": 7600,
+        "comments": 890,
+        "shares": 1150,
+        "saves": 1480,
+        "clicks": 3800,
+        "conversions": 154,
     },
     {
         "id": "post_011",
+        "brand_id": "snitch",
         "platform": "Instagram",
-        "format": "Carousel",
-        "caption": "How to dress for 40°C without looking like you just gave up. Summer styling 101. ☀️",
-        "product_id": "prod_001",
-        "category": "Education",
+        "format": "Reel",
+        "caption": "3 footwear rules every guy breaks. Retro Court sneaker breakdown. 👟",
+        "product_id": "prod_008",
+        "category": "Styling",
         "audience": "Gen-Z",
         "objective": "Education",
-        "posted_date": "2026-06-10",
-        "impressions": 62000,
-        "likes": 2100,
-        "comments": 480,
-        "shares": 420,
-        "saves": 910,
-        "clicks": 1300,
-        "conversions": 55,
+        "posted_date": "2026-06-22",
+        "impressions": 96000,
+        "likes": 5200,
+        "comments": 610,
+        "shares": 740,
+        "saves": 960,
+        "clicks": 2600,
+        "conversions": 118,
     },
-    # ── Static Product Flat-Lays (low ER: 2.3–2.9%) ───────────────────────────
     {
         "id": "post_012",
+        "brand_id": "snitch",
+        "platform": "Instagram",
+        "format": "Reel",
+        "caption": "The resort shirt you didn't know you needed. 🌴 Save this fit.",
+        "product_id": "prod_006",
+        "category": "Styling",
+        "audience": "Young Millennial",
+        "objective": "Product Discovery",
+        "posted_date": "2026-06-15",
+        "impressions": 108000,
+        "likes": 6100,
+        "comments": 720,
+        "shares": 880,
+        "saves": 1100,
+        "clicks": 3100,
+        "conversions": 139,
+    },
+    {
+        "id": "post_013",
+        "brand_id": "snitch",
         "platform": "Instagram",
         "format": "Static Post",
-        "caption": "New drop alert: The Oversized Korean Linen Shirt is here. Shop now. 🔗",
+        "caption": "Linen Shirt in Sage Green. Drop is live. Tap the link in bio to shop. 🌿",
         "product_id": "prod_001",
         "category": "Product",
         "audience": "Gen-Z",
-        "objective": "Product Discovery",
-        "posted_date": "2026-07-25",
+        "objective": "Conversion",
+        "posted_date": "2026-07-20",
         "impressions": 92000,
         "likes": 1400,
         "comments": 82,
         "shares": 95,
         "saves": 310,
-        "clicks": 2100,
-        "conversions": 165,
-    },
-    {
-        "id": "post_013",
-        "platform": "Instagram",
-        "format": "Static Post",
-        "caption": "The Cargo Pants that everyone is talking about. Available in 3 colourways. 🛒",
-        "product_id": "prod_002",
-        "category": "Product",
-        "audience": "Gen-Z",
-        "objective": "Product Discovery",
-        "posted_date": "2026-07-18",
-        "impressions": 88000,
-        "likes": 1200,
-        "comments": 61,
-        "shares": 74,
-        "saves": 280,
-        "clicks": 1980,
+        "clicks": 2800,
         "conversions": 142,
     },
     {
         "id": "post_014",
+        "brand_id": "snitch",
         "platform": "Instagram",
         "format": "Static Post",
-        "caption": "The Co-ord Set that makes packing easy. Summer sorted. 🌴",
-        "product_id": "prod_005",
+        "caption": "Parachute Cargos — Black & Olive restocked. Link in bio. 📦",
+        "product_id": "prod_002",
         "category": "Product",
         "audience": "Gen-Z",
-        "objective": "Product Discovery",
+        "objective": "Conversion",
         "posted_date": "2026-07-12",
-        "impressions": 76000,
-        "likes": 980,
-        "comments": 48,
-        "shares": 61,
-        "saves": 220,
-        "clicks": 1640,
-        "conversions": 98,
+        "impressions": 88000,
+        "likes": 1200,
+        "comments": 71,
+        "shares": 88,
+        "saves": 290,
+        "clicks": 2400,
+        "conversions": 128,
     },
     {
         "id": "post_015",
+        "brand_id": "snitch",
         "platform": "Instagram",
         "format": "Static Post",
         "caption": "Ribbed Polo. 5 colourways. Zero compromise. 🎨",
@@ -446,6 +550,7 @@ HISTORICAL_POSTS = [
     },
     {
         "id": "post_016",
+        "brand_id": "snitch",
         "platform": "Instagram",
         "format": "Static Post",
         "caption": "Heavyweight. Minimal. Yours. 240 GSM Graphic Tee — now in 8 designs.",
@@ -464,6 +569,7 @@ HISTORICAL_POSTS = [
     },
     {
         "id": "post_017",
+        "brand_id": "snitch",
         "platform": "Instagram",
         "format": "Static Post",
         "caption": "The only sneaker you need this season. Retro Court Chunky — available now.",
@@ -480,9 +586,9 @@ HISTORICAL_POSTS = [
         "clicks": 1870,
         "conversions": 88,
     },
-    # ── Social Proof / UGC-style (medium ER: 5.5–6.1%) ────────────────────────
     {
         "id": "post_018",
+        "brand_id": "snitch",
         "platform": "Instagram",
         "format": "Carousel",
         "caption": "You styled it better than us, honestly. 📸 Community fits featuring the Linen Shirt.",
@@ -501,6 +607,7 @@ HISTORICAL_POSTS = [
     },
     {
         "id": "post_019",
+        "brand_id": "snitch",
         "platform": "Instagram",
         "format": "Carousel",
         "caption": "10,000+ men chose the Cargo Pants this season. Here's what they said. 💬",
@@ -519,6 +626,7 @@ HISTORICAL_POSTS = [
     },
     {
         "id": "post_020",
+        "brand_id": "snitch",
         "platform": "Instagram",
         "format": "Carousel",
         "caption": "Our customers wore it to Goa, to work, and everywhere in between. Real fits, real stories. 🌊",
@@ -535,9 +643,9 @@ HISTORICAL_POSTS = [
         "clicks": 870,
         "conversions": 34,
     },
-    # ── Reel (product launch) ─────────────────────────────────────────────────
     {
         "id": "post_021",
+        "brand_id": "snitch",
         "platform": "Instagram",
         "format": "Reel",
         "caption": "Dropped: The Waffle Co-ord Set. First look. 🧇🤍",
@@ -556,6 +664,7 @@ HISTORICAL_POSTS = [
     },
     {
         "id": "post_022",
+        "brand_id": "snitch",
         "platform": "Instagram",
         "format": "Reel",
         "caption": "Introducing: The Retro Court Sneaker. Every fit just levelled up. 👟",
@@ -572,9 +681,9 @@ HISTORICAL_POSTS = [
         "clicks": 4100,
         "conversions": 189,
     },
-    # ── Static (promo / sale) ─────────────────────────────────────────────────
     {
         "id": "post_023",
+        "brand_id": "snitch",
         "platform": "Instagram",
         "format": "Static Post",
         "caption": "End of season sale. Up to 40% off on selected styles. Use code SUMMER40. 🛍️",
@@ -593,6 +702,7 @@ HISTORICAL_POSTS = [
     },
     {
         "id": "post_024",
+        "brand_id": "snitch",
         "platform": "Instagram",
         "format": "Static Post",
         "caption": "Last chance: The Linen Shirt is almost sold out in Sage & Beige. 👀",
@@ -611,6 +721,7 @@ HISTORICAL_POSTS = [
     },
     {
         "id": "post_025",
+        "brand_id": "snitch",
         "platform": "Instagram",
         "format": "Reel",
         "caption": "5 outfits. 5 different men. One brand. 🤝 Share this with a mate who needs a wardrobe upgrade.",
@@ -627,49 +738,227 @@ HISTORICAL_POSTS = [
         "clicks": 4700,
         "conversions": 214,
     },
+
+    # ── BLISSCLUB Posts ───────────────────────────────────────────────────────
+    {
+        "id": "post_bc_01",
+        "brand_id": "blissclub",
+        "platform": "Instagram",
+        "format": "Reel",
+        "caption": "Pockets so deep you can finally leave your handbag at home. ✨ Test with us!",
+        "product_id": "prod_bc_01",
+        "category": "Product Discovery",
+        "audience": "Women 22-38",
+        "objective": "Product Discovery",
+        "posted_date": "2026-08-01",
+        "impressions": 125000,
+        "likes": 7800,
+        "comments": 940,
+        "shares": 1320,
+        "saves": 1540,
+        "clicks": 3800,
+        "conversions": 210,
+    },
+
+    # ── THE SOULED STORE Posts ────────────────────────────────────────────────
+    {
+        "id": "post_tss_01",
+        "brand_id": "souled_store",
+        "platform": "Instagram",
+        "format": "Reel",
+        "caption": "Drop Alert: Marvel Retro Comic Drop is live now! Limited pieces only. 🔥",
+        "product_id": "prod_tss_01",
+        "category": "Product Launch",
+        "audience": "Gen-Z / Pop Culture Fans",
+        "objective": "Product Discovery",
+        "posted_date": "2026-08-02",
+        "impressions": 180000,
+        "likes": 11200,
+        "comments": 1450,
+        "shares": 2100,
+        "saves": 2300,
+        "clicks": 6200,
+        "conversions": 340,
+    },
+]
+
+# ──────────────────────────────────────────────────────────────────────────────
+# 4. INITIAL REPRESENTATIVE PRE-SCORED OPPORTUNITIES
+# ──────────────────────────────────────────────────────────────────────────────
+
+INITIAL_OPPORTUNITIES = [
+    # ── SNITCH Opportunities ──────────────────────────────────────────────────
+    {
+        "id": "opp_snitch_hero",
+        "brand_id": "snitch",
+        "analysis_run_id": "seed_run_01",
+        "title": "Summer Linen Lookbook: 3 Neutral Looks for Weekend Heat",
+        "content_angle": "Focus on airy styling with dropped shoulders and neutral layers for hot urban days.",
+        "audience": "Gen-Z",
+        "objective": "Engagement + Product Discovery",
+        "platform": "Instagram",
+        "format": "Reel",
+        "suggested_product_id": "prod_001",
+        "why": "Reel posts in the styling category outperform brand feed average by 1.8x engagement. The Oversized Korean Linen Shirt has highest catalog views (14.2K) and strong Summer campaign alignment.",
+        "historical_signal": "Styling Reels average 8.8% ER vs 4.8% brand feed average (1.8x multiplier).",
+        "product_signal": "Oversized Korean Linen Shirt: 14.2K views, 1,050 units sold (#1 catalog demand).",
+        "audience_signal": "Gen-Z audience drives 6.1% average ER across video formats.",
+        "seasonal_signal": "Summer Linen is directly tied to the active 'Summer 2026' campaign focus.",
+        "business_signal": "Drives immediate discovery and top-of-funnel acquisition for Summer 2026.",
+        "score": 93,
+        "score_breakdown": json.dumps({"historical": 24, "product": 23, "audience": 18, "seasonal": 14, "objective": 14}),
+        "confidence": "High",
+        "confidence_reason": "Based on 25 historical posts, 8 catalog products, and 3 strong performance signals.",
+        "created_at": "2026-08-20T10:00:00Z",
+        "is_demo": 1,
+    },
+    {
+        "id": "opp_snitch_02",
+        "brand_id": "snitch",
+        "analysis_run_id": "seed_run_01",
+        "title": "Cargo Fit Check: Parachute Pants in 3 Everyday Street Silhouettes",
+        "content_angle": "Showcase functional utility pockets and adjustable ankle toggles in motion.",
+        "audience": "Gen-Z",
+        "objective": "Conversion",
+        "platform": "Instagram",
+        "format": "Reel",
+        "suggested_product_id": "prod_002",
+        "why": "Parachute 6-Pocket Cargo has 13.8K views and low stock status, making urgent styling reels high-converting.",
+        "historical_signal": "Reel launch posts converted 189 sales with 9.8K likes.",
+        "product_signal": "Parachute 6-Pocket Cargo: 13.8K views, 1,200 units sold (Low Stock alert).",
+        "audience_signal": "Gen-Z streetwear affinity scores 18/20.",
+        "seasonal_signal": "All-season cargo utility pairs with seasonal summer tees.",
+        "business_signal": "Clear low-stock urgency to maximize inventory sell-through.",
+        "score": 88,
+        "score_breakdown": json.dumps({"historical": 22, "product": 24, "audience": 17, "seasonal": 12, "objective": 13}),
+        "confidence": "High",
+        "confidence_reason": "Based on 25 historical posts and 8 catalog products.",
+        "created_at": "2026-08-20T10:00:00Z",
+        "is_demo": 1,
+    },
+
+    # ── BLISSCLUB Opportunities ───────────────────────────────────────────────
+    {
+        "id": "opp_blissclub_hero",
+        "brand_id": "blissclub",
+        "analysis_run_id": "seed_run_01",
+        "title": "4 Pockets, Zero Bulk: The Everyday Flare Pants Fit Test",
+        "content_angle": "Stress-test 4 deep pockets with real essentials (phone, keys, cards) during yoga and commute.",
+        "audience": "Women 22-38",
+        "objective": "Product Discovery",
+        "platform": "Instagram",
+        "format": "Reel",
+        "suggested_product_id": "prod_bc_01",
+        "why": "Pocket utility demos generate 9.3% ER and 3.8K click-throughs.",
+        "historical_signal": "Feature demo reels outperform brand baseline by 2.1x.",
+        "product_signal": "The Ultimate Flare Pants: 18.2K views, #1 activewear seller.",
+        "audience_signal": "Working women demographic drives highest save-to-like ratio (1:5).",
+        "seasonal_signal": "Aligned with 'Move in Freedom' campaign.",
+        "business_signal": "Key revenue driver for everyday athleisure acquisition.",
+        "score": 95,
+        "score_breakdown": json.dumps({"historical": 25, "product": 25, "audience": 18, "seasonal": 13, "objective": 14}),
+        "confidence": "High",
+        "confidence_reason": "Based on high historical engagement and catalog velocity.",
+        "created_at": "2026-08-20T10:00:00Z",
+        "is_demo": 1,
+    },
+
+    # ── THE SOULED STORE Opportunities ────────────────────────────────────────
+    {
+        "id": "opp_tss_hero",
+        "brand_id": "souled_store",
+        "analysis_run_id": "seed_run_01",
+        "title": "Vintage Marvel Drop: 3 Ways to Style Oversized Comic Tees",
+        "content_angle": "Streetwear layering with vintage comic back-prints and baggy denim.",
+        "audience": "Gen-Z / Pop Culture Fans",
+        "objective": "Engagement + Product Discovery",
+        "platform": "Instagram",
+        "format": "Reel",
+        "suggested_product_id": "prod_tss_01",
+        "why": "Licensed Marvel drops generate viral engagement spikes (11.2K likes, 6.2K clicks).",
+        "historical_signal": "Drop alert Reels achieve 9.6% ER vs 5.2% brand feed avg.",
+        "product_signal": "Marvel Oversized Vintage Tee: 22.1K views, 1,890 units sold.",
+        "audience_signal": "Pop culture collectors have 82% repeat purchase affinity.",
+        "seasonal_signal": "Direct match for 'Fandom Street Drop' campaign.",
+        "business_signal": "Immediate hype and rapid drop sell-through.",
+        "score": 96,
+        "score_breakdown": json.dumps({"historical": 25, "product": 25, "audience": 19, "seasonal": 13, "objective": 14}),
+        "confidence": "High",
+        "confidence_reason": "Based on viral drop metrics and high collector demand.",
+        "created_at": "2026-08-20T10:00:00Z",
+        "is_demo": 1,
+    },
 ]
 
 
 async def seed_database(db) -> None:
     """
-    Insert brand, products, and historical posts if tables are empty.
+    Insert multi-brand profiles, products, historical posts, and pre-scored opportunities.
     Safe to call on every startup — uses INSERT OR IGNORE.
     """
-    logger.info("Checking if seed data is needed...")
+    logger.info("Checking if multi-brand seed data is needed...")
 
-    async with db.execute("SELECT COUNT(*) FROM brand") as cursor:
+    async with db.execute("SELECT COUNT(*) FROM brands") as cursor:
         row = await cursor.fetchone()
-        brand_count = row[0]
+        brand_count = row[0] if row else 0
 
     if brand_count > 0:
-        logger.info("Database already seeded. Skipping.")
+        logger.info("Database already seeded with %d brands. Skipping.", brand_count)
         return
 
-    logger.info("Seeding SNITCH-inspired demo data...")
+    logger.info("Seeding multi-brand demo datasets (SNITCH, BLISSCLUB, THE SOULED STORE)...")
 
-    await db.execute(
-        "INSERT OR IGNORE INTO brand VALUES (:id,:name,:description,:tone,:audience,:campaign)",
-        BRAND,
-    )
+    for brand in BRANDS:
+        await db.execute(
+            """INSERT OR IGNORE INTO brands (id, workspace_id, name, description, tone, audience, campaign)
+               VALUES (:id, :workspace_id, :name, :description, :tone, :audience, :campaign)""",
+            brand,
+        )
 
     for product in PRODUCTS:
         await db.execute(
-            """INSERT OR IGNORE INTO products VALUES (
-                :id,:name,:category,:price_inr,:description,
-                :features,:season,:target_audience,:inventory_status,:views,:sales
+            """INSERT OR IGNORE INTO products (
+                id, brand_id, name, category, price_inr, description, features,
+                season, target_audience, inventory_status, views, sales
+            ) VALUES (
+                :id, :brand_id, :name, :category, :price_inr, :description, :features,
+                :season, :target_audience, :inventory_status, :views, :sales
             )""",
             product,
         )
 
     for post in HISTORICAL_POSTS:
         await db.execute(
-            """INSERT OR IGNORE INTO historical_posts VALUES (
-                :id,:platform,:format,:caption,:product_id,:category,
-                :audience,:objective,:posted_date,:impressions,:likes,
-                :comments,:shares,:saves,:clicks,:conversions
+            """INSERT OR IGNORE INTO historical_posts (
+                id, brand_id, platform, format, caption, product_id, category,
+                audience, objective, posted_date, impressions, likes, comments,
+                shares, saves, clicks, conversions
+            ) VALUES (
+                :id, :brand_id, :platform, :format, :caption, :product_id, :category,
+                :audience, :objective, :posted_date, :impressions, :likes, :comments,
+                :shares, :saves, :clicks, :conversions
             )""",
             post,
         )
 
+    for opp in INITIAL_OPPORTUNITIES:
+        await db.execute(
+            """INSERT OR IGNORE INTO opportunities (
+                id, brand_id, analysis_run_id, title, content_angle, audience, objective,
+                platform, format, suggested_product_id, why, historical_signal,
+                product_signal, audience_signal, seasonal_signal, business_signal,
+                score, score_breakdown, confidence, confidence_reason, created_at, is_demo
+            ) VALUES (
+                :id, :brand_id, :analysis_run_id, :title, :content_angle, :audience, :objective,
+                :platform, :format, :suggested_product_id, :why, :historical_signal,
+                :product_signal, :audience_signal, :seasonal_signal, :business_signal,
+                :score, :score_breakdown, :confidence, :confidence_reason, :created_at, :is_demo
+            )""",
+            opp,
+        )
+
     await db.commit()
-    logger.info("Seed complete: 1 brand, %d products, %d posts", len(PRODUCTS), len(HISTORICAL_POSTS))
+    logger.info(
+        "Seed complete: %d brands, %d products, %d posts, %d opportunities",
+        len(BRANDS), len(PRODUCTS), len(HISTORICAL_POSTS), len(INITIAL_OPPORTUNITIES),
+    )

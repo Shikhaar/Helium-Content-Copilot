@@ -42,6 +42,10 @@ export default function Home() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState(false);
 
+  // Multi-brand state
+  const [brands, setBrands] = React.useState<Brand[]>([]);
+  const [selectedBrandId, setSelectedBrandId] = React.useState<string>('snitch');
+
   // Data state
   const [brand, setBrand] = React.useState<Brand | null>(null);
   const [products, setProducts] = React.useState<Product[]>([]);
@@ -61,7 +65,39 @@ export default function Home() {
   // Error state
   const [error, setError] = React.useState<string | null>(null);
 
-  // Load initial data
+  // Function to load all data for a specific brand
+  const loadBrandData = React.useCallback(async (brandId: string) => {
+    try {
+      setError(null);
+      const [b, p, perf, cal, opps] = await Promise.all([
+        api.getBrand(brandId),
+        api.getProducts(brandId),
+        api.getPerformance(brandId),
+        api.getCalendar(brandId),
+        api.getOpportunities(brandId),
+      ]);
+
+      setBrand(b);
+      setProducts(p);
+      setPerformance(perf);
+      setCalendarEntries(cal);
+
+      if (opps.length > 0) {
+        setAnalyzeResult({
+          opportunities: opps,
+          performance_summary: perf,
+          is_demo: opps[0].is_demo,
+        });
+      } else {
+        setAnalyzeResult(null);
+      }
+    } catch (e) {
+      console.error(`Failed to load brand data for '${brandId}':`, e);
+      setError(`Could not load brand data for '${brandId}'.`);
+    }
+  }, []);
+
+  // Load initial brands list and active brand data
   React.useEffect(() => {
     const loadBootstrap = async () => {
       try {
@@ -70,33 +106,29 @@ export default function Home() {
           setApiAuthToken(token);
         }
 
-        const [b, p, perf, cal] = await Promise.all([
-          api.getBrand(),
-          api.getProducts(),
-          api.getPerformance(),
-          api.getCalendar(),
-        ]);
-        setBrand(b);
-        setProducts(p);
-        setPerformance(perf);
-        setCalendarEntries(cal);
-
-        // Try to load existing opportunities
-        const opps = await api.getOpportunities();
-        if (opps.length > 0) {
-          setAnalyzeResult({
-            opportunities: opps,
-            performance_summary: perf,
-            is_demo: opps[0].is_demo,
-          });
-        }
+        const brandsList = await api.listBrands();
+        setBrands(brandsList);
+        const initialBrandId = brandsList.length > 0 ? brandsList[0].id : 'snitch';
+        setSelectedBrandId(initialBrandId);
+        await loadBrandData(initialBrandId);
       } catch (e) {
         console.error('Bootstrap failed:', e);
         setError('Could not connect to BrandBrew backend. Is it running on port 8000?');
       }
     };
     loadBootstrap();
-  }, [isSignedIn, getToken]);
+  }, [isSignedIn, getToken, loadBrandData]);
+
+  // Brand Switcher Handler
+  const handleBrandChange = async (brandId: string) => {
+    setSelectedBrandId(brandId);
+    setSelectedOpportunity(null);
+    setCurrentDraft(null);
+    setGenerateRequest(null);
+    setScreen({ name: 'dashboard' });
+    setActiveTab('opportunities');
+    await loadBrandData(brandId);
+  };
 
   // Navigation helpers
   const navigate = (s: Screen) => {
@@ -117,17 +149,13 @@ export default function Home() {
     setError(null);
 
     if (tab === 'opportunities') {
-      // Go to the main opportunities list hub
       setScreen({ name: 'dashboard' });
     } else if (tab === 'create') {
-      // If we have a draft already, go straight to the studio
       if (currentDraft && selectedOpportunity) {
         navigate({ name: 'create', opportunityId: selectedOpportunity.id });
       } else if (selectedOpportunity) {
-        // Have an opportunity chosen — trigger generation
         handleGenerateContent(selectedOpportunity.id);
       } else {
-        // Direct to Content Studio's Opportunity Picker screen
         navigate({ name: 'create' });
       }
     } else if (tab === 'calendar') {
@@ -137,12 +165,12 @@ export default function Home() {
     }
   };
 
-  // Analysis
+  // Analysis (Runs 2-Stage Recommendation Engine for the selected brand)
   const handleAnalyze = async () => {
     setIsAnalyzing(true);
     setError(null);
     try {
-      const result = await api.analyze();
+      const result = await api.analyze(selectedBrandId);
       setAnalyzeResult(result);
     } catch (e: any) {
       setError(e.message || 'Analysis failed. Please try again.');
@@ -154,7 +182,7 @@ export default function Home() {
   // View opportunity
   const handleViewOpportunity = async (id: string) => {
     const opp = analyzeResult?.opportunities.find(o => o.id === id)
-      || await api.getOpportunity(id).catch(() => null);
+      || await api.getOpportunity(id, selectedBrandId).catch(() => null);
     if (opp) {
       setSelectedOpportunity(opp);
       navigate({ name: 'opportunity', id });
@@ -170,7 +198,7 @@ export default function Home() {
     if (!targetOpp) return;
 
     setSelectedOpportunity(targetOpp);
-    setCurrentDraft(null); // Clear previous draft so user doesn't see old slides while generating
+    setCurrentDraft(null);
 
     const req: GenerateContentRequest = {
       opportunity_id: targetOpp.id,
@@ -226,7 +254,7 @@ export default function Home() {
     try {
       const updated = await api.scheduleDraft(currentDraft.id, req);
       setCurrentDraft(updated);
-      const cal = await api.getCalendar();
+      const cal = await api.getCalendar(selectedBrandId);
       setCalendarEntries(cal);
       return updated;
     } catch (e: any) {
@@ -235,7 +263,7 @@ export default function Home() {
     }
   };
 
-  // Update draft (caption, cta, hashtags, slides)
+  // Update draft
   const handleUpdateDraft = async (updates: Partial<Pick<ContentDraft, 'caption' | 'cta' | 'hashtags' | 'slides'>>) => {
     if (!currentDraft) return;
     try {
@@ -255,14 +283,14 @@ export default function Home() {
   const handleDeleteCalendarEntry = async (id: string) => {
     try {
       await api.deleteCalendarEntry(id);
-      const cal = await api.getCalendar();
+      const cal = await api.getCalendar(selectedBrandId);
       setCalendarEntries(cal);
     } catch (e: any) {
       setError(e.message || 'Failed to remove calendar entry.');
     }
   };
 
-  // Reschedule Calendar Entry (Drag and drop or quick edit)
+  // Reschedule Calendar Entry
   const handleRescheduleCalendarEntry = async (entryId: string, draftId: string, newDate: string, newTime?: string) => {
     try {
       const existing = calendarEntries.find(c => c.id === entryId);
@@ -275,7 +303,7 @@ export default function Home() {
       if (currentDraft && currentDraft.id === draftId) {
         setCurrentDraft(updated);
       }
-      const cal = await api.getCalendar();
+      const cal = await api.getCalendar(selectedBrandId);
       setCalendarEntries(cal);
       return updated;
     } catch (e: any) {
@@ -291,7 +319,7 @@ export default function Home() {
       if (draft) {
         setCurrentDraft(draft);
         const opp = analyzeResult?.opportunities.find(o => o.id === draft.opportunity_id)
-          || await api.getOpportunity(draft.opportunity_id).catch(() => null)
+          || await api.getOpportunity(draft.opportunity_id, selectedBrandId).catch(() => null)
           || (analyzeResult?.opportunities.find(o => o.format.toLowerCase() === draft.format.toLowerCase()) || analyzeResult?.opportunities[0] || null);
         if (opp) {
           setSelectedOpportunity(opp);
@@ -306,8 +334,10 @@ export default function Home() {
   // Brand Guidelines Update
   const handleUpdateBrand = async (updates: UpdateBrandRequest) => {
     try {
-      const updated = await api.updateBrand(updates);
+      const updated = await api.updateBrand(updates, selectedBrandId);
       setBrand(updated);
+      const updatedBrands = await api.listBrands();
+      setBrands(updatedBrands);
     } catch (e: any) {
       setError(e.message || 'Failed to update brand guidelines.');
     }
@@ -316,7 +346,7 @@ export default function Home() {
   // Create Product in Catalog
   const handleCreateProduct = async (req: CreateProductRequest) => {
     try {
-      const newProd = await api.createProduct(req);
+      const newProd = await api.createProduct(req, selectedBrandId);
       setProducts(prev => [newProd, ...prev]);
     } catch (e: any) {
       setError(e.message || 'Failed to add product to catalog.');
@@ -326,7 +356,7 @@ export default function Home() {
   // Delete Product from Catalog
   const handleDeleteProduct = async (id: string) => {
     try {
-      await api.deleteProduct(id);
+      await api.deleteProduct(id, selectedBrandId);
       setProducts(prev => prev.filter(p => p.id !== id));
     } catch (e: any) {
       setError(e.message || 'Failed to delete product.');
@@ -447,7 +477,7 @@ export default function Home() {
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-primary)' }}>
-      {/* Responsive Sidebar & Drawer */}
+      {/* Responsive Sidebar with Multi-Brand Workspace Selector */}
       <Sidebar
         activeTab={activeTab}
         onTabChange={handleTabChange}
@@ -458,6 +488,9 @@ export default function Home() {
         onToggleCollapse={() => setIsSidebarCollapsed(c => !c)}
         brandName={brand?.name || 'SNITCH'}
         campaign={brand?.campaign || 'Summer 2026'}
+        brands={brands}
+        activeBrandId={selectedBrandId}
+        onSelectBrand={handleBrandChange}
       />
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>

@@ -72,6 +72,7 @@ class BrandAudience(BaseModel):
 
 class Brand(BaseModel):
     id: str
+    workspace_id: str = "default_workspace"
     name: str
     description: str
     tone: list[str]
@@ -81,6 +82,7 @@ class Brand(BaseModel):
 
 class Product(BaseModel):
     id: str
+    brand_id: str = "snitch"
     name: str
     category: str
     price_inr: int
@@ -95,6 +97,7 @@ class Product(BaseModel):
 
 class HistoricalPost(BaseModel):
     id: str
+    brand_id: str = "snitch"
     platform: str
     format: str
     caption: str
@@ -150,8 +153,24 @@ class PerformanceSummary(BaseModel):
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Opportunity Scoring
+# Opportunity Scoring & Candidate Generation
 # ──────────────────────────────────────────────────────────────────────────────
+
+class CandidateOpportunity(BaseModel):
+    """
+    Unscored opportunity candidate produced by CandidateGenerationService.
+    Represents a plausible Product × Winning Format × Audience × Campaign Context combination.
+    """
+    product_id: str
+    product_name: str
+    format: str
+    platform: str
+    audience: str
+    objective: str
+    campaign: str
+    category: str
+    inventory_status: str
+
 
 class ScoreBreakdown(BaseModel):
     historical: int = Field(..., ge=0, le=25, description="Historical performance score /25")
@@ -195,11 +214,13 @@ class AIOpportunitiesResponse(BaseModel):
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Full Opportunity (AI signals + computed score)
+# Full Opportunity (AI signals + computed score + brand tenancy)
 # ──────────────────────────────────────────────────────────────────────────────
 
 class Opportunity(BaseModel):
     id: str
+    brand_id: str = "snitch"
+    analysis_run_id: str | None = None
     title: str
     content_angle: str
     audience: str
@@ -251,6 +272,7 @@ class GenerateContentRequest(BaseModel):
 
 class ContentDraft(BaseModel):
     id: str
+    brand_id: str = "snitch"
     opportunity_id: str
     platform: str
     format: str
@@ -287,6 +309,7 @@ class ScheduleRequest(BaseModel):
 
 class CalendarEntry(BaseModel):
     id: str
+    brand_id: str = "snitch"
     draft_id: str
     title: str
     platform: str

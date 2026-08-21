@@ -1,11 +1,9 @@
 """
-Repository layer — clean, typed access to SQLite tables.
+Repository layer — clean, typed, brand-scoped access to persistent tables.
 
 Pattern:
   BaseRepository[T]  →  concrete repos per entity.
-
-Each repository receives a live aiosqlite.Connection (injected per request)
-so transactions and connection lifetimes stay under FastAPI's control.
+  All brand-owned entity queries are explicitly scoped by `brand_id`.
 """
 from __future__ import annotations
 
@@ -63,29 +61,63 @@ class BaseRepository(Generic[T]):
 # ──────────────────────────────────────────────────────────────────────────────
 
 class BrandRepository(BaseRepository[Brand]):
-    """Access to the brand guidelines and profile record."""
+    """Access to brand profiles and workspace tenancy."""
+
+    async def list_all(self, workspace_id: str | None = None) -> list[Brand]:
+        logger.debug("BrandRepository.list_all(workspace_id=%s)", workspace_id)
+        if workspace_id:
+            query = "SELECT * FROM brands WHERE workspace_id = ? ORDER BY name ASC"
+            params = (workspace_id,)
+        else:
+            query = "SELECT * FROM brands ORDER BY name ASC"
+            params = ()
+        async with self._db.execute(query, params) as cursor:
+            rows = await cursor.fetchall()
+        return [self._row_to_brand(r) for r in rows]
+
+    async def get_by_id(self, brand_id: str) -> Brand | None:
+        logger.debug("BrandRepository.get_by_id(brand_id='%s')", brand_id)
+        async with self._db.execute("SELECT * FROM brands WHERE id = ?", (brand_id,)) as cursor:
+            row = await cursor.fetchone()
+        return self._row_to_brand(row) if row else None
 
     async def get(self) -> Brand | None:
-        logger.debug("BrandRepository.get()")
-        async with self._db.execute("SELECT * FROM brand LIMIT 1") as cursor:
+        """Backwards-compatible getter for default brand (SNITCH)."""
+        brand = await self.get_by_id("snitch")
+        if brand:
+            return brand
+        async with self._db.execute("SELECT * FROM brands LIMIT 1") as cursor:
             row = await cursor.fetchone()
-        if row is None:
-            return None
-        return Brand(
-            id=row["id"],
-            name=row["name"],
-            description=row["description"],
-            tone=json.loads(row["tone"]),
-            audience=BrandAudience(**json.loads(row["audience"])),
-            campaign=row["campaign"],
+        return self._row_to_brand(row) if row else None
+
+    async def create(self, brand: Brand) -> Brand:
+        logger.info("Creating brand id=%s name='%s'", brand.id, brand.name)
+        now = self._now_iso()
+        await self._db.execute(
+            """INSERT INTO brands (id, workspace_id, name, description, tone, audience, campaign, created_at, updated_at)
+               VALUES (:id, :workspace_id, :name, :description, :tone, :audience, :campaign, :created_at, :updated_at)""",
+            {
+                "id": brand.id,
+                "workspace_id": brand.workspace_id,
+                "name": brand.name,
+                "description": brand.description,
+                "tone": json.dumps(brand.tone),
+                "audience": json.dumps(brand.audience.model_dump()),
+                "campaign": brand.campaign,
+                "created_at": now,
+                "updated_at": now,
+            },
         )
+        await self._db.commit()
+        return brand
 
     async def update(self, brand: Brand) -> Brand:
         logger.info("Updating brand id=%s campaign='%s'", brand.id, brand.campaign)
+        now = self._now_iso()
         await self._db.execute(
-            """UPDATE brand SET
+            """UPDATE brands SET
                 name=:name, description=:description, tone=:tone,
-                audience=:audience, campaign=:campaign
+                audience=:audience, campaign=:campaign, updated_at=:updated_at
             WHERE id=:id""",
             {
                 "id": brand.id,
@@ -94,10 +126,23 @@ class BrandRepository(BaseRepository[Brand]):
                 "tone": json.dumps(brand.tone),
                 "audience": json.dumps(brand.audience.model_dump()),
                 "campaign": brand.campaign,
+                "updated_at": now,
             },
         )
         await self._db.commit()
         return brand
+
+    @staticmethod
+    def _row_to_brand(row: aiosqlite.Row) -> Brand:
+        return Brand(
+            id=row["id"],
+            workspace_id=row["workspace_id"] if "workspace_id" in row.keys() else "default_workspace",
+            name=row["name"],
+            description=row["description"],
+            tone=json.loads(row["tone"]),
+            audience=BrandAudience(**json.loads(row["audience"])),
+            campaign=row["campaign"],
+        )
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -105,31 +150,45 @@ class BrandRepository(BaseRepository[Brand]):
 # ──────────────────────────────────────────────────────────────────────────────
 
 class ProductRepository(BaseRepository[Product]):
-    async def list_all(self) -> list[Product]:
-        logger.debug("ProductRepository.list_all()")
-        async with self._db.execute("SELECT * FROM products ORDER BY views DESC") as cursor:
+    async def list_all(self, brand_id: str | None = None) -> list[Product]:
+        logger.debug("ProductRepository.list_all(brand_id=%s)", brand_id)
+        if brand_id:
+            query = "SELECT * FROM products WHERE brand_id = ? ORDER BY views DESC"
+            params = (brand_id,)
+        else:
+            query = "SELECT * FROM products ORDER BY views DESC"
+            params = ()
+        async with self._db.execute(query, params) as cursor:
             rows = await cursor.fetchall()
         return [self._row_to_product(r) for r in rows]
 
-    async def get_by_id(self, product_id: str) -> Product | None:
-        async with self._db.execute(
-            "SELECT * FROM products WHERE id = ?", (product_id,)
-        ) as cursor:
+    async def get_by_id(self, product_id: str, brand_id: str | None = None) -> Product | None:
+        if brand_id:
+            query = "SELECT * FROM products WHERE id = ? AND brand_id = ?"
+            params = (product_id, brand_id)
+        else:
+            query = "SELECT * FROM products WHERE id = ?"
+            params = (product_id,)
+        async with self._db.execute(query, params) as cursor:
             row = await cursor.fetchone()
         return self._row_to_product(row) if row else None
 
-    async def create(self, product: Product) -> Product:
-        logger.info("Creating product id=%s name='%s'", product.id, product.name)
+    async def create(self, product: Product, brand_id: str | None = None) -> Product:
+        effective_brand_id = brand_id or product.brand_id or "snitch"
+        product.brand_id = effective_brand_id
+        logger.info("Creating product id=%s name='%s' brand_id=%s", product.id, product.name, effective_brand_id)
+        now = self._now_iso()
         await self._db.execute(
             """INSERT INTO products (
-                id, name, category, price_inr, description, features,
-                season, target_audience, inventory_status, views, sales
+                id, brand_id, name, category, price_inr, description, features,
+                season, target_audience, inventory_status, views, sales, created_at, updated_at
             ) VALUES (
-                :id, :name, :category, :price_inr, :description, :features,
-                :season, :target_audience, :inventory_status, :views, :sales
+                :id, :brand_id, :name, :category, :price_inr, :description, :features,
+                :season, :target_audience, :inventory_status, :views, :sales, :created_at, :updated_at
             )""",
             {
                 "id": product.id,
+                "brand_id": effective_brand_id,
                 "name": product.name,
                 "category": product.category,
                 "price_inr": product.price_inr,
@@ -137,23 +196,31 @@ class ProductRepository(BaseRepository[Product]):
                 "features": json.dumps(product.features),
                 "season": product.season,
                 "target_audience": product.target_audience,
-                "inventory_status": product.inventory_status.value,
+                "inventory_status": product.inventory_status.value
+                if hasattr(product.inventory_status, "value")
+                else str(product.inventory_status),
                 "views": product.views,
                 "sales": product.sales,
+                "created_at": now,
+                "updated_at": now,
             },
         )
         await self._db.commit()
         return product
 
-    async def delete(self, product_id: str) -> None:
-        logger.info("Deleting product id=%s", product_id)
-        await self._db.execute("DELETE FROM products WHERE id = ?", (product_id,))
+    async def delete(self, product_id: str, brand_id: str | None = None) -> None:
+        logger.info("Deleting product id=%s brand_id=%s", product_id, brand_id)
+        if brand_id:
+            await self._db.execute("DELETE FROM products WHERE id = ? AND brand_id = ?", (product_id, brand_id))
+        else:
+            await self._db.execute("DELETE FROM products WHERE id = ?", (product_id,))
         await self._db.commit()
 
     @staticmethod
     def _row_to_product(row: aiosqlite.Row) -> Product:
         return Product(
             id=row["id"],
+            brand_id=row["brand_id"] if "brand_id" in row.keys() else "snitch",
             name=row["name"],
             category=row["category"],
             price_inr=row["price_inr"],
@@ -172,18 +239,59 @@ class ProductRepository(BaseRepository[Product]):
 # ──────────────────────────────────────────────────────────────────────────────
 
 class PostRepository(BaseRepository[HistoricalPost]):
-    async def list_all(self) -> list[HistoricalPost]:
-        logger.debug("PostRepository.list_all()")
-        async with self._db.execute(
-            "SELECT * FROM historical_posts ORDER BY posted_date DESC"
-        ) as cursor:
+    async def list_all(self, brand_id: str | None = None) -> list[HistoricalPost]:
+        logger.debug("PostRepository.list_all(brand_id=%s)", brand_id)
+        if brand_id:
+            query = "SELECT * FROM historical_posts WHERE brand_id = ? ORDER BY posted_date DESC"
+            params = (brand_id,)
+        else:
+            query = "SELECT * FROM historical_posts ORDER BY posted_date DESC"
+            params = ()
+        async with self._db.execute(query, params) as cursor:
             rows = await cursor.fetchall()
         return [self._row_to_post(r) for r in rows]
+
+    async def create(self, post: HistoricalPost, brand_id: str | None = None) -> HistoricalPost:
+        effective_brand_id = brand_id or post.brand_id or "snitch"
+        post.brand_id = effective_brand_id
+        await self._db.execute(
+            """INSERT INTO historical_posts (
+                id, brand_id, platform, format, caption, product_id, category,
+                audience, objective, posted_date, impressions, likes, comments,
+                shares, saves, clicks, conversions
+            ) VALUES (
+                :id, :brand_id, :platform, :format, :caption, :product_id, :category,
+                :audience, :objective, :posted_date, :impressions, :likes, :comments,
+                :shares, :saves, :clicks, :conversions
+            )""",
+            {
+                "id": post.id,
+                "brand_id": effective_brand_id,
+                "platform": post.platform,
+                "format": post.format,
+                "caption": post.caption,
+                "product_id": post.product_id,
+                "category": post.category,
+                "audience": post.audience,
+                "objective": post.objective,
+                "posted_date": post.posted_date,
+                "impressions": post.impressions,
+                "likes": post.likes,
+                "comments": post.comments,
+                "shares": post.shares,
+                "saves": post.saves,
+                "clicks": post.clicks,
+                "conversions": post.conversions,
+            },
+        )
+        await self._db.commit()
+        return post
 
     @staticmethod
     def _row_to_post(row: aiosqlite.Row) -> HistoricalPost:
         return HistoricalPost(
             id=row["id"],
+            brand_id=row["brand_id"] if "brand_id" in row.keys() else "snitch",
             platform=row["platform"],
             format=row["format"],
             caption=row["caption"],
@@ -207,13 +315,24 @@ class PostRepository(BaseRepository[HistoricalPost]):
 # ──────────────────────────────────────────────────────────────────────────────
 
 class OpportunityRepository(BaseRepository[Opportunity]):
-    async def save_all(self, opportunities: list[Opportunity]) -> None:
-        logger.info("Saving %d opportunities to DB", len(opportunities))
-        await self._db.execute("DELETE FROM opportunities")
+    async def save_all(
+        self,
+        opportunities: list[Opportunity],
+        brand_id: str | None = None,
+        analysis_run_id: str | None = None,
+    ) -> None:
+        effective_brand_id = brand_id or (opportunities[0].brand_id if opportunities else "snitch")
+        logger.info("Saving %d opportunities to DB for brand='%s'", len(opportunities), effective_brand_id)
+        
+        # Delete previous opportunities for this brand to prevent stale duplicates
+        await self._db.execute("DELETE FROM opportunities WHERE brand_id = ?", (effective_brand_id,))
         for opp in opportunities:
+            opp.brand_id = effective_brand_id
+            if analysis_run_id:
+                opp.analysis_run_id = analysis_run_id
             await self._db.execute(
                 """INSERT INTO opportunities VALUES (
-                    :id,:title,:content_angle,:audience,:objective,:platform,
+                    :id,:brand_id,:analysis_run_id,:title,:content_angle,:audience,:objective,:platform,
                     :format,:suggested_product_id,:why,:historical_signal,
                     :product_signal,:audience_signal,:seasonal_signal,
                     :business_signal,:score,:score_breakdown,:confidence,
@@ -221,6 +340,8 @@ class OpportunityRepository(BaseRepository[Opportunity]):
                 )""",
                 {
                     "id": opp.id,
+                    "brand_id": effective_brand_id,
+                    "analysis_run_id": opp.analysis_run_id,
                     "title": opp.title,
                     "content_angle": opp.content_angle,
                     "audience": opp.audience,
@@ -236,7 +357,9 @@ class OpportunityRepository(BaseRepository[Opportunity]):
                     "business_signal": opp.business_signal,
                     "score": opp.score,
                     "score_breakdown": opp.score_breakdown.model_dump_json(),
-                    "confidence": opp.confidence.value,
+                    "confidence": opp.confidence.value
+                    if hasattr(opp.confidence, "value")
+                    else str(opp.confidence),
                     "confidence_reason": opp.confidence_reason,
                     "created_at": opp.created_at,
                     "is_demo": int(opp.is_demo),
@@ -244,17 +367,26 @@ class OpportunityRepository(BaseRepository[Opportunity]):
             )
         await self._db.commit()
 
-    async def list_all(self) -> list[Opportunity]:
-        async with self._db.execute(
-            "SELECT * FROM opportunities ORDER BY score DESC"
-        ) as cursor:
+    async def list_all(self, brand_id: str | None = None) -> list[Opportunity]:
+        logger.debug("OpportunityRepository.list_all(brand_id=%s)", brand_id)
+        if brand_id:
+            query = "SELECT * FROM opportunities WHERE brand_id = ? ORDER BY score DESC"
+            params = (brand_id,)
+        else:
+            query = "SELECT * FROM opportunities ORDER BY score DESC"
+            params = ()
+        async with self._db.execute(query, params) as cursor:
             rows = await cursor.fetchall()
         return [self._row_to_opportunity(r) for r in rows]
 
-    async def get_by_id(self, opportunity_id: str) -> Opportunity | None:
-        async with self._db.execute(
-            "SELECT * FROM opportunities WHERE id = ?", (opportunity_id,)
-        ) as cursor:
+    async def get_by_id(self, opportunity_id: str, brand_id: str | None = None) -> Opportunity | None:
+        if brand_id:
+            query = "SELECT * FROM opportunities WHERE id = ? AND brand_id = ?"
+            params = (opportunity_id, brand_id)
+        else:
+            query = "SELECT * FROM opportunities WHERE id = ?"
+            params = (opportunity_id,)
+        async with self._db.execute(query, params) as cursor:
             row = await cursor.fetchone()
         return self._row_to_opportunity(row) if row else None
 
@@ -263,6 +395,8 @@ class OpportunityRepository(BaseRepository[Opportunity]):
         breakdown_data = json.loads(row["score_breakdown"])
         return Opportunity(
             id=row["id"],
+            brand_id=row["brand_id"] if "brand_id" in row.keys() else "snitch",
+            analysis_run_id=row["analysis_run_id"] if "analysis_run_id" in row.keys() else None,
             title=row["title"],
             content_angle=row["content_angle"],
             audience=row["audience"],
@@ -291,16 +425,19 @@ class OpportunityRepository(BaseRepository[Opportunity]):
 # ──────────────────────────────────────────────────────────────────────────────
 
 class ContentRepository(BaseRepository[ContentDraft]):
-    async def create(self, draft: ContentDraft) -> ContentDraft:
-        logger.info("Creating content draft id=%s status=%s", draft.id, draft.status)
+    async def create(self, draft: ContentDraft, brand_id: str | None = None) -> ContentDraft:
+        effective_brand_id = brand_id or draft.brand_id or "snitch"
+        draft.brand_id = effective_brand_id
+        logger.info("Creating content draft id=%s brand_id=%s status=%s", draft.id, effective_brand_id, draft.status)
         await self._db.execute(
             """INSERT INTO content_drafts VALUES (
-                :id,:opportunity_id,:platform,:format,:audience,:objective,
+                :id,:brand_id,:opportunity_id,:platform,:format,:audience,:objective,
                 :slides,:caption,:cta,:hashtags,:status,
                 :scheduled_date,:scheduled_time,:created_at,:updated_at,:is_demo
             )""",
             {
                 "id": draft.id,
+                "brand_id": effective_brand_id,
                 "opportunity_id": draft.opportunity_id,
                 "platform": draft.platform,
                 "format": draft.format,
@@ -310,7 +447,7 @@ class ContentRepository(BaseRepository[ContentDraft]):
                 "caption": draft.caption,
                 "cta": draft.cta,
                 "hashtags": json.dumps(draft.hashtags),
-                "status": draft.status.value,
+                "status": draft.status.value if hasattr(draft.status, "value") else str(draft.status),
                 "scheduled_date": draft.scheduled_date,
                 "scheduled_time": draft.scheduled_time,
                 "created_at": draft.created_at,
@@ -321,34 +458,68 @@ class ContentRepository(BaseRepository[ContentDraft]):
         await self._db.commit()
         return draft
 
-    async def get_by_id(self, draft_id: str) -> ContentDraft | None:
-        async with self._db.execute(
-            "SELECT * FROM content_drafts WHERE id = ?", (draft_id,)
-        ) as cursor:
+    async def list_all(self, brand_id: str | None = None) -> list[ContentDraft]:
+        if brand_id:
+            query = "SELECT * FROM content_drafts WHERE brand_id = ? ORDER BY created_at DESC"
+            params = (brand_id,)
+        else:
+            query = "SELECT * FROM content_drafts ORDER BY created_at DESC"
+            params = ()
+        async with self._db.execute(query, params) as cursor:
+            rows = await cursor.fetchall()
+        return [self._row_to_draft(r) for r in rows]
+
+    async def get_by_id(self, draft_id: str, brand_id: str | None = None) -> ContentDraft | None:
+        if brand_id:
+            query = "SELECT * FROM content_drafts WHERE id = ? AND brand_id = ?"
+            params = (draft_id, brand_id)
+        else:
+            query = "SELECT * FROM content_drafts WHERE id = ?"
+            params = (draft_id,)
+        async with self._db.execute(query, params) as cursor:
             row = await cursor.fetchone()
         return self._row_to_draft(row) if row else None
 
-    async def update(self, draft: ContentDraft) -> ContentDraft:
+    async def update(self, draft: ContentDraft, brand_id: str | None = None) -> ContentDraft:
         logger.info("Updating draft id=%s status=%s", draft.id, draft.status)
-        await self._db.execute(
-            """UPDATE content_drafts SET
+        if brand_id:
+            query = """UPDATE content_drafts SET
                 slides=:slides, caption=:caption, cta=:cta,
                 hashtags=:hashtags, status=:status,
                 scheduled_date=:scheduled_date, scheduled_time=:scheduled_time,
                 updated_at=:updated_at
-            WHERE id=:id""",
-            {
+            WHERE id=:id AND brand_id=:brand_id"""
+            params = {
+                "id": draft.id,
+                "brand_id": brand_id,
+                "slides": json.dumps([s.model_dump() for s in draft.slides]),
+                "caption": draft.caption,
+                "cta": draft.cta,
+                "hashtags": json.dumps(draft.hashtags),
+                "status": draft.status.value if hasattr(draft.status, "value") else str(draft.status),
+                "scheduled_date": draft.scheduled_date,
+                "scheduled_time": draft.scheduled_time,
+                "updated_at": self._now_iso(),
+            }
+        else:
+            query = """UPDATE content_drafts SET
+                slides=:slides, caption=:caption, cta=:cta,
+                hashtags=:hashtags, status=:status,
+                scheduled_date=:scheduled_date, scheduled_time=:scheduled_time,
+                updated_at=:updated_at
+            WHERE id=:id"""
+            params = {
                 "id": draft.id,
                 "slides": json.dumps([s.model_dump() for s in draft.slides]),
                 "caption": draft.caption,
                 "cta": draft.cta,
                 "hashtags": json.dumps(draft.hashtags),
-                "status": draft.status.value,
+                "status": draft.status.value if hasattr(draft.status, "value") else str(draft.status),
                 "scheduled_date": draft.scheduled_date,
                 "scheduled_time": draft.scheduled_time,
                 "updated_at": self._now_iso(),
-            },
-        )
+            }
+        await self._db.execute(query, params)
         await self._db.commit()
         return draft
 
@@ -356,6 +527,7 @@ class ContentRepository(BaseRepository[ContentDraft]):
     def _row_to_draft(row: aiosqlite.Row) -> ContentDraft:
         return ContentDraft(
             id=row["id"],
+            brand_id=row["brand_id"] if "brand_id" in row.keys() else "snitch",
             opportunity_id=row["opportunity_id"],
             platform=row["platform"],
             format=row["format"],
@@ -379,32 +551,40 @@ class ContentRepository(BaseRepository[ContentDraft]):
 # ──────────────────────────────────────────────────────────────────────────────
 
 class CalendarRepository(BaseRepository[CalendarEntry]):
-    async def upsert(self, entry: CalendarEntry) -> None:
-        logger.info("Upserting calendar entry id=%s", entry.id)
+    async def upsert(self, entry: CalendarEntry, brand_id: str | None = None) -> None:
+        effective_brand_id = brand_id or entry.brand_id or "snitch"
+        entry.brand_id = effective_brand_id
+        logger.info("Upserting calendar entry id=%s brand_id=%s", entry.id, effective_brand_id)
         await self._db.execute(
             """INSERT OR REPLACE INTO calendar_entries VALUES (
-                :id,:draft_id,:title,:platform,:format,:status,:scheduled_datetime
+                :id,:brand_id,:draft_id,:title,:platform,:format,:status,:scheduled_datetime
             )""",
             {
                 "id": entry.id,
+                "brand_id": effective_brand_id,
                 "draft_id": entry.draft_id,
                 "title": entry.title,
                 "platform": entry.platform,
                 "format": entry.format,
-                "status": entry.status.value,
+                "status": entry.status.value if hasattr(entry.status, "value") else str(entry.status),
                 "scheduled_datetime": entry.scheduled_datetime,
             },
         )
         await self._db.commit()
 
-    async def list_all(self) -> list[CalendarEntry]:
-        async with self._db.execute(
-            "SELECT * FROM calendar_entries ORDER BY scheduled_datetime ASC"
-        ) as cursor:
+    async def list_all(self, brand_id: str | None = None) -> list[CalendarEntry]:
+        if brand_id:
+            query = "SELECT * FROM calendar_entries WHERE brand_id = ? ORDER BY scheduled_datetime ASC"
+            params = (brand_id,)
+        else:
+            query = "SELECT * FROM calendar_entries ORDER BY scheduled_datetime ASC"
+            params = ()
+        async with self._db.execute(query, params) as cursor:
             rows = await cursor.fetchall()
         return [
             CalendarEntry(
                 id=r["id"],
+                brand_id=r["brand_id"] if "brand_id" in r.keys() else "snitch",
                 draft_id=r["draft_id"],
                 title=r["title"],
                 platform=r["platform"],
@@ -415,15 +595,20 @@ class CalendarRepository(BaseRepository[CalendarEntry]):
             for r in rows
         ]
 
-    async def get_by_id(self, entry_id: str) -> CalendarEntry | None:
-        async with self._db.execute(
-            "SELECT * FROM calendar_entries WHERE id = ?", (entry_id,)
-        ) as cursor:
+    async def get_by_id(self, entry_id: str, brand_id: str | None = None) -> CalendarEntry | None:
+        if brand_id:
+            query = "SELECT * FROM calendar_entries WHERE id = ? AND brand_id = ?"
+            params = (entry_id, brand_id)
+        else:
+            query = "SELECT * FROM calendar_entries WHERE id = ?"
+            params = (entry_id,)
+        async with self._db.execute(query, params) as cursor:
             row = await cursor.fetchone()
         if not row:
             return None
         return CalendarEntry(
             id=row["id"],
+            brand_id=row["brand_id"] if "brand_id" in row.keys() else "snitch",
             draft_id=row["draft_id"],
             title=row["title"],
             platform=row["platform"],
@@ -432,15 +617,20 @@ class CalendarRepository(BaseRepository[CalendarEntry]):
             scheduled_datetime=row["scheduled_datetime"],
         )
 
-    async def get_by_draft_id(self, draft_id: str) -> CalendarEntry | None:
-        async with self._db.execute(
-            "SELECT * FROM calendar_entries WHERE draft_id = ?", (draft_id,)
-        ) as cursor:
+    async def get_by_draft_id(self, draft_id: str, brand_id: str | None = None) -> CalendarEntry | None:
+        if brand_id:
+            query = "SELECT * FROM calendar_entries WHERE draft_id = ? AND brand_id = ?"
+            params = (draft_id, brand_id)
+        else:
+            query = "SELECT * FROM calendar_entries WHERE draft_id = ?"
+            params = (draft_id,)
+        async with self._db.execute(query, params) as cursor:
             row = await cursor.fetchone()
         if not row:
             return None
         return CalendarEntry(
             id=row["id"],
+            brand_id=row["brand_id"] if "brand_id" in row.keys() else "snitch",
             draft_id=row["draft_id"],
             title=row["title"],
             platform=row["platform"],
@@ -449,9 +639,12 @@ class CalendarRepository(BaseRepository[CalendarEntry]):
             scheduled_datetime=row["scheduled_datetime"],
         )
 
-    async def delete(self, entry_id: str) -> None:
-        logger.info("Deleting calendar entry id=%s", entry_id)
-        await self._db.execute("DELETE FROM calendar_entries WHERE id = ?", (entry_id,))
+    async def delete(self, entry_id: str, brand_id: str | None = None) -> None:
+        logger.info("Deleting calendar entry id=%s brand_id=%s", entry_id, brand_id)
+        if brand_id:
+            await self._db.execute("DELETE FROM calendar_entries WHERE id = ? AND brand_id = ?", (entry_id, brand_id))
+        else:
+            await self._db.execute("DELETE FROM calendar_entries WHERE id = ?", (entry_id,))
         await self._db.commit()
 
 
@@ -486,8 +679,8 @@ class UserRepository(BaseRepository[UserResponse]):
         existing = await self.get_by_clerk_id(ctx.clerk_user_id)
         now = self._now_iso()
 
-        name = ctx.name or (ctx.email.split("@")[0] if ctx.email else "Helium User")
-        email = ctx.email or f"{ctx.clerk_user_id}@helium.internal"
+        name = ctx.name or (ctx.email.split("@")[0] if ctx.email else "BrandBrew User")
+        email = ctx.email or f"{ctx.clerk_user_id}@brandbrew.internal"
 
         if existing:
             await self._db.execute(
@@ -531,4 +724,3 @@ class UserRepository(BaseRepository[UserResponse]):
             created_at=now,
             updated_at=now,
         )
-

@@ -143,3 +143,51 @@ async def get_current_user(
         )
 
     return await verify_clerk_token(authorization)
+
+
+async def get_optional_user(
+    authorization: str | None = Header(None, alias="Authorization"),
+) -> UserContext | None:
+    """Optional user context for public or transitional endpoints."""
+    if not authorization:
+        return None
+    try:
+        return await verify_clerk_token(authorization)
+    except Exception:
+        return None
+
+
+async def verify_brand_access(
+    brand_id: str,
+    user: UserContext,
+    brand_repo: Any,
+) -> Any:
+    """
+    Verify that an authenticated user has access to the specified brand.
+    Enforces multi-tenant authorization boundary:
+      User -> Workspace -> Brand -> Brand Data
+    """
+    brand = await brand_repo.get_by_id(brand_id)
+    if not brand:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Brand '{brand_id}' not found.",
+        )
+
+    # If user has a specific workspace_id, verify workspace tenancy
+    if user.workspace_id and user.workspace_id != "default_workspace":
+        if brand.workspace_id and brand.workspace_id != user.workspace_id:
+            logger.warning(
+                "Tenant authorization denied: user='%s' workspace='%s' tried accessing brand='%s' (workspace='%s')",
+                user.clerk_user_id,
+                user.workspace_id,
+                brand.id,
+                brand.workspace_id,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Access denied: you do not have permission to access brand '{brand_id}'.",
+            )
+
+    return brand
+

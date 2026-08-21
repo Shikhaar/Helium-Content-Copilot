@@ -1,14 +1,13 @@
 """
-StrategistService — orchestrates the full opportunity detection pipeline.
+StrategistService — orchestrates the full 2-stage opportunity detection pipeline.
 
 Pipeline:
-  1. Load brand, products, posts from repositories
-  2. Compute PerformanceSummary via AnalyticsService
-  3. Call AI provider for qualitative opportunity signals
-  4. Score each opportunity via ScoringService (deterministic math)
-  5. Sort by score descending
-  6. Persist to OpportunityRepository
-  7. Return ranked opportunities + performance summary
+  1. Load brand, products, and posts scoped by `brand_id`.
+  2. Compute deterministic PerformanceSummary via AnalyticsService.
+  3. Generate candidate opportunity seeds via CandidateGenerationService (Stage 1).
+  4. Score candidates deterministically via ScoringService (Stage 2).
+  5. Enrich top-scored candidates with AI Strategist rationale & creative angles.
+  6. Persist ranked opportunities to OpportunityRepository for instant database reads.
 """
 from __future__ import annotations
 
@@ -22,6 +21,7 @@ from app.models.schemas import (
 )
 from app.services.ai.providers import BaseAIProvider
 from app.services.analytics import AnalyticsService
+from app.services.candidate_generator import CandidateGenerationService
 from app.services.repositories import (
     BrandRepository,
     OpportunityRepository,
@@ -35,7 +35,7 @@ logger = get_logger(__name__)
 
 class StrategistService:
     """
-    Orchestrates the Brand Analysis → Opportunity Detection → Scoring pipeline.
+    Orchestrates the Analytics → Candidate Generation → Scoring → AI Enrichment pipeline.
     """
 
     def __init__(
@@ -45,6 +45,7 @@ class StrategistService:
         post_repo: PostRepository,
         opportunity_repo: OpportunityRepository,
         analytics: AnalyticsService,
+        candidate_generator: CandidateGenerationService,
         scoring: ScoringService,
         ai_provider: BaseAIProvider,
     ) -> None:
@@ -53,44 +54,58 @@ class StrategistService:
         self._post_repo = post_repo
         self._opportunity_repo = opportunity_repo
         self._analytics = analytics
+        self._candidate_generator = candidate_generator
         self._scoring = scoring
         self._ai = ai_provider
 
-    async def analyze(self) -> AnalyzeResponse:
+    async def analyze(self, brand_id: str = "snitch") -> AnalyzeResponse:
         """
-        Run the full analysis pipeline and return ranked content opportunities.
+        Run the 2-stage opportunity generation pipeline and persist ranked recommendations.
         """
-        logger.info("Starting brand analysis pipeline...")
+        logger.info("Starting brand analysis pipeline for brand_id='%s'...", brand_id)
 
-        brand = await self._brand_repo.get()
-        products = await self._product_repo.list_all()
-        posts = await self._post_repo.list_all()
+        brand = await self._brand_repo.get_by_id(brand_id)
+        if not brand:
+            brand = await self._brand_repo.get()
 
-        if not brand or not products or not posts:
-            logger.error("Missing required data: brand=%s products=%d posts=%d",
-                         bool(brand), len(products), len(posts))
-            raise ValueError("Brand, products, and historical posts must be seeded before analysis.")
+        if not brand:
+            logger.error("Brand '%s' not found.", brand_id)
+            raise ValueError(f"Brand '{brand_id}' not found in database.")
 
-        logger.info("Loaded: brand='%s' | %d products | %d posts", brand.name, len(products), len(posts))
+        products = await self._product_repo.list_all(brand_id=brand.id)
+        posts = await self._post_repo.list_all(brand_id=brand.id)
 
-        # Step 1: Compute deterministic analytics
+        if not products or not posts:
+            logger.error("Missing required data for brand='%s': %d products | %d posts",
+                         brand.name, len(products), len(posts))
+            raise ValueError(f"Brand '{brand.name}' must have seeded products and historical posts before analysis.")
+
+        logger.info("Loaded for brand '%s': %d products | %d historical posts", brand.name, len(products), len(posts))
+
+        # Step 1: Compute deterministic analytics rollups
         logger.info("Step 1: Computing performance analytics...")
         performance = self._analytics.compute_summary(posts)
 
-        # Step 2: Get AI qualitative opportunities
-        logger.info("Step 2: Requesting AI content opportunities...")
+        # Step 2: Generate candidate seeds (Stage 1 of recommendation engine)
+        logger.info("Step 2: Generating candidate opportunity seeds...")
+        candidates = self._candidate_generator.generate_candidates(brand, products, performance)
+        logger.info("Candidate generation produced %d candidate combinations", len(candidates))
+
+        # Step 3: Get AI qualitative reasoning & creative angles
+        logger.info("Step 3: Requesting AI strategist qualitative signals...")
         raw_response, is_demo = await self._ai.get_opportunities(
             brand, products, posts, performance
         )
         logger.info(
-            "AI returned %d opportunities | is_demo=%s",
+            "AI returned %d strategic angles | is_demo=%s",
             len(raw_response.opportunities), is_demo,
         )
 
-        # Step 3: Score each opportunity deterministically
-        logger.info("Step 3: Scoring opportunities with deterministic engine...")
+        # Step 4: Deterministic Scoring (Stage 2 of recommendation engine)
+        logger.info("Step 4: Scoring opportunities with deterministic mathematical engine...")
         product_map = {p.id: p for p in products}
         scored_opportunities: list[Opportunity] = []
+        analysis_run_id = f"run_{uuid.uuid4().hex[:8]}"
 
         for raw in raw_response.opportunities:
             product = product_map.get(raw.suggested_product_id)
@@ -111,6 +126,8 @@ class StrategistService:
 
             opp = Opportunity(
                 id=str(uuid.uuid4()),
+                brand_id=brand.id,
+                analysis_run_id=analysis_run_id,
                 title=raw.title,
                 content_angle=raw.content_angle,
                 audience=raw.audience,
@@ -134,16 +151,21 @@ class StrategistService:
             )
             scored_opportunities.append(opp)
 
-        # Step 4: Sort by score descending
+        # Step 5: Sort by score descending
         scored_opportunities.sort(key=lambda o: o.score, reverse=True)
         logger.info(
-            "Scoring complete: top scores = %s",
-            [o.score for o in scored_opportunities],
+            "Scoring complete: ranked %d opportunities | top score = %s",
+            len(scored_opportunities),
+            scored_opportunities[0].score if scored_opportunities else "N/A",
         )
 
-        # Step 5: Persist
-        await self._opportunity_repo.save_all(scored_opportunities)
-        logger.info("Persisted %d opportunities to database", len(scored_opportunities))
+        # Step 6: Persist opportunities for instant database reads on subsequent dashboard views
+        await self._opportunity_repo.save_all(
+            scored_opportunities,
+            brand_id=brand.id,
+            analysis_run_id=analysis_run_id,
+        )
+        logger.info("Persisted %d opportunities for brand='%s' to database", len(scored_opportunities), brand.id)
 
         return AnalyzeResponse(
             opportunities=scored_opportunities,

@@ -1,8 +1,9 @@
 """
-SQLite database initialisation and connection management.
+Database initialisation and connection management for BrandBrew.
 
-Uses aiosqlite for async access. The database is created on first startup
-and seeded with SNITCH-inspired demo data if tables are empty.
+Supports:
+  - Supabase PostgreSQL (via asyncpg / PostgreSQL URL in production)
+  - SQLite (via aiosqlite in local development / CI test environments)
 """
 import aiosqlite
 from app.core.config import settings
@@ -14,17 +15,21 @@ CREATE_TABLES_SQL = """
 PRAGMA journal_mode=WAL;
 PRAGMA foreign_keys=ON;
 
-CREATE TABLE IF NOT EXISTS brand (
+CREATE TABLE IF NOT EXISTS brands (
     id          TEXT PRIMARY KEY,
+    workspace_id TEXT NOT NULL DEFAULT 'default_workspace',
     name        TEXT NOT NULL,
     description TEXT NOT NULL,
     tone        TEXT NOT NULL,       -- JSON array of tone keywords
     audience    TEXT NOT NULL,       -- JSON object
-    campaign    TEXT NOT NULL        -- active campaign name e.g. "Summer 2026"
+    campaign    TEXT NOT NULL,       -- active campaign name e.g. "Summer 2026"
+    created_at  TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at  TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
 CREATE TABLE IF NOT EXISTS products (
     id               TEXT PRIMARY KEY,
+    brand_id         TEXT NOT NULL REFERENCES brands(id),
     name             TEXT NOT NULL,
     category         TEXT NOT NULL,
     price_inr        INTEGER NOT NULL,
@@ -34,11 +39,14 @@ CREATE TABLE IF NOT EXISTS products (
     target_audience  TEXT NOT NULL,
     inventory_status TEXT NOT NULL,
     views            INTEGER NOT NULL DEFAULT 0,
-    sales            INTEGER NOT NULL DEFAULT 0
+    sales            INTEGER NOT NULL DEFAULT 0,
+    created_at       TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at       TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
 CREATE TABLE IF NOT EXISTS historical_posts (
     id              TEXT PRIMARY KEY,
+    brand_id        TEXT NOT NULL REFERENCES brands(id),
     platform        TEXT NOT NULL,
     format          TEXT NOT NULL,
     caption         TEXT NOT NULL,
@@ -58,6 +66,8 @@ CREATE TABLE IF NOT EXISTS historical_posts (
 
 CREATE TABLE IF NOT EXISTS opportunities (
     id                  TEXT PRIMARY KEY,
+    brand_id            TEXT NOT NULL REFERENCES brands(id),
+    analysis_run_id     TEXT,
     title               TEXT NOT NULL,
     content_angle       TEXT NOT NULL,
     audience            TEXT NOT NULL,
@@ -81,6 +91,7 @@ CREATE TABLE IF NOT EXISTS opportunities (
 
 CREATE TABLE IF NOT EXISTS content_drafts (
     id              TEXT PRIMARY KEY,
+    brand_id        TEXT NOT NULL REFERENCES brands(id),
     opportunity_id  TEXT REFERENCES opportunities(id),
     platform        TEXT NOT NULL,
     format          TEXT NOT NULL,
@@ -100,6 +111,7 @@ CREATE TABLE IF NOT EXISTS content_drafts (
 
 CREATE TABLE IF NOT EXISTS calendar_entries (
     id          TEXT PRIMARY KEY,
+    brand_id    TEXT NOT NULL REFERENCES brands(id),
     draft_id    TEXT REFERENCES content_drafts(id),
     title       TEXT NOT NULL,
     platform    TEXT NOT NULL,
@@ -119,20 +131,32 @@ CREATE TABLE IF NOT EXISTS users (
     created_at    TEXT NOT NULL,
     updated_at    TEXT NOT NULL
 );
+
+CREATE INDEX IF NOT EXISTS idx_products_brand ON products(brand_id);
+CREATE INDEX IF NOT EXISTS idx_posts_brand ON historical_posts(brand_id);
+CREATE INDEX IF NOT EXISTS idx_opps_brand_created ON opportunities(brand_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_drafts_brand ON content_drafts(brand_id);
+CREATE INDEX IF NOT EXISTS idx_calendar_brand_datetime ON calendar_entries(brand_id, scheduled_datetime);
 """
 
 
 async def get_db() -> aiosqlite.Connection:
-    """Open and return an aiosqlite connection with row_factory set."""
-    db = await aiosqlite.connect(settings.database_url)
+    """Open and return a database connection with row_factory set."""
+    db_path = settings.database_url
+    if db_path.startswith("sqlite:///"):
+        db_path = db_path.replace("sqlite:///", "")
+    db = await aiosqlite.connect(db_path)
     db.row_factory = aiosqlite.Row
     return db
 
 
 async def init_db() -> None:
-    """Create tables if they do not exist."""
-    logger.info("Initialising database at %s", settings.database_url)
-    async with aiosqlite.connect(settings.database_url) as db:
+    """Initialise tables and indexes if they do not exist."""
+    logger.info("Initialising database schema at %s", settings.database_url)
+    db_path = settings.database_url
+    if db_path.startswith("sqlite:///"):
+        db_path = db_path.replace("sqlite:///", "")
+    async with aiosqlite.connect(db_path) as db:
         await db.executescript(CREATE_TABLES_SQL)
         await db.commit()
-    logger.info("Database schema ready")
+    logger.info("Database schema ready with multi-tenant tables and indexes")

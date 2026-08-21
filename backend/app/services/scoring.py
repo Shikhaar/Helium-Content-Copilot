@@ -86,7 +86,7 @@ class ScoringService:
 
     def score(
         self,
-        raw: AIOpportunityRaw,
+        raw: Any,
         product: Product,
         posts: list[HistoricalPost],
         all_products: list[Product],
@@ -94,18 +94,19 @@ class ScoringService:
         category: str = "Styling",
     ) -> tuple[ScoreBreakdown, Confidence, str]:
         """
-        Compute the full ScoreBreakdown for one opportunity.
+        Compute the full ScoreBreakdown for one opportunity or candidate.
 
         Returns:
             (ScoreBreakdown, Confidence, confidence_reason)
         """
-        logger.info("Scoring opportunity: '%s' | product=%s | category=%s", raw.title, product.id, category)
+        fmt = getattr(raw, "format", "Reel")
+        aud = getattr(raw, "audience", "Gen-Z")
 
-        historical = self._historical_score(posts, raw.format, category)
+        historical = self._historical_score(posts, fmt, category)
         product_score = self._product_score(product, all_products)
-        audience = self._audience_score(posts, raw.audience)
+        audience = self._audience_score(posts, aud)
         seasonal = self._seasonal_score(product, raw, active_campaign)
-        objective = self._objective_score(posts, raw.format, raw.audience, category)
+        objective = self._objective_score(posts, fmt, aud, category)
 
         breakdown = ScoreBreakdown(
             historical=historical,
@@ -119,7 +120,7 @@ class ScoringService:
 
         logger.info(
             "Score breakdown for '%s': H=%d P=%d A=%d S=%d O=%d → TOTAL=%d | Confidence=%s",
-            raw.title, historical, product_score, audience, seasonal, objective,
+            getattr(raw, "title", "Candidate"), historical, product_score, audience, seasonal, objective,
             breakdown.total, confidence.value,
         )
 

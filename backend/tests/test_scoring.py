@@ -186,7 +186,7 @@ class TestHeroOpportunityScore:
 
         self.posts = [
             HistoricalPost(
-                id=p["id"], platform=p["platform"], format=p["format"],
+                id=p["id"], brand_id=p.get("brand_id", "snitch"), platform=p["platform"], format=p["format"],
                 caption=p["caption"], product_id=p["product_id"],
                 category=p["category"], audience=p["audience"],
                 objective=p["objective"], posted_date=p["posted_date"],
@@ -195,18 +195,21 @@ class TestHeroOpportunityScore:
                 clicks=p["clicks"], conversions=p["conversions"],
             )
             for p in HISTORICAL_POSTS
+            if p.get("brand_id", "snitch") == "snitch"
         ]
 
+        import json
         self.products = [
             Product(
-                id=p["id"], name=p["name"], category=p["category"],
+                id=p["id"], brand_id=p.get("brand_id", "snitch"), name=p["name"], category=p["category"],
                 price_inr=p["price_inr"], description=p["description"],
-                features=p["features"] if isinstance(p["features"], list) else [],
+                features=p["features"] if isinstance(p["features"], list) else json.loads(p["features"]),
                 season=p["season"], target_audience=p["target_audience"],
                 inventory_status=InventoryStatus(p["inventory_status"]),
                 views=p["views"], sales=p["sales"],
             )
             for p in PRODUCTS
+            if p.get("brand_id", "snitch") == "snitch"
         ]
 
         self.linen_shirt = next(p for p in self.products if p.id == "prod_001")

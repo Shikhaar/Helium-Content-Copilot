@@ -19,25 +19,24 @@ logger = get_logger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Startup: initialise DB schema and seed data."""
+    """Startup: initialise DB schema and seed multi-brand data."""
     logger.info("=" * 60)
-    logger.info("Starting Helium Content Copilot")
+    logger.info("Starting BrandBrew — Content Copilot")
     logger.info("AI Enabled: %s", settings.ai_enabled)
     logger.info("Database: %s", settings.database_url)
     logger.info("=" * 60)
 
     await init_db()
 
-    async with aiosqlite.connect(settings.database_url) as db:
-        db.row_factory = aiosqlite.Row
+    db = await get_db()
+    try:
         await seed_database(db)
-        if settings.ai_enabled:
-            await db.execute("DELETE FROM opportunities WHERE is_demo = 1")
-            await db.commit()
+    finally:
+        await db.close()
 
     logger.info("Startup complete — ready to serve requests")
     yield
-    logger.info("Shutting down Helium Content Copilot")
+    logger.info("Shutting down BrandBrew — Content Copilot")
 
 
 app = FastAPI(

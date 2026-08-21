@@ -14,9 +14,11 @@ import {
   ChevronDown,
   ChevronRight,
   Sparkles,
+  Check,
 } from 'lucide-react';
 import { useUser, useClerk } from '@clerk/nextjs';
 import UserProfileModal from './UserProfileModal';
+import type { Brand } from '../lib/types';
 
 export type Tab = 'opportunities' | 'create' | 'calendar' | 'brand';
 
@@ -30,6 +32,9 @@ interface SidebarProps {
   onToggleCollapse?: () => void;
   brandName?: string;
   campaign?: string;
+  brands?: Brand[];
+  activeBrandId?: string;
+  onSelectBrand?: (brandId: string) => void;
 }
 
 const workspaceItems = [
@@ -52,13 +57,18 @@ export default function Sidebar({
   onToggleCollapse,
   brandName = 'SNITCH',
   campaign = 'Summer 2026',
+  brands = [],
+  activeBrandId = 'snitch',
+  onSelectBrand,
 }: SidebarProps) {
   const { user } = useUser();
   const { signOut } = useClerk();
 
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+  const [isBrandMenuOpen, setIsBrandMenuOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const accountMenuRef = useRef<HTMLDivElement>(null);
+  const brandMenuRef = useRef<HTMLDivElement>(null);
 
   // Close popover when clicking outside
   useEffect(() => {
@@ -66,14 +76,17 @@ export default function Sidebar({
       if (accountMenuRef.current && !accountMenuRef.current.contains(event.target as Node)) {
         setIsAccountMenuOpen(false);
       }
+      if (brandMenuRef.current && !brandMenuRef.current.contains(event.target as Node)) {
+        setIsBrandMenuOpen(false);
+      }
     };
-    if (isAccountMenuOpen) {
+    if (isAccountMenuOpen || isBrandMenuOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isAccountMenuOpen]);
+  }, [isAccountMenuOpen, isBrandMenuOpen]);
 
   const handleItemClick = (id: Tab) => {
     onTabChange(id);
@@ -347,95 +360,216 @@ export default function Sidebar({
             position: 'relative',
           }}
         >
-          {/* Workspace Switcher Card (SNITCH · Summer 2026) */}
-          {!isCollapsed ? (
-            <div
-              onClick={() => onTabChange('brand')}
-              title="Switch Workspace / Brand Catalog"
-              style={{
-                border: '1px solid var(--border)',
-                borderRadius: 8,
-                background: 'rgba(255, 252, 247, 0.65)',
-                padding: '8px 10px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease',
-              }}
-              onMouseEnter={e => {
-                (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-strong)';
-                (e.currentTarget as HTMLElement).style.background = 'var(--surface)';
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
-                (e.currentTarget as HTMLElement).style.background = 'rgba(255, 252, 247, 0.65)';
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                {/* Brand square logo */}
-                <div
-                  style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: 6,
-                    background: '#EDE4D8',
-                    border: '1px solid var(--border)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '2px 4px',
-                    boxSizing: 'border-box',
-                    flexShrink: 0,
-                  }}
-                >
-                  <span
+          {/* Workspace Switcher Card */}
+          <div ref={brandMenuRef} style={{ position: 'relative' }}>
+            {!isCollapsed ? (
+              <div
+                onClick={() => setIsBrandMenuOpen(!isBrandMenuOpen)}
+                title="Switch Brand Workspace"
+                style={{
+                  border: '1px solid var(--border)',
+                  borderRadius: 8,
+                  background: isBrandMenuOpen ? 'var(--surface)' : 'rgba(255, 252, 247, 0.65)',
+                  padding: '8px 10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-strong)';
+                  (e.currentTarget as HTMLElement).style.background = 'var(--surface)';
+                }}
+                onMouseLeave={e => {
+                  if (!isBrandMenuOpen) {
+                    (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
+                    (e.currentTarget as HTMLElement).style.background = 'rgba(255, 252, 247, 0.65)';
+                  }
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  {/* Brand square logo */}
+                  <div
                     style={{
-                      fontSize: 8,
-                      fontWeight: 800,
-                      letterSpacing: '0.04em',
-                      color: 'var(--text-primary)',
-                      textTransform: 'uppercase',
-                      fontFamily: 'var(--font-sans)',
+                      width: 32,
+                      height: 32,
+                      borderRadius: 6,
+                      background: '#EDE4D8',
+                      border: '1px solid var(--border)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '2px 4px',
+                      boxSizing: 'border-box',
+                      flexShrink: 0,
                     }}
                   >
-                    {brandName}
-                  </span>
-                </div>
-                <div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>
-                    {brandName}
+                    <span
+                      style={{
+                        fontSize: 8,
+                        fontWeight: 800,
+                        letterSpacing: '0.04em',
+                        color: 'var(--text-primary)',
+                        textTransform: 'uppercase',
+                        fontFamily: 'var(--font-sans)',
+                      }}
+                    >
+                      {brandName}
+                    </span>
                   </div>
-                  <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2, lineHeight: 1.2 }}>
-                    {campaign}
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>
+                      {brandName}
+                    </div>
+                    <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2, lineHeight: 1.2 }}>
+                      {campaign}
+                    </div>
                   </div>
                 </div>
+                <ChevronDown
+                  size={14}
+                  color="var(--text-muted)"
+                  style={{
+                    transform: isBrandMenuOpen ? 'rotate(180deg)' : 'none',
+                    transition: 'transform 0.2s ease',
+                  }}
+                />
               </div>
-              <ChevronDown size={14} color="var(--text-muted)" />
-            </div>
-          ) : (
-            /* Collapsed Brand Icon */
-            <div
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 8,
-                background: '#EDE4D8',
-                border: '1px solid var(--border)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                margin: '0 auto',
-                cursor: 'pointer',
-              }}
-              onClick={() => onTabChange('brand')}
-              title={`${brandName} · ${campaign}`}
-            >
-              <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-primary)' }}>
-                {brandName.charAt(0)}
-              </span>
-            </div>
-          )}
+            ) : (
+              /* Collapsed Brand Icon */
+              <div
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: 8,
+                  background: '#EDE4D8',
+                  border: '1px solid var(--border)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto',
+                  cursor: 'pointer',
+                }}
+                onClick={() => setIsBrandMenuOpen(!isBrandMenuOpen)}
+                title={`${brandName} · ${campaign}`}
+              >
+                <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-primary)' }}>
+                  {brandName.charAt(0)}
+                </span>
+              </div>
+            )}
+
+            {/* Brand Dropdown Menu */}
+            {isBrandMenuOpen && (
+              <div
+                style={{
+                  position: 'absolute',
+                  bottom: '100%',
+                  left: isCollapsed ? 64 : 0,
+                  right: isCollapsed ? 'auto' : 0,
+                  marginBottom: 8,
+                  width: isCollapsed ? 240 : 'auto',
+                  background: 'var(--surface)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 10,
+                  boxShadow: 'var(--shadow-lg)',
+                  padding: '6px',
+                  zIndex: 200,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 2,
+                }}
+              >
+                <div
+                  style={{
+                    padding: '6px 8px 4px',
+                    fontSize: 10,
+                    fontWeight: 700,
+                    letterSpacing: '0.06em',
+                    color: 'var(--text-muted)',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  Switch Brand Workspace
+                </div>
+                {brands.map(b => {
+                  const isSelected = b.id === activeBrandId;
+                  return (
+                    <button
+                      key={b.id}
+                      onClick={() => {
+                        if (onSelectBrand) onSelectBrand(b.id);
+                        setIsBrandMenuOpen(false);
+                      }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '8px 10px',
+                        borderRadius: 6,
+                        border: 'none',
+                        background: isSelected ? 'var(--brown-soft)' : 'transparent',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        transition: 'background 0.12s ease',
+                      }}
+                      onMouseEnter={e => {
+                        if (!isSelected) {
+                          (e.currentTarget as HTMLElement).style.background = 'rgba(217, 200, 181, 0.35)';
+                        }
+                      }}
+                      onMouseLeave={e => {
+                        if (!isSelected) {
+                          (e.currentTarget as HTMLElement).style.background = 'transparent';
+                        }
+                      }}
+                    >
+                      <div>
+                        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>
+                          {b.name}
+                        </div>
+                        <div style={{ fontSize: 10, color: 'var(--text-secondary)', marginTop: 1 }}>
+                          {b.campaign}
+                        </div>
+                      </div>
+                      {isSelected && <Check size={14} color="var(--brown-primary)" strokeWidth={2.5} />}
+                    </button>
+                  );
+                })}
+                <div style={{ height: 1, background: 'var(--border)', margin: '4px 0' }} />
+                <button
+                  onClick={() => {
+                    onTabChange('brand');
+                    setIsBrandMenuOpen(false);
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    padding: '7px 10px',
+                    borderRadius: 6,
+                    border: 'none',
+                    background: 'transparent',
+                    color: 'var(--brown-primary)',
+                    fontSize: 11,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                  }}
+                  onMouseEnter={e => {
+                    (e.currentTarget as HTMLElement).style.background = 'rgba(217, 200, 181, 0.35)';
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLElement).style.background = 'transparent';
+                  }}
+                >
+                  <Building2 size={13} />
+                  Manage Brand & Catalog
+                </button>
+              </div>
+            )}
+          </div>
 
           {/* Account Popover Menu */}
           {isAccountMenuOpen && (
