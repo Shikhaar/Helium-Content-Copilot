@@ -575,3 +575,27 @@ h1, h2, h3, h4 {
   .mobile-drawer-closed { transform: translateX(-100%) !important; }
   .mobile-drawer-open   { transform: translateX(0%) !important; }
 }
+
+/* ── Hero Opportunity Card Layout ────────────────── */
+.hero-card-layout {
+  display: grid;
+  grid-template-columns: 200px 1fr auto;
+  gap: 20px;
+  align-items: stretch;
+}
+@media (max-width: 900px) {
+  .hero-card-layout {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+  .hero-score-pillar {
+    border-left: none !important;
+    border-top: 1px solid var(--border) !important;
+    padding-left: 0 !important;
+    padding-top: 16px !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100% !important;
+  }
+}

@@ -15,6 +15,31 @@ interface DashboardProps {
   scheduledCount: number;
 }
 
+const BRAND_COLLAGE_IMAGES: Record<string, { main: string; top: string; bottom: string }> = {
+  snitch: {
+    main: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400&auto=format&fit=crop&q=80',
+    top: 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=300&auto=format&fit=crop&q=80',
+    bottom: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=300&auto=format&fit=crop&q=80',
+  },
+  blissclub: {
+    main: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400&auto=format&fit=crop&q=80',
+    top: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=300&auto=format&fit=crop&q=80',
+    bottom: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=300&auto=format&fit=crop&q=80',
+  },
+  souled_store: {
+    main: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=400&auto=format&fit=crop&q=80',
+    top: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=300&auto=format&fit=crop&q=80',
+    bottom: 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=300&auto=format&fit=crop&q=80',
+  },
+};
+
+const OTHER_OPP_THUMBNAILS = [
+  'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=100&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=100&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?w=100&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=100&auto=format&fit=crop&q=80',
+];
+
 function MetricItem({ value, label, sub }: { value: string | number; label: string; sub: string }) {
   return (
     <div className="metrics-strip-item">
@@ -132,12 +157,24 @@ export default function Dashboard({
   const prodCount = productsCount ?? 8;
   const avgEr = performance ? `${performance.brand_avg_engagement_rate.toFixed(1)}%` : '4.8%';
 
-  // ── Dynamically compute insights from active performance & brand data ─────
+  // ── Dynamically compute insights & real-time multipliers ─────────────────
   const brandAvgErVal = performance?.brand_avg_engagement_rate ?? 4.8;
   const topFormat = performance?.top_performing_format || 'Reel';
   const formatStats = performance?.by_format?.find(f => f.format === topFormat);
   const topFormatEr = formatStats?.avg_engagement_rate ?? (topFormat === 'Reel' ? 8.8 : 7.2);
   const formatMultiplier = (topFormatEr / Math.max(brandAvgErVal, 0.1)).toFixed(1);
+
+  // Dynamic calculations for Hero Opportunity
+  const heroFormat = topOpp?.format || 'Reel';
+  const heroFormatStat = performance?.by_format?.find(
+    f => f.format.toLowerCase() === heroFormat.toLowerCase()
+  );
+  const heroFormatEr = heroFormatStat?.avg_engagement_rate 
+    ?? (heroFormat.toLowerCase() === 'reel' ? 8.8 : heroFormat.toLowerCase() === 'carousel' ? 7.4 : 6.2);
+  const heroMultiplier = (heroFormatEr / Math.max(brandAvgErVal, 0.1)).toFixed(1);
+
+  const brandKey = (brand?.id || 'snitch').toLowerCase();
+  const collage = BRAND_COLLAGE_IMAGES[brandKey] || BRAND_COLLAGE_IMAGES.snitch;
 
   const topAudience = performance?.top_performing_audience || brand?.audience?.interests?.[0] || 'Young Millennial';
   const audienceStats = performance?.by_audience?.find(a => a.audience === topAudience);
@@ -249,108 +286,245 @@ export default function Dashboard({
                   </button>
                 </div>
 
+                {/* Redesigned Hero Card Matching Exact Visual Aesthetic */}
                 <div
                   id="hero-opportunity-card"
                   style={{
                     border: '1px solid var(--border)',
-                    borderRadius: 10,
+                    borderRadius: 12,
                     background: 'var(--surface)',
                     cursor: 'pointer',
-                    transition: 'border-color 0.15s ease',
-                    overflow: 'hidden',
+                    transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
+                    padding: '20px 22px',
+                    boxShadow: '0 2px 8px rgba(32, 27, 23, 0.04)',
                   }}
                   onClick={() => onViewOpportunity(topOpp.id)}
-                  onMouseEnter={e => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border-medium)')}
-                  onMouseLeave={e => ((e.currentTarget as HTMLElement).style.borderColor = 'var(--border)')}
+                  onMouseEnter={e => {
+                    (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-strong)';
+                    (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 16px rgba(32, 27, 23, 0.08)';
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
+                    (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(32, 27, 23, 0.04)';
+                  }}
                 >
-                  {/* Card top: format pills + score */}
-                  <div style={{ padding: '20px 24px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
-                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                      <span className="badge badge-neutral">{topOpp.format}</span>
-                      <span className="badge badge-neutral">{topOpp.platform}</span>
-                      {topOpp.is_demo && <span className="demo-banner">Demo</span>}
-                    </div>
-
-                    {/* Score */}
-                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 4 }}>
-                        Recommendation score
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, justifyContent: 'flex-end' }}>
-                        <span style={{ fontSize: 32, fontWeight: 700, color: 'var(--brown-primary)', letterSpacing: '-0.04em', lineHeight: 1 }}>
-                          {topOpp.score}
-                        </span>
-                        <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>/100</span>
-                      </div>
-                      <div
-                        style={{
-                          fontSize: 10,
-                          fontWeight: 600,
-                          marginTop: 2,
-                          letterSpacing: '0.03em',
-                          color: topOpp.score >= 90 ? 'var(--green)' : topOpp.score >= 75 ? 'var(--amber)' : 'var(--text-muted)',
-                        }}
-                      >
-                        {topOpp.score >= 90 ? 'High confidence' : topOpp.score >= 75 ? 'Good confidence' : 'Moderate'}
-                      </div>
-                      <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 3 }}>
-                        Based on {totalPosts} posts · {prodCount} products
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Title */}
-                  <div style={{ padding: '8px 24px 0' }}>
-                    <h2
-                      className="serif-heading"
-                      style={{ fontSize: 23, color: 'var(--text-primary)', marginBottom: 8, maxWidth: 520, lineHeight: 1.3 }}
+                  <div className="hero-card-layout">
+                    {/* ── Left: 3-Image Collage ── */}
+                    <div
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: '1.2fr 0.9fr',
+                        gap: 4,
+                        height: 180,
+                        borderRadius: 8,
+                        overflow: 'hidden',
+                        background: 'rgba(238, 231, 220, 0.5)',
+                        flexShrink: 0,
+                      }}
                     >
-                      {topOpp.title}
-                    </h2>
-                    <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.65, maxWidth: 540, marginBottom: 0 }}>
-                      {topOpp.why}
-                    </p>
-                  </div>
+                      {/* Main large portrait on left */}
+                      <div style={{ position: 'relative', height: '100%', overflow: 'hidden' }}>
+                        <img
+                          src={collage.main}
+                          alt={`${topOpp.title} main`}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          onError={e => {
+                            (e.currentTarget as HTMLElement).style.display = 'none';
+                          }}
+                        />
+                      </div>
+                      {/* Stacked 2 portraits on right */}
+                      <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr', gap: 4, height: '100%' }}>
+                        <div style={{ position: 'relative', overflow: 'hidden' }}>
+                          <img
+                            src={collage.top}
+                            alt={`${topOpp.title} angle 1`}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            onError={e => {
+                              (e.currentTarget as HTMLElement).style.display = 'none';
+                            }}
+                          />
+                        </div>
+                        <div style={{ position: 'relative', overflow: 'hidden' }}>
+                          <img
+                            src={collage.bottom}
+                            alt={`${topOpp.title} angle 2`}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            onError={e => {
+                              (e.currentTarget as HTMLElement).style.display = 'none';
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
 
-                  {/* Divider */}
-                  <div style={{ height: 1, background: 'var(--border)', margin: '18px 0 0' }} />
+                    {/* ── Center: Strategic Content & Real-Time Multipliers ── */}
+                    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minWidth: 0 }}>
+                      <div>
+                        {/* Title in warm editorial serif */}
+                        <h2
+                          className="serif-heading"
+                          style={{
+                            fontSize: 21,
+                            fontWeight: 600,
+                            color: 'var(--text-primary)',
+                            lineHeight: 1.25,
+                            marginBottom: 8,
+                            letterSpacing: '-0.01em',
+                          }}
+                        >
+                          {topOpp.title}
+                        </h2>
 
-                  {/* Evidence row */}
-                  {topOpp.score_breakdown && (
-                    <div className="evidence-grid">
-                      {[
-                        { main: '8.8%', sub: 'Reel engagement', label: 'Historical', score: topOpp.score_breakdown.historical, max: 25 },
-                        { main: '14.2K', sub: 'Product views', label: 'Product', score: topOpp.score_breakdown.product, max: 25 },
-                        { main: '1,050', sub: 'Product sales', label: 'Demand', score: topOpp.score_breakdown.product, max: 25 },
-                        { main: brand?.campaign || 'Summer 2026', sub: 'Campaign focus', label: 'Seasonal', score: topOpp.score_breakdown.seasonal, max: 15 },
-                      ].map(s => (
-                        <div key={s.label} className="evidence-item">
-                          <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
-                            {s.main}
+                        {/* Pill tags */}
+                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
+                          <span
+                            style={{
+                              fontSize: 11,
+                              fontWeight: 600,
+                              padding: '3px 9px',
+                              borderRadius: 5,
+                              background: 'rgba(238, 231, 220, 0.85)',
+                              color: 'var(--brown-dark)',
+                              fontFamily: 'var(--font-sans)',
+                            }}
+                          >
+                            {topOpp.objective || 'Product Education'}
+                          </span>
+                          <span
+                            style={{
+                              fontSize: 11,
+                              fontWeight: 600,
+                              padding: '3px 9px',
+                              borderRadius: 5,
+                              background: 'rgba(238, 231, 220, 0.85)',
+                              color: 'var(--brown-dark)',
+                              fontFamily: 'var(--font-sans)',
+                            }}
+                          >
+                            {topOpp.platform} {topOpp.format}
+                          </span>
+                          {topOpp.is_demo && (
+                            <span className="demo-banner" style={{ margin: 0, padding: '2px 7px', fontSize: 10 }}>
+                              Demo
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Strategic qualitative reasoning */}
+                        <p
+                          style={{
+                            fontSize: 13,
+                            color: 'var(--text-secondary)',
+                            lineHeight: 1.45,
+                            marginBottom: 12,
+                          }}
+                        >
+                          {topOpp.why}
+                        </p>
+                      </div>
+
+                      {/* Dynamic Real-Time Multiplier Stats Row */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 20, paddingTop: 4 }}>
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>
+                            <span style={{ color: 'var(--green)', fontSize: 14 }}>↑</span>
+                            <span>{heroFormatEr.toFixed(1)}% engagement</span>
                           </div>
-                          <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4, lineHeight: 1.3 }}>
-                            {s.sub}
-                          </div>
-                          <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-muted)', marginTop: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                            {s.label} · {s.score}/{s.max}
+                          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>
+                            Historical avg
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  )}
 
-                  {/* CTA row */}
-                  <div style={{ padding: '14px 24px', display: 'flex', justifyContent: 'flex-end', background: 'rgba(238, 231, 220, 0.25)', borderTop: '1px solid var(--border)' }}>
-                    <button
-                      className="btn-primary"
-                      onClick={e => {
-                        e.stopPropagation();
-                        onViewOpportunity(topOpp.id);
+                        <div style={{ width: 1, height: 26, background: 'var(--border)' }} />
+
+                        <div>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>
+                            {heroMultiplier}x
+                          </div>
+                          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>
+                            vs brand average
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* ── Right Column: Score Pillar & CTA Button ── */}
+                    <div
+                      style={{
+                        borderLeft: '1px solid var(--border)',
+                        paddingLeft: 20,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        alignItems: 'flex-start',
+                        minWidth: 175,
+                        flexShrink: 0,
                       }}
-                      style={{ fontSize: 13, borderRadius: 6, padding: '7px 16px' }}
+                      className="hero-score-pillar"
                     >
-                      See why this is recommended →
-                    </button>
+                      <div>
+                        {/* Big Score */}
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: 2 }}>
+                          <span
+                            style={{
+                              fontSize: 46,
+                              fontFamily: 'var(--font-serif)',
+                              fontWeight: 600,
+                              color: '#343B2A',
+                              lineHeight: 1,
+                              letterSpacing: '-0.02em',
+                            }}
+                          >
+                            {topOpp.score}
+                          </span>
+                          <span style={{ fontSize: 14, color: 'var(--text-muted)', fontFamily: 'var(--font-serif)' }}>
+                            /100
+                          </span>
+                        </div>
+
+                        {/* Confidence Badge */}
+                        <div
+                          style={{
+                            fontSize: 11,
+                            fontWeight: 600,
+                            color: topOpp.score >= 90 ? 'var(--green)' : topOpp.score >= 75 ? 'var(--amber)' : 'var(--text-muted)',
+                            marginTop: 6,
+                          }}
+                        >
+                          {topOpp.score >= 90 ? 'High confidence' : topOpp.score >= 75 ? 'Good confidence' : 'Moderate'}
+                        </div>
+                      </div>
+
+                      {/* CTA Button */}
+                      <button
+                        className="btn-primary"
+                        onClick={e => {
+                          e.stopPropagation();
+                          onViewOpportunity(topOpp.id);
+                        }}
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 600,
+                          borderRadius: 7,
+                          padding: '9px 14px',
+                          background: '#3A382C',
+                          color: '#FAF8F5',
+                          border: 'none',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          whiteSpace: 'nowrap',
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                          transition: 'background 0.15s ease',
+                        }}
+                        onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = '#2B2A20')}
+                        onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = '#3A382C')}
+                      >
+                        See why this is recommended →
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -361,55 +535,92 @@ export default function Dashboard({
               <div>
                 <div className="label" style={{ marginBottom: 10 }}>OTHER OPPORTUNITIES</div>
                 <div style={{ border: '1px solid var(--border)', borderRadius: 10, background: 'var(--surface)', overflow: 'hidden' }}>
-                  {otherOpps.map((opp, i) => (
-                    <div
-                      key={opp.id}
-                      id={`opportunity-row-${i + 2}`}
-                      onClick={() => onViewOpportunity(opp.id)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 16,
-                        padding: '14px 20px',
-                        borderBottom: i < otherOpps.length - 1 ? '1px solid var(--border)' : 'none',
-                        cursor: 'pointer',
-                        transition: 'background 0.12s ease',
-                      }}
-                      onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'var(--surface-subtle)')}
-                      onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'transparent')}
-                    >
+                  {otherOpps.map((opp, i) => {
+                    const thumbUrl = OTHER_OPP_THUMBNAILS[i % OTHER_OPP_THUMBNAILS.length];
+                    return (
                       <div
+                        key={opp.id}
+                        id={`opportunity-row-${i + 2}`}
+                        onClick={() => onViewOpportunity(opp.id)}
                         style={{
-                          fontSize: 12,
-                          fontWeight: 700,
-                          color: 'var(--text-muted)',
-                          width: 24,
-                          flexShrink: 0,
-                          fontVariantNumeric: 'tabular-nums',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 14,
+                          padding: '12px 18px',
+                          borderBottom: i < otherOpps.length - 1 ? '1px solid var(--border)' : 'none',
+                          cursor: 'pointer',
+                          transition: 'background 0.12s ease',
                         }}
+                        onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'var(--surface-subtle)')}
+                        onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'transparent')}
                       >
-                        {String(i + 2).padStart(2, '0')}
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4, letterSpacing: '-0.01em' }}>
-                          {opp.title}
+                        <div
+                          style={{
+                            fontSize: 12,
+                            fontWeight: 700,
+                            color: 'var(--text-muted)',
+                            width: 22,
+                            flexShrink: 0,
+                            fontVariantNumeric: 'tabular-nums',
+                          }}
+                        >
+                          {String(i + 2).padStart(2, '0')}
                         </div>
-                        <div style={{ display: 'flex', gap: 5 }}>
-                          <span className="badge badge-neutral" style={{ fontSize: 10 }}>{opp.format.toUpperCase()}</span>
-                          <span className="badge badge-neutral" style={{ fontSize: 10 }}>{opp.platform.toUpperCase()}</span>
+
+                        {/* 36x36px Product thumbnail */}
+                        <div
+                          style={{
+                            width: 36,
+                            height: 36,
+                            borderRadius: 6,
+                            overflow: 'hidden',
+                            background: 'rgba(238, 231, 220, 0.6)',
+                            flexShrink: 0,
+                          }}
+                        >
+                          <img
+                            src={thumbUrl}
+                            alt={opp.title}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            onError={e => {
+                              (e.currentTarget as HTMLElement).style.display = 'none';
+                            }}
+                          />
+                        </div>
+
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div
+                            style={{
+                              fontSize: 13,
+                              fontWeight: 600,
+                              color: 'var(--text-primary)',
+                              marginBottom: 4,
+                              letterSpacing: '-0.01em',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
+                            {opp.title}
+                          </div>
+                          <div style={{ display: 'flex', gap: 5 }}>
+                            <span className="badge badge-neutral" style={{ fontSize: 10 }}>{opp.format.toUpperCase()}</span>
+                            <span className="badge badge-neutral" style={{ fontSize: 10 }}>{opp.platform.toUpperCase()}</span>
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                          <div>
+                            <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+                              {opp.score}
+                            </span>
+                            <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 1 }}>/100</span>
+                          </div>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-muted)' }}>→</div>
                         </div>
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-                        <div>
-                          <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
-                            {opp.score}
-                          </span>
-                          <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 1 }}>/100</span>
-                        </div>
-                        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--brown-primary)' }}>→</div>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
