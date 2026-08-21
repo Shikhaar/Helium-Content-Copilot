@@ -10,10 +10,8 @@ import {
   X,
   User as UserIcon,
   LogOut,
-  ChevronUp,
   ChevronDown,
   ChevronRight,
-  Sparkles,
   Check,
 } from 'lucide-react';
 import { useUser, useClerk } from '@clerk/nextjs';
@@ -70,7 +68,7 @@ export default function Sidebar({
   const accountMenuRef = useRef<HTMLDivElement>(null);
   const brandMenuRef = useRef<HTMLDivElement>(null);
 
-  // Close popover when clicking outside
+  // Close popovers when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (accountMenuRef.current && !accountMenuRef.current.contains(event.target as Node)) {
@@ -98,17 +96,22 @@ export default function Sidebar({
     if (onCloseMobile) onCloseMobile();
   };
 
+  const getBrandMonogram = (name: string) => {
+    if (!name) return 'B';
+    const clean = name.trim().replace(/^(THE|A)\s+/i, '');
+    const parts = clean.split(/\s+/);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return clean.slice(0, 2).toUpperCase();
+  };
+
   const displayName = user?.fullName || user?.firstName || 'Shikhar';
   const firstName = user?.firstName || (displayName.split(' ')[0]) || 'Shikhar';
   const role = (user?.publicMetadata?.role as string) || 'Admin';
   const email = user?.primaryEmailAddress?.emailAddress || 'shikharsrivastava3004@gmail.com';
   const singleInitial = (firstName.charAt(0) || 'S').toUpperCase();
-  const initials = displayName
-    .split(' ')
-    .map(n => n[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2) || 'S';
+  const brandMonogram = getBrandMonogram(brandName);
 
   const navItem = (id: Tab, label: string, Icon: React.ElementType) => {
     const isActive = activeTab === id;
@@ -187,8 +190,9 @@ export default function Sidebar({
       />
 
       <aside
+        className={`sidebar-container ${isMobileOpen ? 'mobile-drawer-open' : 'mobile-drawer-closed'}`}
         style={{
-          width: isCollapsed ? 60 : 220,
+          width: isCollapsed ? 64 : 220,
           height: '100vh',
           maxHeight: '100vh',
           position: 'sticky',
@@ -197,165 +201,263 @@ export default function Sidebar({
           borderRight: '1px solid var(--border)',
           display: 'flex',
           flexDirection: 'column',
+          justifyContent: 'space-between',
           flexShrink: 0,
-          transition: 'width 0.2s ease, transform 0.25s ease',
+          transition: 'width 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
           zIndex: 100,
+          overflow: 'visible',
           boxSizing: 'border-box',
         }}
-        className={`sidebar-container ${isMobileOpen ? 'mobile-drawer-open' : 'mobile-drawer-closed'}`}
       >
-        {/* Logo */}
-        <div
-          style={{
-            padding: isCollapsed ? '18px 0' : '18px 16px 16px',
-            borderBottom: '1px solid var(--border)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: isCollapsed ? 'center' : 'space-between',
-          }}
-        >
-          <button
-            onClick={handleHomeClick}
-            title="BrandBrew Content Copilot"
+        {/* Top Header & Navigation */}
+        <div>
+          {/* Logo Header */}
+          <div
             style={{
+              padding: isCollapsed ? '16px 0 14px' : '16px 14px 14px',
+              borderBottom: '1px solid var(--border)',
               display: 'flex',
               alignItems: 'center',
-              gap: 10,
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '2px',
-              borderRadius: 6,
-              overflow: 'hidden',
+              justifyContent: isCollapsed ? 'center' : 'space-between',
             }}
           >
-            {/* B mark */}
-            <div
-              style={{
-                width: 26,
-                height: 26,
-                borderRadius: 5,
-                background: 'var(--brown-dark)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-              }}
-            >
-              <span
+            {!isCollapsed ? (
+              <button
+                onClick={handleHomeClick}
                 style={{
-                  fontFamily: 'var(--font-sans)',
-                  fontSize: 13,
-                  fontWeight: 800,
-                  color: 'var(--surface)',
-                  letterSpacing: '-0.04em',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 9,
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: 0,
+                  textAlign: 'left',
+                }}
+                title="BrandBrew Home"
+              >
+                {/* BrandBrew Logo Icon */}
+                <div
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: 7,
+                    background: 'var(--brown-dark)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                    boxShadow: '0 2px 6px rgba(44, 24, 16, 0.18)',
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 13,
+                      fontWeight: 800,
+                      color: 'var(--surface)',
+                      fontFamily: 'var(--font-sans)',
+                      letterSpacing: '-0.03em',
+                    }}
+                  >
+                    B
+                  </span>
+                </div>
+                <div>
+                  <div
+                    style={{
+                      fontSize: 13,
+                      fontWeight: 800,
+                      letterSpacing: '0.07em',
+                      color: 'var(--brown-dark)',
+                      fontFamily: 'var(--font-sans)',
+                      lineHeight: 1.1,
+                    }}
+                  >
+                    BRANDBREW
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 10,
+                      color: 'var(--text-muted)',
+                      letterSpacing: '0.02em',
+                      lineHeight: 1.1,
+                      marginTop: 2,
+                    }}
+                  >
+                    Content Intelligence
+                  </div>
+                </div>
+              </button>
+            ) : (
+              <button
+                onClick={handleHomeClick}
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 8,
+                  background: 'var(--brown-dark)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: 0,
+                  boxShadow: '0 2px 6px rgba(44, 24, 16, 0.18)',
+                }}
+                title="BrandBrew — Go to Home"
+              >
+                <span
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 800,
+                    color: 'var(--surface)',
+                    fontFamily: 'var(--font-sans)',
+                  }}
+                >
+                  B
+                </span>
+              </button>
+            )}
+
+            {/* Desktop Collapse Toggle */}
+            {!isCollapsed && onToggleCollapse && (
+              <button
+                onClick={onToggleCollapse}
+                title="Collapse sidebar"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--text-muted)',
+                  padding: '4px',
+                  borderRadius: 4,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)';
+                  (e.currentTarget as HTMLElement).style.background = 'var(--border)';
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)';
+                  (e.currentTarget as HTMLElement).style.background = 'none';
                 }}
               >
-                B
-              </span>
+                <PanelLeftClose size={15} />
+              </button>
+            )}
+
+            {/* Mobile Close Button */}
+            {onCloseMobile && (
+              <button
+                onClick={onCloseMobile}
+                className="mobile-only"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--text-muted)',
+                  padding: '4px',
+                  borderRadius: 4,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                aria-label="Close menu"
+              >
+                <X size={16} />
+              </button>
+            )}
+          </div>
+
+          {/* Expand button when collapsed */}
+          {isCollapsed && onToggleCollapse && (
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '8px 0 2px' }}>
+              <button
+                onClick={onToggleCollapse}
+                title="Expand sidebar"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--text-muted)',
+                  padding: '6px',
+                  borderRadius: 6,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)';
+                  (e.currentTarget as HTMLElement).style.background = 'var(--border)';
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)';
+                  (e.currentTarget as HTMLElement).style.background = 'none';
+                }}
+              >
+                <PanelLeft size={15} />
+              </button>
             </div>
+          )}
+
+          {/* Navigation Items */}
+          <nav style={{ padding: isCollapsed ? '10px 8px' : '10px 8px' }}>
+            {/* Section: STRATEGY & WORKSPACE */}
             {!isCollapsed && (
-              <div style={{ textAlign: 'left' }}>
-                <div
-                  style={{
-                    fontSize: 11,
-                    fontWeight: 800,
-                    color: 'var(--brown-dark)',
-                    letterSpacing: '0.08em',
-                    lineHeight: 1.15,
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  BrandBrew
-                </div>
-                <div
-                  style={{
-                    fontSize: 9,
-                    fontWeight: 600,
-                    color: 'var(--text-muted)',
-                    letterSpacing: '0.08em',
-                    textTransform: 'uppercase',
-                    marginTop: 1,
-                  }}
-                >
-                  Content Copilot
-                </div>
+              <div
+                style={{
+                  padding: '6px 8px 4px',
+                  fontSize: 10,
+                  fontWeight: 600,
+                  letterSpacing: '0.08em',
+                  color: 'var(--text-muted)',
+                  textTransform: 'uppercase',
+                }}
+              >
+                STRATEGY
               </div>
             )}
-          </button>
+            {workspaceItems.map(({ id, label, icon }) => navItem(id, label, icon))}
 
-          {/* Mobile Close */}
-          {onCloseMobile && (
-            <button
-              onClick={onCloseMobile}
-              className="mobile-only"
+            {/* Divider */}
+            <div
               style={{
-                background: 'none',
-                border: 'none',
-                color: 'var(--text-muted)',
-                cursor: 'pointer',
-                padding: '5px',
-                borderRadius: 5,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                height: 1,
+                background: 'var(--border)',
+                margin: isCollapsed ? '8px 0' : '10px 8px',
               }}
-            >
-              <X size={16} />
-            </button>
-          )}
+            />
+
+            {/* Section: BRAND ASSETS */}
+            {!isCollapsed && (
+              <div
+                style={{
+                  padding: '4px 8px 4px',
+                  fontSize: 10,
+                  fontWeight: 600,
+                  letterSpacing: '0.08em',
+                  color: 'var(--text-muted)',
+                  textTransform: 'uppercase',
+                }}
+              >
+                BRAND
+              </div>
+            )}
+            {isCollapsed && <div style={{ height: 16 }} />}
+            {brandItems.map(({ id, label, icon }) => navItem(id, label, icon))}
+          </nav>
         </div>
 
-        {/* Navigation */}
-        <nav style={{ padding: isCollapsed ? '14px 6px' : '14px 10px', flex: 1, overflowY: 'auto' }}>
-          {/* WORKSPACE group */}
-          {!isCollapsed && (
-            <div
-              style={{
-                fontSize: 9,
-                fontWeight: 700,
-                letterSpacing: '0.08em',
-                textTransform: 'uppercase',
-                color: 'var(--text-muted)',
-                padding: '0 10px',
-                marginBottom: 6,
-              }}
-            >
-              WORKSPACE
-            </div>
-          )}
-          {workspaceItems.map(({ id, label, icon }) => navItem(id, label, icon))}
-
-          {/* BRAND group */}
-          {!isCollapsed && (
-            <div
-              style={{
-                fontSize: 9,
-                fontWeight: 700,
-                letterSpacing: '0.08em',
-                textTransform: 'uppercase',
-                color: 'var(--text-muted)',
-                padding: '0 10px',
-                marginTop: 20,
-                marginBottom: 6,
-              }}
-            >
-              BRAND
-            </div>
-          )}
-          {isCollapsed && <div style={{ height: 16 }} />}
-          {brandItems.map(({ id, label, icon }) => navItem(id, label, icon))}
-        </nav>
-
-        {/* Bottom Utility & Workspace / Account Section */}
+        {/* Bottom Workspace Selector & User Account Section */}
         <div
           ref={accountMenuRef}
           style={{
             borderTop: '1px solid var(--border)',
-            padding: isCollapsed ? '10px 6px 14px' : '14px 10px 16px',
+            padding: isCollapsed ? '10px 6px 14px' : '12px 10px 14px',
             display: 'flex',
             flexDirection: 'column',
-            gap: 10,
+            gap: 8,
             background: 'var(--sidebar)',
             position: 'relative',
           }}
@@ -369,13 +471,14 @@ export default function Sidebar({
                 style={{
                   border: '1px solid var(--border)',
                   borderRadius: 8,
-                  background: isBrandMenuOpen ? 'var(--surface)' : 'rgba(255, 252, 247, 0.65)',
+                  background: isBrandMenuOpen ? 'var(--surface)' : 'rgba(255, 252, 247, 0.8)',
                   padding: '8px 10px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   cursor: 'pointer',
                   transition: 'all 0.15s ease',
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
                 }}
                 onMouseEnter={e => {
                   (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-strong)';
@@ -384,45 +487,57 @@ export default function Sidebar({
                 onMouseLeave={e => {
                   if (!isBrandMenuOpen) {
                     (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
-                    (e.currentTarget as HTMLElement).style.background = 'rgba(255, 252, 247, 0.65)';
+                    (e.currentTarget as HTMLElement).style.background = 'rgba(255, 252, 247, 0.8)';
                   }
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  {/* Brand square logo */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: 1 }}>
+                  {/* Brand Monogram Avatar Badge */}
                   <div
                     style={{
-                      width: 32,
-                      height: 32,
+                      width: 30,
+                      height: 30,
                       borderRadius: 6,
-                      background: '#EDE4D8',
-                      border: '1px solid var(--border)',
+                      background: 'var(--brown-dark)',
+                      color: 'var(--surface)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      padding: '2px 4px',
-                      boxSizing: 'border-box',
+                      fontSize: 11,
+                      fontWeight: 800,
+                      letterSpacing: '-0.02em',
+                      fontFamily: 'var(--font-sans)',
                       flexShrink: 0,
+                      boxShadow: '0 1px 3px rgba(44, 24, 16, 0.15)',
                     }}
                   >
-                    <span
+                    {brandMonogram}
+                  </div>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div
                       style={{
-                        fontSize: 8,
-                        fontWeight: 800,
-                        letterSpacing: '0.04em',
+                        fontSize: 12,
+                        fontWeight: 700,
                         color: 'var(--text-primary)',
-                        textTransform: 'uppercase',
-                        fontFamily: 'var(--font-sans)',
+                        lineHeight: 1.2,
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
                       }}
                     >
                       {brandName}
-                    </span>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>
-                      {brandName}
                     </div>
-                    <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2, lineHeight: 1.2 }}>
+                    <div
+                      style={{
+                        fontSize: 10,
+                        color: 'var(--text-secondary)',
+                        marginTop: 1,
+                        lineHeight: 1.2,
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                      }}
+                    >
                       {campaign}
                     </div>
                   </div>
@@ -433,6 +548,8 @@ export default function Sidebar({
                   style={{
                     transform: isBrandMenuOpen ? 'rotate(180deg)' : 'none',
                     transition: 'transform 0.2s ease',
+                    flexShrink: 0,
+                    marginLeft: 4,
                   }}
                 />
               </div>
@@ -440,23 +557,23 @@ export default function Sidebar({
               /* Collapsed Brand Icon */
               <div
                 style={{
-                  width: 36,
-                  height: 36,
+                  width: 34,
+                  height: 34,
                   borderRadius: 8,
-                  background: '#EDE4D8',
-                  border: '1px solid var(--border)',
+                  background: 'var(--brown-dark)',
+                  color: 'var(--surface)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   margin: '0 auto',
                   cursor: 'pointer',
+                  fontSize: 12,
+                  fontWeight: 800,
                 }}
                 onClick={() => setIsBrandMenuOpen(!isBrandMenuOpen)}
                 title={`${brandName} · ${campaign}`}
               >
-                <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-primary)' }}>
-                  {brandName.charAt(0)}
-                </span>
+                {brandMonogram}
               </div>
             )}
 
@@ -469,11 +586,11 @@ export default function Sidebar({
                   left: isCollapsed ? 64 : 0,
                   right: isCollapsed ? 'auto' : 0,
                   marginBottom: 8,
-                  width: isCollapsed ? 240 : 'auto',
+                  width: isCollapsed ? 230 : 'auto',
                   background: 'var(--surface)',
                   border: '1px solid var(--border)',
-                  borderRadius: 10,
-                  boxShadow: 'var(--shadow-lg)',
+                  borderRadius: 9,
+                  boxShadow: '0 8px 24px rgba(32, 27, 23, 0.14)',
                   padding: '6px',
                   zIndex: 200,
                   display: 'flex',
@@ -483,18 +600,19 @@ export default function Sidebar({
               >
                 <div
                   style={{
-                    padding: '6px 8px 4px',
-                    fontSize: 10,
+                    padding: '4px 8px 4px',
+                    fontSize: 9,
                     fontWeight: 700,
-                    letterSpacing: '0.06em',
+                    letterSpacing: '0.07em',
                     color: 'var(--text-muted)',
                     textTransform: 'uppercase',
                   }}
                 >
-                  Switch Brand Workspace
+                  BRAND WORKSPACES
                 </div>
                 {brands.map(b => {
                   const isSelected = b.id === activeBrandId;
+                  const mono = getBrandMonogram(b.name);
                   return (
                     <button
                       key={b.id}
@@ -506,7 +624,8 @@ export default function Sidebar({
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        padding: '8px 10px',
+                        gap: 8,
+                        padding: '7px 8px',
                         borderRadius: 6,
                         border: 'none',
                         background: isSelected ? 'var(--brown-soft)' : 'transparent',
@@ -525,15 +644,34 @@ export default function Sidebar({
                         }
                       }}
                     >
-                      <div>
-                        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>
-                          {b.name}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                        <div
+                          style={{
+                            width: 22,
+                            height: 22,
+                            borderRadius: 4,
+                            background: isSelected ? 'var(--brown-dark)' : 'rgba(238, 231, 220, 0.8)',
+                            color: isSelected ? 'var(--surface)' : 'var(--text-primary)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: 9,
+                            fontWeight: 800,
+                            flexShrink: 0,
+                          }}
+                        >
+                          {mono}
                         </div>
-                        <div style={{ fontSize: 10, color: 'var(--text-secondary)', marginTop: 1 }}>
-                          {b.campaign}
+                        <div style={{ minWidth: 0 }}>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>
+                            {b.name}
+                          </div>
+                          <div style={{ fontSize: 10, color: 'var(--text-secondary)', marginTop: 1, lineHeight: 1.2 }}>
+                            {b.campaign}
+                          </div>
                         </div>
                       </div>
-                      {isSelected && <Check size={14} color="var(--brown-primary)" strokeWidth={2.5} />}
+                      {isSelected && <Check size={13} color="var(--brown-primary)" strokeWidth={2.5} />}
                     </button>
                   );
                 })}
@@ -546,8 +684,8 @@ export default function Sidebar({
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 8,
-                    padding: '7px 10px',
+                    gap: 7,
+                    padding: '6px 8px',
                     borderRadius: 6,
                     border: 'none',
                     background: 'transparent',
@@ -564,7 +702,7 @@ export default function Sidebar({
                     (e.currentTarget as HTMLElement).style.background = 'transparent';
                   }}
                 >
-                  <Building2 size={13} />
+                  <Building2 size={12} />
                   Manage Brand & Catalog
                 </button>
               </div>
@@ -690,7 +828,7 @@ export default function Sidebar({
               alignItems: 'center',
               justifyContent: isCollapsed ? 'center' : 'space-between',
               gap: 10,
-              padding: isCollapsed ? '6px 0' : '4px 4px',
+              padding: isCollapsed ? '6px 0' : '5px 6px',
               borderRadius: 6,
               background: isAccountMenuOpen ? 'rgba(217, 200, 181, 0.45)' : 'transparent',
               border: 'none',
@@ -713,14 +851,14 @@ export default function Sidebar({
               {/* Circular Avatar with Initial */}
               <div
                 style={{
-                  width: 36,
-                  height: 36,
+                  width: 32,
+                  height: 32,
                   borderRadius: '50%',
                   background: 'linear-gradient(135deg, #E2D5C3 0%, #CBB9A2 100%)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: 14,
+                  fontSize: 13,
                   fontWeight: 600,
                   color: '#211914',
                   flexShrink: 0,
@@ -763,7 +901,7 @@ export default function Sidebar({
 
             {!isCollapsed && (
               <div style={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}>
-                <ChevronRight size={16} color="var(--text-muted)" />
+                <ChevronRight size={15} color="var(--text-muted)" />
               </div>
             )}
           </button>
