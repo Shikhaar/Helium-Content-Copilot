@@ -294,31 +294,40 @@ export default function Dashboard({
                     borderRadius: 12,
                     background: 'var(--surface)',
                     cursor: 'pointer',
-                    transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
-                    padding: '20px 22px',
-                    boxShadow: '0 2px 8px rgba(32, 27, 23, 0.04)',
+                    transition: 'all 0.15s ease',
+                    padding: '16px 18px',
+                    boxShadow: '0 1px 3px rgba(32, 27, 23, 0.03)',
                   }}
                   onClick={() => onViewOpportunity(topOpp.id)}
                   onMouseEnter={e => {
                     (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-strong)';
-                    (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 16px rgba(32, 27, 23, 0.08)';
+                    (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 14px rgba(32, 27, 23, 0.06)';
                   }}
                   onMouseLeave={e => {
                     (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
-                    (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(32, 27, 23, 0.04)';
+                    (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 3px rgba(32, 27, 23, 0.03)';
                   }}
                 >
-                  <div className="hero-card-layout">
-                    {/* ── Left: 3-Image Collage ── */}
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '135px minmax(0, 1fr) 160px',
+                      gap: 16,
+                      alignItems: 'stretch',
+                    }}
+                    className="hero-card-layout"
+                  >
+                    {/* ── Left: 3-Image Collage (135px x 135px) ── */}
                     <div
                       style={{
                         display: 'grid',
                         gridTemplateColumns: '1.2fr 0.9fr',
-                        gap: 4,
-                        height: 180,
+                        gap: 3,
+                        width: 135,
+                        height: 135,
                         borderRadius: 8,
                         overflow: 'hidden',
-                        background: 'rgba(238, 231, 220, 0.5)',
+                        background: 'rgba(238, 231, 220, 0.4)',
                         flexShrink: 0,
                       }}
                     >
@@ -334,7 +343,7 @@ export default function Dashboard({
                         />
                       </div>
                       {/* Stacked 2 portraits on right */}
-                      <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr', gap: 4, height: '100%' }}>
+                      <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr', gap: 3, height: '100%' }}>
                         <div style={{ position: 'relative', overflow: 'hidden' }}>
                           <img
                             src={collage.top}
@@ -365,38 +374,41 @@ export default function Dashboard({
                         <h2
                           className="serif-heading"
                           style={{
-                            fontSize: 21,
+                            fontSize: 18,
                             fontWeight: 600,
                             color: 'var(--text-primary)',
                             lineHeight: 1.25,
-                            marginBottom: 8,
+                            marginBottom: 6,
                             letterSpacing: '-0.01em',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
                           }}
                         >
                           {topOpp.title}
                         </h2>
 
                         {/* Pill tags */}
-                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
+                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
                           <span
                             style={{
-                              fontSize: 11,
+                              fontSize: 10,
                               fontWeight: 600,
-                              padding: '3px 9px',
-                              borderRadius: 5,
+                              padding: '2px 7px',
+                              borderRadius: 4,
                               background: 'rgba(238, 231, 220, 0.85)',
                               color: 'var(--brown-dark)',
                               fontFamily: 'var(--font-sans)',
                             }}
                           >
-                            {topOpp.objective || 'Product Education'}
+                            {topOpp.objective || 'Product Discovery'}
                           </span>
                           <span
                             style={{
-                              fontSize: 11,
+                              fontSize: 10,
                               fontWeight: 600,
-                              padding: '3px 9px',
-                              borderRadius: 5,
+                              padding: '2px 7px',
+                              borderRadius: 4,
                               background: 'rgba(238, 231, 220, 0.85)',
                               color: 'var(--brown-dark)',
                               fontFamily: 'var(--font-sans)',
@@ -405,19 +417,23 @@ export default function Dashboard({
                             {topOpp.platform} {topOpp.format}
                           </span>
                           {topOpp.is_demo && (
-                            <span className="demo-banner" style={{ margin: 0, padding: '2px 7px', fontSize: 10 }}>
+                            <span className="demo-banner" style={{ margin: 0, padding: '2px 6px', fontSize: 9 }}>
                               Demo
                             </span>
                           )}
                         </div>
 
-                        {/* Strategic qualitative reasoning */}
+                        {/* Strategic qualitative reasoning (clamped to 2 lines) */}
                         <p
                           style={{
-                            fontSize: 13,
+                            fontSize: 12,
                             color: 'var(--text-secondary)',
-                            lineHeight: 1.45,
-                            marginBottom: 12,
+                            lineHeight: 1.4,
+                            marginBottom: 8,
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
                           }}
                         >
                           {topOpp.why}
@@ -425,24 +441,24 @@ export default function Dashboard({
                       </div>
 
                       {/* Dynamic Real-Time Multiplier Stats Row */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 20, paddingTop: 4 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                         <div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>
-                            <span style={{ color: 'var(--green)', fontSize: 14 }}>↑</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>
+                            <span style={{ color: 'var(--green)', fontSize: 13 }}>↑</span>
                             <span>{heroFormatEr.toFixed(1)}% engagement</span>
                           </div>
-                          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>
+                          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 1 }}>
                             Historical avg
                           </div>
                         </div>
 
-                        <div style={{ width: 1, height: 26, background: 'var(--border)' }} />
+                        <div style={{ width: 1, height: 20, background: 'var(--border)' }} />
 
                         <div>
-                          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>
                             {heroMultiplier}x
                           </div>
-                          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>
+                          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 1 }}>
                             vs brand average
                           </div>
                         </div>
@@ -453,12 +469,13 @@ export default function Dashboard({
                     <div
                       style={{
                         borderLeft: '1px solid var(--border)',
-                        paddingLeft: 20,
+                        paddingLeft: 16,
                         display: 'flex',
                         flexDirection: 'column',
                         justifyContent: 'space-between',
                         alignItems: 'flex-start',
-                        minWidth: 175,
+                        height: '100%',
+                        minHeight: 135,
                         flexShrink: 0,
                       }}
                       className="hero-score-pillar"
@@ -468,17 +485,16 @@ export default function Dashboard({
                         <div style={{ display: 'flex', alignItems: 'baseline', gap: 2 }}>
                           <span
                             style={{
-                              fontSize: 46,
+                              fontSize: 38,
                               fontFamily: 'var(--font-serif)',
                               fontWeight: 600,
                               color: '#343B2A',
                               lineHeight: 1,
-                              letterSpacing: '-0.02em',
                             }}
                           >
                             {topOpp.score}
                           </span>
-                          <span style={{ fontSize: 14, color: 'var(--text-muted)', fontFamily: 'var(--font-serif)' }}>
+                          <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'var(--font-serif)' }}>
                             /100
                           </span>
                         </div>
@@ -486,10 +502,10 @@ export default function Dashboard({
                         {/* Confidence Badge */}
                         <div
                           style={{
-                            fontSize: 11,
+                            fontSize: 10,
                             fontWeight: 600,
                             color: topOpp.score >= 90 ? 'var(--green)' : topOpp.score >= 75 ? 'var(--amber)' : 'var(--text-muted)',
-                            marginTop: 6,
+                            marginTop: 4,
                           }}
                         >
                           {topOpp.score >= 90 ? 'High confidence' : topOpp.score >= 75 ? 'Good confidence' : 'Moderate'}
@@ -504,19 +520,19 @@ export default function Dashboard({
                           onViewOpportunity(topOpp.id);
                         }}
                         style={{
-                          fontSize: 12,
+                          fontSize: 11,
                           fontWeight: 600,
-                          borderRadius: 7,
-                          padding: '9px 14px',
+                          borderRadius: 6,
+                          padding: '7px 11px',
                           background: '#3A382C',
                           color: '#FAF8F5',
                           border: 'none',
                           cursor: 'pointer',
                           display: 'inline-flex',
                           alignItems: 'center',
-                          gap: 6,
+                          gap: 4,
                           whiteSpace: 'nowrap',
-                          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                          boxShadow: '0 1px 2px rgba(0,0,0,0.08)',
                           transition: 'background 0.15s ease',
                         }}
                         onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = '#2B2A20')}

@@ -579,23 +579,24 @@ h1, h2, h3, h4 {
 /* ── Hero Opportunity Card Layout ────────────────── */
 .hero-card-layout {
   display: grid;
-  grid-template-columns: 200px 1fr auto;
-  gap: 20px;
+  grid-template-columns: 135px minmax(0, 1fr) 155px;
+  gap: 16px;
   align-items: stretch;
 }
 @media (max-width: 900px) {
   .hero-card-layout {
     grid-template-columns: 1fr !important;
-    gap: 16px !important;
+    gap: 14px !important;
   }
   .hero-score-pillar {
     border-left: none !important;
     border-top: 1px solid var(--border) !important;
     padding-left: 0 !important;
-    padding-top: 16px !important;
+    padding-top: 14px !important;
     flex-direction: row !important;
     justify-content: space-between !important;
     align-items: center !important;
     width: 100% !important;
+    min-height: auto !important;
   }
 }
