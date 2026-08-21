@@ -502,232 +502,309 @@ export default function Dashboard({
             </div>
           )}
 
-          {/* ── 2. Lower Section: Other Opportunities List ── */}
+          {/* ── 2. Lower Section: 70/30 side-by-side grid ── */}
           {otherOpps.length > 0 && (
-            <div>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  marginBottom: 12,
-                }}
-              >
-                <div className="label">
-                  OTHER OPPORTUNITIES ({otherOpps.length})
-                </div>
-                {otherOpps.length > 3 && (
-                  <button
-                    onClick={() => setShowAllOpportunities(!showAllOpportunities)}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: 'var(--brown-primary)',
-                      fontSize: 11,
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 4,
-                      padding: 0,
-                    }}
-                  >
-                    {showAllOpportunities ? 'Show 3' : `View all ${otherOpps.length}`}
-                    {showAllOpportunities ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-                  </button>
-                )}
-              </div>
-
-              <div style={{ border: '1px solid var(--border)', borderRadius: 12, background: 'var(--surface)', overflow: 'hidden' }}>
-                {visibleOtherOpps.map((opp, i) => {
-                  const thumbUrl = OTHER_OPP_THUMBNAILS[i % OTHER_OPP_THUMBNAILS.length];
-                  const isLast = i === visibleOtherOpps.length - 1 && (!otherOpps.length || otherOpps.length <= 3 || showAllOpportunities);
-                  return (
-                    <div
-                      key={opp.id}
-                      id={`opportunity-row-${i + 2}`}
-                      onClick={() => onViewOpportunity(opp.id)}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 0.42fr',
+                gap: 20,
+                alignItems: 'stretch',
+              }}
+            >
+              {/* ── Left 70%: Other Opportunities ── */}
+              <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: 12,
+                  }}
+                >
+                  <div className="label">OTHER OPPORTUNITIES ({otherOpps.length})</div>
+                  {otherOpps.length > 3 && (
+                    <button
+                      onClick={() => setShowAllOpportunities(!showAllOpportunities)}
                       style={{
+                        background: 'none',
+                        border: 'none',
+                        color: 'var(--brown-primary)',
+                        fontSize: 11,
+                        fontWeight: 600,
+                        cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: 16,
-                        padding: '14px 20px',
-                        borderBottom: isLast ? 'none' : '1px solid var(--border)',
-                        cursor: 'pointer',
-                        transition: 'background 0.12s ease',
+                        gap: 4,
+                        padding: 0,
                       }}
-                      onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'var(--surface-subtle)')}
-                      onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'transparent')}
                     >
-                      <div
-                        style={{
-                          fontSize: 12,
-                          fontWeight: 700,
-                          color: 'var(--text-muted)',
-                          width: 22,
-                          flexShrink: 0,
-                          fontVariantNumeric: 'tabular-nums',
-                        }}
-                      >
-                        {String(i + 2).padStart(2, '0')}
-                      </div>
+                      {showAllOpportunities ? 'Show 3' : `View all ${otherOpps.length}`}
+                      {showAllOpportunities ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+                    </button>
+                  )}
+                </div>
 
-                      {/* 36x36px Product thumbnail */}
+                <div style={{ border: '1px solid var(--border)', borderRadius: 12, background: 'var(--surface)', overflow: 'hidden', flex: 1 }}>
+                  {visibleOtherOpps.map((opp, i) => {
+                    const thumbUrl = OTHER_OPP_THUMBNAILS[i % OTHER_OPP_THUMBNAILS.length];
+                    const isLast = i === visibleOtherOpps.length - 1 && (!otherOpps.length || otherOpps.length <= 3 || showAllOpportunities);
+                    return (
                       <div
+                        key={opp.id}
+                        id={`opportunity-row-${i + 2}`}
+                        onClick={() => onViewOpportunity(opp.id)}
                         style={{
-                          width: 36,
-                          height: 36,
-                          borderRadius: 6,
-                          overflow: 'hidden',
-                          background: 'rgba(238, 231, 220, 0.6)',
-                          flexShrink: 0,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 16,
+                          padding: '14px 20px',
+                          borderBottom: isLast ? 'none' : '1px solid var(--border)',
+                          cursor: 'pointer',
+                          transition: 'background 0.12s ease',
                         }}
+                        onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'var(--surface-subtle)')}
+                        onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'transparent')}
                       >
-                        <img
-                          src={thumbUrl}
-                          alt={opp.title}
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                          onError={e => {
-                            (e.currentTarget as HTMLElement).style.display = 'none';
-                          }}
-                        />
-                      </div>
-
-                      <div style={{ flex: 1, minWidth: 0 }}>
                         <div
                           style={{
-                            fontSize: 13,
-                            fontWeight: 600,
-                            color: 'var(--text-primary)',
-                            marginBottom: 4,
-                            letterSpacing: '-0.01em',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
+                            fontSize: 12,
+                            fontWeight: 700,
+                            color: 'var(--text-muted)',
+                            width: 22,
+                            flexShrink: 0,
+                            fontVariantNumeric: 'tabular-nums',
                           }}
                         >
-                          {opp.title}
+                          {String(i + 2).padStart(2, '0')}
                         </div>
-                        <div style={{ display: 'flex', gap: 5 }}>
-                          <span className="badge badge-neutral" style={{ fontSize: 10 }}>{opp.format.toUpperCase()}</span>
-                          <span className="badge badge-neutral" style={{ fontSize: 10 }}>{opp.platform.toUpperCase()}</span>
+
+                        {/* 36x36px Product thumbnail */}
+                        <div
+                          style={{
+                            width: 36,
+                            height: 36,
+                            borderRadius: 6,
+                            overflow: 'hidden',
+                            background: 'rgba(238, 231, 220, 0.6)',
+                            flexShrink: 0,
+                          }}
+                        >
+                          <img
+                            src={thumbUrl}
+                            alt={opp.title}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            onError={e => {
+                              (e.currentTarget as HTMLElement).style.display = 'none';
+                            }}
+                          />
+                        </div>
+
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div
+                            style={{
+                              fontSize: 13,
+                              fontWeight: 600,
+                              color: 'var(--text-primary)',
+                              marginBottom: 4,
+                              letterSpacing: '-0.01em',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
+                            {opp.title}
+                          </div>
+                          <div style={{ display: 'flex', gap: 5 }}>
+                            <span className="badge badge-neutral" style={{ fontSize: 10 }}>{opp.format.toUpperCase()}</span>
+                            <span className="badge badge-neutral" style={{ fontSize: 10 }}>{opp.platform.toUpperCase()}</span>
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                          <div>
+                            <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+                              {opp.score}
+                            </span>
+                            <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 1 }}>/100</span>
+                          </div>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-muted)' }}>→</div>
                         </div>
                       </div>
+                    );
+                  })}
 
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-                        <div>
-                          <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
-                            {opp.score}
-                          </span>
-                          <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 1 }}>/100</span>
-                        </div>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-muted)' }}>→</div>
-                      </div>
-                    </div>
-                  );
-                })}
+                  {/* View More Button */}
+                  {otherOpps.length > 3 && (
+                    <button
+                      onClick={() => setShowAllOpportunities(!showAllOpportunities)}
+                      style={{
+                        width: '100%',
+                        padding: '12px 16px',
+                        background: 'rgba(255, 252, 247, 0.75)',
+                        borderTop: '1px solid var(--border)',
+                        borderLeft: 'none',
+                        borderRight: 'none',
+                        borderBottom: 'none',
+                        color: 'var(--brown-primary)',
+                        fontSize: 12,
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 6,
+                        transition: 'background 0.15s ease',
+                      }}
+                      onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'var(--surface-subtle)')}
+                      onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(255, 252, 247, 0.75)')}
+                    >
+                      <span>
+                        {showAllOpportunities
+                          ? 'Show fewer opportunities ↑'
+                          : `View ${otherOpps.length - 3} more opportunities (${otherOpps.length} total) ↓`}
+                      </span>
+                    </button>
+                  )}
+                </div>
+              </div>
 
-                {/* Bottom View More Button */}
-                {otherOpps.length > 3 && (
-                  <button
-                    onClick={() => setShowAllOpportunities(!showAllOpportunities)}
+              {/* ── Right 30%: Instagram Connect Panel ── */}
+              <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+                {/* Spacer to align with opportunities label row */}
+                <div style={{ height: 28, marginBottom: 12 }} />
+
+                <div
+                  style={{
+                    flex: 1,
+                    border: '1px solid var(--border)',
+                    borderRadius: 12,
+                    background: 'var(--surface)',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    position: 'relative',
+                  }}
+                >
+                  {/* Subtle warm gradient top accent */}
+                  <div
                     style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      background: 'rgba(255, 252, 247, 0.75)',
-                      borderTop: '1px solid var(--border)',
-                      borderLeft: 'none',
-                      borderRight: 'none',
-                      borderBottom: 'none',
-                      color: 'var(--brown-primary)',
-                      fontSize: 12,
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: 6,
-                      transition: 'background 0.15s ease',
+                      height: 3,
+                      background: 'linear-gradient(90deg, rgba(181,154,110,0.5) 0%, rgba(197,170,125,0.35) 60%, transparent 100%)',
+                      flexShrink: 0,
                     }}
-                    onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'var(--surface-subtle)')}
-                    onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(255, 252, 247, 0.75)')}
-                  >
-                    <span>
-                      {showAllOpportunities
-                        ? 'Show fewer opportunities ↑'
-                        : `View ${otherOpps.length - 3} more opportunities (${otherOpps.length} total) ↓`}
-                    </span>
-                  </button>
-                )}
+                  />
+
+                  <div style={{ padding: '24px 20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                    {/* Instagram gradient icon */}
+                    <div
+                      style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: 10,
+                        background: 'linear-gradient(135deg, #f9a825 0%, #e91e8c 50%, #9c27b0 100%)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginBottom: 16,
+                        flexShrink: 0,
+                        opacity: 0.9,
+                      }}
+                    >
+                      <InstagramIcon size={20} color="white" />
+                    </div>
+
+                    <div
+                      style={{
+                        fontSize: 14,
+                        fontWeight: 700,
+                        color: 'var(--text-primary)',
+                        letterSpacing: '-0.02em',
+                        lineHeight: 1.3,
+                        marginBottom: 8,
+                      }}
+                    >
+                      Unlock deeper insights
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 12,
+                        color: 'var(--text-secondary)',
+                        lineHeight: 1.5,
+                        flex: 1,
+                        marginBottom: 20,
+                      }}
+                    >
+                      Connect your Instagram account to get live account metrics, real-time audience affinity, and personalised content recommendations.
+                    </div>
+
+                    {/* Coming soon pill */}
+                    <div
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 5,
+                        padding: '3px 9px',
+                        borderRadius: 20,
+                        background: 'rgba(238, 231, 220, 0.8)',
+                        border: '1px solid rgba(181, 154, 110, 0.3)',
+                        fontSize: 10,
+                        fontWeight: 600,
+                        color: 'var(--brown-dark)',
+                        letterSpacing: '0.03em',
+                        marginBottom: 14,
+                        width: 'fit-content',
+                      }}
+                    >
+                      <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--amber)' }} />
+                      COMING SOON
+                    </div>
+
+                    <button
+                      onClick={handleConnectInstagram}
+                      style={{
+                        width: '100%',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 7,
+                        padding: '9px 14px',
+                        background: isInstagramClicked
+                          ? 'linear-gradient(135deg, #f9a825 0%, #e91e8c 50%, #9c27b0 100%)'
+                          : '#3A382C',
+                        border: 'none',
+                        borderRadius: 8,
+                        fontSize: 12,
+                        fontWeight: 600,
+                        color: '#FAF8F5',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        boxShadow: isInstagramClicked
+                          ? '0 4px 12px rgba(233, 30, 140, 0.25)'
+                          : '0 2px 4px rgba(0,0,0,0.1)',
+                      }}
+                      onMouseEnter={e => {
+                        if (!isInstagramClicked) {
+                          (e.currentTarget as HTMLElement).style.background = '#2B2A20';
+                          (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
+                        }
+                      }}
+                      onMouseLeave={e => {
+                        if (!isInstagramClicked) {
+                          (e.currentTarget as HTMLElement).style.background = '#3A382C';
+                          (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                        }
+                      }}
+                    >
+                      <InstagramIcon size={13} color="white" />
+                      <span>{isInstagramClicked ? 'Coming Soon!' : 'Connect Instagram'}</span>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           )}
 
-          {/* ── 3. Bottom Minimal Instagram Connect Card ── */}
-          <div
-            style={{
-              padding: '18px 24px',
-              background: 'rgba(238, 231, 220, 0.45)',
-              border: '1px solid var(--border)',
-              borderRadius: 12,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 16,
-              flexWrap: 'wrap',
-            }}
-          >
-            <div>
-              <div
-                style={{
-                  fontSize: 14,
-                  fontWeight: 600,
-                  color: 'var(--text-primary)',
-                  marginBottom: 2,
-                  letterSpacing: '-0.01em',
-                }}
-              >
-                Want more personalised insights?
-              </div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
-                Connect your Instagram account to unlock live account metrics and real-time audience affinity.
-              </div>
-            </div>
-
-            <button
-              onClick={handleConnectInstagram}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 8,
-                padding: '8px 16px',
-                background: isInstagramClicked ? 'var(--brown-soft)' : 'var(--surface)',
-                border: `1px solid ${isInstagramClicked ? 'var(--brown-primary)' : 'var(--border)'}`,
-                borderRadius: 7,
-                fontSize: 12,
-                fontWeight: 500,
-                color: isInstagramClicked ? 'var(--brown-primary)' : 'var(--text-primary)',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease',
-                boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
-              }}
-              onMouseEnter={e => {
-                if (!isInstagramClicked) {
-                  (e.currentTarget as HTMLElement).style.background = 'var(--bg-subtle)';
-                  (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-strong)';
-                }
-              }}
-              onMouseLeave={e => {
-                if (!isInstagramClicked) {
-                  (e.currentTarget as HTMLElement).style.background = 'var(--surface)';
-                  (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
-                }
-              }}
-            >
-              <InstagramIcon size={14} color={isInstagramClicked ? 'var(--brown-primary)' : 'var(--text-primary)'} />
-              <span>{isInstagramClicked ? 'Coming Soon' : 'Connect Instagram'}</span>
-            </button>
-          </div>
         </div>
       )}
     </div>
