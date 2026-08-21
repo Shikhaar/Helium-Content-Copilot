@@ -55,16 +55,28 @@ class ContentGeneratorService:
 
         opportunity = await self._opportunity_repo.get_by_id(request.opportunity_id)
         if not opportunity:
-            raise ValueError(f"Opportunity not found: {request.opportunity_id}")
-
-        product = await self._product_repo.get_by_id(opportunity.suggested_product_id)
-        if not product:
-            raise ValueError(f"Product not found: {opportunity.suggested_product_id}")
+            all_opps = await self._opportunity_repo.list_all()
+            matching_opp = next((o for o in all_opps if o.id == request.opportunity_id), None)
+            if matching_opp:
+                opportunity = matching_opp
+            elif all_opps:
+                opportunity = all_opps[0]
+            else:
+                raise ValueError(f"Opportunity not found: {request.opportunity_id}")
 
         brand_id = getattr(opportunity, "brand_id", "snitch") or "snitch"
         brand = await self._brand_repo.get_by_id(brand_id) or await self._brand_repo.get()
         if not brand:
             raise ValueError("Brand not seeded")
+
+        product = await self._product_repo.get_by_id(opportunity.suggested_product_id)
+        if not product:
+            brand_prods = await self._product_repo.list_all(brand_id=brand.id)
+            if brand_prods:
+                product = brand_prods[0]
+            else:
+                raise ValueError(f"Product not found: {opportunity.suggested_product_id}")
+
 
         raw_content, is_demo = await self._ai.generate_content(
             opportunity=opportunity,

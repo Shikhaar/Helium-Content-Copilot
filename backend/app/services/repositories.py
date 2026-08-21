@@ -392,7 +392,15 @@ class OpportunityRepository(BaseRepository[Opportunity]):
 
     @staticmethod
     def _row_to_opportunity(row: aiosqlite.Row) -> Opportunity:
-        breakdown_data = json.loads(row["score_breakdown"])
+        raw_sb = row["score_breakdown"]
+        if raw_sb:
+            try:
+                breakdown_data = json.loads(raw_sb) if isinstance(raw_sb, str) else raw_sb
+            except Exception:
+                breakdown_data = {}
+        else:
+            breakdown_data = {}
+
         return Opportunity(
             id=row["id"],
             brand_id=row["brand_id"] if "brand_id" in row.keys() else "snitch",

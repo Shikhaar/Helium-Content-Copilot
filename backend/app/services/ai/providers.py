@@ -41,6 +41,30 @@ from app.services.ai.validator import ContentQualityValidator
 logger = get_logger(__name__)
 
 
+def _safe_parse_json(raw: str) -> dict:
+    """Safely parse JSON from LLM response, stripping markdown fences if present."""
+    if not raw or not raw.strip():
+        return {}
+    cleaned = raw.strip()
+    if cleaned.startswith("```json"):
+        cleaned = cleaned[7:]
+    elif cleaned.startswith("```"):
+        cleaned = cleaned[3:]
+    if cleaned.endswith("```"):
+        cleaned = cleaned[:-3]
+    cleaned = cleaned.strip()
+    start = cleaned.find("{")
+    end = cleaned.rfind("}")
+    if start != -1 and end != -1 and end > start:
+        cleaned = cleaned[start:end + 1]
+    try:
+        return json.loads(cleaned)
+    except Exception as e:
+        logger.warning("Failed to parse JSON string (%s): %s", e, cleaned[:100])
+        raise
+
+
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Abstract Base
 # ──────────────────────────────────────────────────────────────────────────────
@@ -126,7 +150,7 @@ class OpenAIProvider(BaseAIProvider):
             logger.info("AI provider responded in %dms", latency_ms)
             logger.debug("Raw opportunities JSON: %s", raw_json[:300])
 
-            data = json.loads(raw_json)
+            data = _safe_parse_json(raw_json)
             validated = AIOpportunitiesResponse(**data)
             return validated, False
         except Exception as exc:
@@ -165,7 +189,7 @@ class OpenAIProvider(BaseAIProvider):
             raw_json = response.choices[0].message.content or "{}"
             logger.info("AI content generation responded in %dms", latency_ms)
 
-            data = json.loads(raw_json)
+            data = _safe_parse_json(raw_json)
             validated = AIContentRaw(**data)
 
             # Deterministic Content Quality Validation Guardrail
@@ -203,7 +227,7 @@ class OpenAIProvider(BaseAIProvider):
             )
 
             retry_raw_json = retry_response.choices[0].message.content or "{}"
-            retry_data = json.loads(retry_raw_json)
+            retry_data = _safe_parse_json(retry_raw_json)
             retry_validated = AIContentRaw(**retry_data)
 
             retry_validation = ContentQualityValidator.validate(retry_validated, product, request.format)
@@ -218,6 +242,7 @@ class OpenAIProvider(BaseAIProvider):
             logger.warning("AI provider generate_content error (%s) — using fallback demo data", exc)
             content_key = opportunity.id if opportunity.id in FALLBACK_CONTENT else "default"
             return FALLBACK_CONTENT[content_key], True
+
 
 
 # ──────────────────────────────────────────────────────────────────────────────
