@@ -579,8 +579,8 @@ h1, h2, h3, h4 {
 /* ── Hero Opportunity Card Layout ────────────────── */
 .hero-card-layout {
   display: grid;
-  grid-template-columns: 210px minmax(0, 1fr) auto;
-  gap: 32px;
+  grid-template-columns: 220px minmax(0, 1fr) auto;
+  gap: 36px;
   align-items: stretch;
 }
 @media (max-width: 960px) {
@@ -600,3 +600,91 @@ h1, h2, h3, h4 {
     min-height: auto !important;
   }
 }
+
+/* ── Opportunity Separator List ──────────────────── */
+.opp-list-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.12s ease;
+  border-radius: 6px;
+  padding-left: 8px;
+  padding-right: 8px;
+  margin-left: -8px;
+  margin-right: -8px;
+}
+.opp-list-row:last-child {
+  border-bottom: none;
+}
+.opp-list-row:hover {
+  background: rgba(217, 200, 181, 0.2);
+}
+
+/* ── Metrics Plain Row ───────────────────────────── */
+.metrics-plain-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  padding: 0;
+  margin-bottom: 36px;
+}
+.metrics-plain-item {
+  flex: 1;
+  min-width: 80px;
+  padding-right: 28px;
+  position: relative;
+}
+.metrics-plain-item + .metrics-plain-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 2px;
+  height: 28px;
+  width: 1px;
+  background: var(--border);
+}
+.metrics-plain-item + .metrics-plain-item {
+  padding-left: 28px;
+}
+@media (max-width: 640px) {
+  .metrics-plain-row {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .metrics-plain-item + .metrics-plain-item::before {
+    display: none;
+  }
+  .metrics-plain-item + .metrics-plain-item {
+    padding-left: 0;
+  }
+}
+
+/* ── Evidence Inline Row ─────────────────────────── */
+.evidence-inline-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-wrap: wrap;
+}
+.evidence-stat {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+.evidence-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+.evidence-sep {
+  width: 1px;
+  height: 24px;
+  background: var(--border);
+  margin: 0 18px;
+  flex-shrink: 0;
+}
+

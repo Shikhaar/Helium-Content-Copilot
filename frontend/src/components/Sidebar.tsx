@@ -457,13 +457,27 @@ export default function Sidebar({
             padding: isCollapsed ? '10px 6px 14px' : '12px 10px 14px',
             display: 'flex',
             flexDirection: 'column',
-            gap: 8,
+            gap: 0,
             background: 'var(--sidebar)',
             position: 'relative',
           }}
         >
-          {/* Workspace Switcher Card */}
-          <div ref={brandMenuRef} style={{ position: 'relative' }}>
+          {/* ── BRAND Section ── */}
+          {!isCollapsed && (
+            <div
+              style={{
+                fontSize: 9,
+                fontWeight: 700,
+                letterSpacing: '0.08em',
+                color: 'var(--text-muted)',
+                textTransform: 'uppercase',
+                padding: '0 4px 7px',
+              }}
+            >
+              Brand
+            </div>
+          )}
+
             {!isCollapsed ? (
               <div
                 onClick={() => setIsBrandMenuOpen(!isBrandMenuOpen)}
@@ -707,10 +721,28 @@ export default function Sidebar({
                 </button>
               </div>
             )}
-          </div>
+
+          {/* ── Separator + ACCOUNT Section ── */}
+
+          <div style={{ height: 1, background: 'var(--border)', margin: isCollapsed ? '8px 0' : '10px 0' }} />
+          {!isCollapsed && (
+            <div
+              style={{
+                fontSize: 9,
+                fontWeight: 700,
+                letterSpacing: '0.08em',
+                color: 'var(--text-muted)',
+                textTransform: 'uppercase',
+                padding: '0 4px 7px',
+              }}
+            >
+              Account
+            </div>
+          )}
 
           {/* Account Popover Menu */}
           {isAccountMenuOpen && (
+
             <div
               style={{
                 position: 'absolute',
