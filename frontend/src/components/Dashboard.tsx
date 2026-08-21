@@ -416,7 +416,7 @@ export default function Dashboard({
           </div>
 
           {/* ── Right Column: Insights & Instagram Connect Card ─────────────────── */}
-          <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: 24 }}>
+          <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: 24, height: '100%', justifyContent: 'space-between' }}>
             <div>
               {/* Header sitting on identical horizontal baseline */}
               <div
@@ -474,9 +474,10 @@ export default function Dashboard({
               </div>
             </div>
 
-            {/* CONNECT INSTAGRAM PROMPT CARD (Bottom of Right Rail) */}
+            {/* CONNECT INSTAGRAM PROMPT CARD (Bottom Right of Screen) */}
             <div
               style={{
+                marginTop: 'auto',
                 padding: '16px 18px',
                 background: 'rgba(238, 231, 220, 0.55)',
                 border: '1px solid var(--border)',
