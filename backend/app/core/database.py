@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS brands (
 
 CREATE TABLE IF NOT EXISTS products (
     id               TEXT PRIMARY KEY,
-    brand_id         TEXT NOT NULL DEFAULT 'snitch' REFERENCES brands(id),
+    brand_id         TEXT NOT NULL DEFAULT 'snitch' REFERENCES brands(id) ON DELETE CASCADE,
     name             TEXT NOT NULL,
     category         TEXT NOT NULL,
     price_inr        INTEGER NOT NULL,
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS products (
 
 CREATE TABLE IF NOT EXISTS historical_posts (
     id              TEXT PRIMARY KEY,
-    brand_id        TEXT NOT NULL DEFAULT 'snitch' REFERENCES brands(id),
+    brand_id        TEXT NOT NULL DEFAULT 'snitch' REFERENCES brands(id) ON DELETE CASCADE,
     platform        TEXT NOT NULL,
     format          TEXT NOT NULL,
     caption         TEXT NOT NULL,
@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS historical_posts (
 
 CREATE TABLE IF NOT EXISTS opportunities (
     id                  TEXT PRIMARY KEY,
-    brand_id            TEXT NOT NULL DEFAULT 'snitch' REFERENCES brands(id),
+    brand_id            TEXT NOT NULL DEFAULT 'snitch' REFERENCES brands(id) ON DELETE CASCADE,
     analysis_run_id     TEXT,
     title               TEXT NOT NULL,
     content_angle       TEXT NOT NULL,
@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS opportunities (
 
 CREATE TABLE IF NOT EXISTS content_drafts (
     id              TEXT PRIMARY KEY,
-    brand_id        TEXT NOT NULL DEFAULT 'snitch' REFERENCES brands(id),
+    brand_id        TEXT NOT NULL DEFAULT 'snitch' REFERENCES brands(id) ON DELETE CASCADE,
     opportunity_id  TEXT REFERENCES opportunities(id),
     platform        TEXT NOT NULL,
     format          TEXT NOT NULL,
@@ -109,7 +109,7 @@ CREATE TABLE IF NOT EXISTS content_drafts (
 
 CREATE TABLE IF NOT EXISTS calendar_entries (
     id          TEXT PRIMARY KEY,
-    brand_id    TEXT NOT NULL DEFAULT 'snitch' REFERENCES brands(id),
+    brand_id    TEXT NOT NULL DEFAULT 'snitch' REFERENCES brands(id) ON DELETE CASCADE,
     draft_id    TEXT REFERENCES content_drafts(id),
     title       TEXT NOT NULL,
     platform    TEXT NOT NULL,
@@ -139,12 +139,14 @@ CREATE INDEX IF NOT EXISTS idx_calendar_brand_datetime ON calendar_entries(brand
 
 
 async def get_db() -> aiosqlite.Connection:
-    """Open and return a database connection with row_factory set."""
+    """Open and return a database connection with row_factory and foreign key enforcement set."""
     db_path = settings.database_url
     if db_path.startswith("sqlite:///"):
         db_path = db_path.replace("sqlite:///", "")
     db = await aiosqlite.connect(db_path)
     db.row_factory = aiosqlite.Row
+    # Enforce FK constraints including ON DELETE CASCADE
+    await db.execute("PRAGMA foreign_keys = ON;")
     return db
 
 

@@ -35,7 +35,8 @@ You are the intelligence engine of BrandBrew, a content intelligence SaaS produc
 BrandBrew is a marketing intelligence product, NOT an AI copywriting demo.
 
 OBJECTIVE:
-Analyse the provided brand data, product catalog, historical social posts, and performance metrics to identify 3–4 specific, high-value content opportunities for the current week.
+Analyse the provided brand data, product catalog, historical social posts, and performance metrics to identify exactly 5 specific, high-value content opportunities for the current week.
+
 
 STRATEGIC EXPLANATION & CONTENT QUALITY STANDARDS:
 All strategic explanations ("why", signals, rationales) MUST sound like they were written by an experienced D2C marketing strategist with a sharp point of view.
@@ -105,9 +106,10 @@ def build_strategist_user_prompt(
         for p in products
     )
 
-    # Include last 15 posts to fit context window comfortably
-    recent_posts = posts[:15]
+    # Include last 25 posts to provide deep statistical and content context
+    recent_posts = posts[:25]
     posts_text = "\n".join(
+
         f"- [{p.format}] {p.category} | Audience: {p.audience} | "
         f"Objective: {p.objective} | ER: {p.engagement_rate:.1f}% | "
         f"Caption: \"{p.caption[:80]}...\""
@@ -152,11 +154,12 @@ RECENT POSTS (last {len(recent_posts)}):
 {posts_text}
 
 TASK:
-Based on all the above data, identify 3–4 specific content opportunities
+Based on all the above data, identify exactly 5 specific content opportunities
 for {brand.name} this week. Prioritise opportunities with strong data evidence.
 Avoid repeating formats or products unless there is a compelling reason.
 Return valid JSON only.
 """.strip()
+
 
 
 def build_content_generator_system_prompt(

@@ -6,8 +6,10 @@
 import type {
   AnalyzeResponse,
   Brand,
+  BrandStats,
   CalendarEntry,
   ContentDraft,
+  CreateBrandRequest,
   CreateProductRequest,
   GenerateContentRequest,
   Opportunity,
@@ -60,6 +62,11 @@ export const api = {
   listBrands: () => request<Brand[]>('/brands'),
   getBrand: (brandId?: string) =>
     brandId ? request<Brand>(`/brands/${brandId}`) : request<Brand>('/brand'),
+  createBrand: (body: CreateBrandRequest) =>
+    request<Brand>('/brands', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
   updateBrand: (updates: UpdateBrandRequest, brandId?: string) =>
     brandId
       ? request<Brand>(`/brands/${brandId}`, {
@@ -70,6 +77,12 @@ export const api = {
           method: 'PATCH',
           body: JSON.stringify(updates),
         }),
+  getBrandStats: (brandId: string) =>
+    request<BrandStats>(`/brands/${brandId}/stats`),
+  deleteBrand: (brandId: string) =>
+    request<{ status: string; message: string }>(`/brands/${brandId}`, {
+      method: 'DELETE',
+    }),
 
   getProducts: (brandId?: string) =>
     brandId ? request<Product[]>(`/brands/${brandId}/products`) : request<Product[]>('/products'),

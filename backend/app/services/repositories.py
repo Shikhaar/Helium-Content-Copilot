@@ -132,6 +132,38 @@ class BrandRepository(BaseRepository[Brand]):
         await self._db.commit()
         return brand
 
+    async def get_brand_stats(self, brand_id: str) -> dict:
+        """Return counts of all dependent records for a brand (for deletion confirmation UI)."""
+        counts = {}
+        for table in ("products", "historical_posts", "opportunities", "content_drafts", "calendar_entries"):
+            async with self._db.execute(
+                f"SELECT COUNT(*) FROM {table} WHERE brand_id = ?", (brand_id,)
+            ) as cursor:
+                row = await cursor.fetchone()
+                counts[table] = row[0] if row else 0
+        return counts
+
+    async def delete(self, brand_id: str) -> None:
+        """
+        Delete a brand and all its dependent records inside a single transaction.
+        Relies on PRAGMA foreign_keys=ON + ON DELETE CASCADE defined in the schema.
+        Falls back to manual cascade deletion for compatibility with existing SQLite dbs
+        that were created before CASCADE was added to the schema.
+        """
+        logger.info("Deleting brand id=%s with cascade", brand_id)
+        try:
+            # CASCADE will handle dependent rows when foreign_keys=ON
+            await self._db.execute("DELETE FROM brands WHERE id = ?", (brand_id,))
+            await self._db.commit()
+        except Exception as e:
+            logger.warning("Cascade delete failed, falling back to manual cascade: %s", e)
+            await self._db.rollback()
+            # Manual cascade as fallback (for existing DBs without cascade constraints)
+            for table in ("calendar_entries", "content_drafts", "opportunities", "historical_posts", "products"):
+                await self._db.execute(f"DELETE FROM {table} WHERE brand_id = ?", (brand_id,))
+            await self._db.execute("DELETE FROM brands WHERE id = ?", (brand_id,))
+            await self._db.commit()
+
     @staticmethod
     def _row_to_brand(row: aiosqlite.Row) -> Brand:
         return Brand(

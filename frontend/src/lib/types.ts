@@ -33,6 +33,24 @@ export interface Brand {
   campaign: string;
 }
 
+export interface CreateBrandRequest {
+  name: string;
+  description?: string;
+  tone: string[];
+  campaign: string;
+  audience?: BrandAudience;
+  id?: string;
+}
+
+export interface BrandStats {
+  brand_id: string;
+  products: number;
+  historical_posts: number;
+  opportunities: number;
+  content_drafts: number;
+  calendar_entries: number;
+}
+
 export interface Product {
   id: string;
   name: string;

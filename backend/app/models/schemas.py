@@ -350,6 +350,26 @@ class UpdateBrandRequest(BaseModel):
     audience: BrandAudience | None = None
 
 
+class CreateBrandRequest(BaseModel):
+    """Validated request body for creating a new brand."""
+    name: str = Field(..., min_length=2, max_length=100, description="Brand display name")
+    description: str = Field(default="", max_length=500, description="Brand description")
+    tone: list[str] = Field(default_factory=list, description="Brand tone keywords (1-5)")
+    campaign: str = Field(..., min_length=2, max_length=100, description="Active campaign name")
+    audience: BrandAudience | None = None
+    id: str | None = Field(default=None, max_length=50, description="Optional custom brand ID (auto-slugified from name if omitted)")
+
+
+class BrandStats(BaseModel):
+    """Counts of dependent records for a brand — used in deletion confirmation."""
+    brand_id: str
+    products: int
+    historical_posts: int
+    opportunities: int
+    content_drafts: int
+    calendar_entries: int
+
+
 class CreateProductRequest(BaseModel):
     name: str
     category: str

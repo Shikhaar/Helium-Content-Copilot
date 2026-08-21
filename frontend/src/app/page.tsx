@@ -8,6 +8,7 @@ import type {
   Brand,
   CalendarEntry,
   ContentDraft,
+  CreateBrandRequest,
   CreateProductRequest,
   GenerateContentRequest,
   Objective,
@@ -134,8 +135,19 @@ export default function Home() {
     setSelectedOpportunity(null);
     setCurrentDraft(null);
     setGenerateRequest(null);
-    setScreen({ name: 'dashboard' });
-    setActiveTab('opportunities');
+
+    // Preserve the current tab so switching from Brand & Catalog, Calendar, etc. keeps the user in place
+    if (activeTab === 'brand') {
+      setScreen({ name: 'brand' });
+    } else if (activeTab === 'calendar') {
+      setScreen({ name: 'calendar' });
+    } else if (activeTab === 'create') {
+      setScreen({ name: 'create' });
+    } else {
+      setScreen({ name: 'dashboard' });
+      setActiveTab('opportunities');
+    }
+
     await loadBrandData(brandId);
   };
 
@@ -377,6 +389,53 @@ export default function Home() {
     }
   };
 
+  // Create a new Brand
+  const handleCreateBrand = async (req: CreateBrandRequest) => {
+    try {
+      const newBrand = await api.createBrand(req);
+      const updatedBrands = await api.listBrands();
+      setBrands(updatedBrands);
+      // Switch to the newly created brand
+      setSelectedBrandId(newBrand.id);
+      setSelectedOpportunity(null);
+      setCurrentDraft(null);
+      setGenerateRequest(null);
+      await loadBrandData(newBrand.id);
+    } catch (e: any) {
+      setError(e.message || 'Failed to create brand.');
+      throw e; // Re-throw so BrandView modal can show validation errors
+    }
+  };
+
+  // Delete a Brand (with cascade)
+  const handleDeleteBrand = async (brandId: string) => {
+    try {
+      await api.deleteBrand(brandId);
+      const updatedBrands = await api.listBrands();
+      setBrands(updatedBrands);
+      // Switch to the first remaining brand
+      if (updatedBrands.length > 0) {
+        const nextBrandId = updatedBrands[0].id;
+        setSelectedBrandId(nextBrandId);
+        setSelectedOpportunity(null);
+        setCurrentDraft(null);
+        setGenerateRequest(null);
+        if (activeTab === 'brand') {
+          setScreen({ name: 'brand' });
+        } else if (activeTab === 'calendar') {
+          setScreen({ name: 'calendar' });
+        } else {
+          setScreen({ name: 'dashboard' });
+          setActiveTab('opportunities');
+        }
+        await loadBrandData(nextBrandId);
+      }
+    } catch (e: any) {
+      setError(e.message || 'Failed to delete brand.');
+      throw e; // Re-throw so BrandView can show the error in the confirm modal
+    }
+  };
+
   // Render current screen
   const renderScreen = () => {
     switch (screen.name) {
@@ -441,9 +500,14 @@ export default function Home() {
             brand={brand}
             products={products}
             performance={performance}
+            brands={brands}
+            activeBrandId={selectedBrandId}
             onUpdateBrand={handleUpdateBrand}
             onCreateProduct={handleCreateProduct}
             onDeleteProduct={handleDeleteProduct}
+            onCreateBrand={handleCreateBrand}
+            onDeleteBrand={handleDeleteBrand}
+            onSelectBrand={handleBrandChange}
           />
         );
 

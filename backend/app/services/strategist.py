@@ -151,15 +151,17 @@ class StrategistService:
             )
             scored_opportunities.append(opp)
 
-        # Step 5: Sort by score descending
+        # Step 5: Sort by score descending and take up to top 5 opportunities
         scored_opportunities.sort(key=lambda o: o.score, reverse=True)
+        scored_opportunities = scored_opportunities[:5]
         logger.info(
             "Scoring complete: ranked %d opportunities | top score = %s",
             len(scored_opportunities),
             scored_opportunities[0].score if scored_opportunities else "N/A",
         )
 
-        # Step 6: Persist opportunities for instant database reads on subsequent dashboard views
+
+        # Step 6: Persist exactly 5 opportunities for instant database reads on subsequent dashboard views
         await self._opportunity_repo.save_all(
             scored_opportunities,
             brand_id=brand.id,
@@ -167,8 +169,10 @@ class StrategistService:
         )
         logger.info("Persisted %d opportunities for brand='%s' to database", len(scored_opportunities), brand.id)
 
+
         return AnalyzeResponse(
             opportunities=scored_opportunities,
             performance_summary=performance,
             is_demo=is_demo,
         )
+

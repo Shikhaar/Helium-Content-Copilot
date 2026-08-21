@@ -12,118 +12,242 @@ from __future__ import annotations
 
 from app.models.schemas import AIContentRaw, AIOpportunityRaw, CarouselSlide
 
-FALLBACK_OPPORTUNITIES: list[AIOpportunityRaw] = [
-    AIOpportunityRaw(
-        title="3 Ways to Style the Oversized Linen Shirt This Summer",
-        content_angle="Show three distinct summer outfit combinations built around the Oversized Linen Shirt — from a casual Sunday coffee run to a smart rooftop evening look.",
-        audience="Gen-Z",
-        objective="Engagement + Product Discovery",
-        platform="Instagram",
-        format="Carousel",
-        suggested_product_id="prod_001",
-        why=(
-            "Styling carousels deliver 2.5× higher engagement than static catalog posts. "
-            "Pairing this high-intent format with the catalog's top-volume linen shirt turns proven customer interest "
-            "into immediate styling utility for peak summer."
+FALLBACK_OPPORTUNITIES_BY_BRAND: dict[str, list[AIOpportunityRaw]] = {
+    "snitch": [
+        AIOpportunityRaw(
+            title="Summer Linen Lookbook: 3 Neutral Looks for Weekend Heat",
+            content_angle="Show three distinct summer outfit combinations built around the Oversized Linen Shirt — from a casual Sunday coffee run to a smart rooftop evening look.",
+            audience="Gen-Z",
+            objective="Engagement + Product Discovery",
+            platform="Instagram",
+            format="Reel",
+            suggested_product_id="prod_001",
+            why="Styling carousels and reels deliver 2.5× higher engagement than static catalog posts. Pairing this high-intent format with the catalog's top-volume linen shirt turns proven customer interest into immediate styling utility for peak summer.",
+            historical_signal="Styling posts for SNITCH average 8.8% ER vs brand baseline of 4.6% (1.9x multiplier).",
+            product_signal="Oversized Korean Linen Shirt has highest catalog views (14.2K) and strong Summer campaign alignment.",
+            audience_signal="Gen-Z men actively save outfit inspiration guides (1:4 save ratio).",
+            seasonal_signal="Aligned with 'Summer Linen 2026' campaign focus.",
+            business_signal="High view velocity and top cart conversion driver.",
         ),
-        historical_signal=(
-            "Styling carousel posts for SNITCH have averaged 8.4% engagement rate "
-            "vs a brand average of 3.4% — a 2.47× outperformance. Posts 1, 2, and 3 "
-            "in the historical dataset all featured styling carousels and ranked in the top 5 "
-            "for saves and shares."
+        AIOpportunityRaw(
+            title="Cargo Fit Check: Parachute Pants in 3 Everyday Street Silhouettes",
+            content_angle="Feature authentic-feeling customer perspectives and real outfit styling for the Parachute Cargo Pants, building social proof and urgency around low stock.",
+            audience="Gen-Z",
+            objective="Product Discovery",
+            platform="Instagram",
+            format="Reel",
+            suggested_product_id="prod_002",
+            why="Cargo Pants are the catalog's top volume driver with 1,200 units sold, but inventory is running low. A social proof fit-check converts high-intent consideration into urgency before the drop sells out.",
+            historical_signal="Social proof reels average 7.8% ER with strong comment and share rates.",
+            product_signal="Parachute 6-Pocket Cargo has 13.8K views and low stock status, making urgent styling reels high-converting.",
+            audience_signal="Gen-Z streetwear community shows 68% repeat purchase intent.",
+            seasonal_signal="Year-round staple with peak festival demand.",
+            business_signal="Immediate conversion opportunity for nearly sold-out hero inventory.",
         ),
-        product_signal=(
-            "The Oversized Linen Shirt leads the catalog with 14,200 views and 1,050 units sold — "
-            "the highest view count of all products. It is fully in stock and actively trending "
-            "within the Summer 2026 campaign window."
+        AIOpportunityRaw(
+            title="Texture Upgrade: The Crochet Knit Polo Summer Layering Guide",
+            content_angle="Compare texture drape and styling combinations across distinct summer occasions.",
+            audience="Gen-Z",
+            objective="Product Discovery",
+            platform="Instagram",
+            format="Carousel",
+            suggested_product_id="prod_003",
+            why="Crochet knit polo is the fastest growing search term this summer with 12.1K catalog views.",
+            historical_signal="Multi-scenario styling carousels achieve 71K impressions.",
+            product_signal="Textured Crochet Polo: 12.1K views, 940 units sold.",
+            audience_signal="Gen-Z trend adopters show high repeat view duration.",
+            seasonal_signal="Prime Summer 2026 hero product.",
+            business_signal="Fast-moving trend collection with high inventory turnover.",
         ),
-        audience_signal=(
-            "Gen-Z audience segments have averaged 8.2% ER on SNITCH posts — significantly above "
-            "the median of 4.8% across all audience segments. Styling and outfit inspiration content "
-            "consistently drives the highest save rates among this segment."
+        AIOpportunityRaw(
+            title="Monochrome Streetwear Formula: All-Black Done Right in Summer",
+            content_angle="Break down fabric contrast and silhouette balancing for all-black warm weather fits.",
+            audience="Gen-Z",
+            objective="Engagement",
+            platform="Instagram",
+            format="Carousel",
+            suggested_product_id="prod_004",
+            why="Monochrome styling guides drive consistent engagement and high community shares.",
+            historical_signal="All-black lookbooks generate 55K impressions and 490 shares.",
+            product_signal="Minimalist Heavyweight Tee: 9.8K views, 760 sales.",
+            audience_signal="Core streetwear enthusiast segment.",
+            seasonal_signal="Breathable fabric makes dark tones viable in hot climate.",
+            business_signal="Staple category evergreen replenishment.",
         ),
-        seasonal_signal=(
-            "Linen is a primary fabric focus for the Summer 2026 campaign. Publishing a linen "
-            "styling guide now captures peak demand before the summer sale window closes."
+        AIOpportunityRaw(
+            title="Resort Co-ord Styling: From Poolside to Rooftop Lounge",
+            content_angle="Demonstrate day-to-night versatility of matching resort co-ord sets.",
+            audience="Gen-Z",
+            objective="Product Discovery",
+            platform="Instagram",
+            format="Reel",
+            suggested_product_id="prod_005",
+            why="Co-ord sets convert 2.1x higher when shown in vacation and weekend social contexts.",
+            historical_signal="Vacation lookbooks achieve 8.2% ER and 620 saves.",
+            product_signal="Printed Resort Co-ord: 11.4K views, 830 sales.",
+            audience_signal="Young urban travelers seeking effortless full-look styling.",
+            seasonal_signal="High summer holiday peak travel window.",
+            business_signal="High average order value basket builder.",
         ),
-        business_signal=(
-            "Objective is Engagement + Product Discovery — the styling carousel format has "
-            "historically achieved 2.47× the brand average for this objective, making it the "
-            "strongest format choice for this week."
+    ],
+    "blissclub": [
+        AIOpportunityRaw(
+            title="4 Pockets, Zero Bulk: The Everyday Flare Pants Fit Test",
+            content_angle="Stress-test 4 deep pockets with real essentials (phone, keys, cards) during yoga and commute.",
+            audience="Women 22-38",
+            objective="Product Discovery",
+            platform="Instagram",
+            format="Reel",
+            suggested_product_id="prod_bc_01",
+            why="Pocket utility demos generate 9.3% ER and 3.8K click-throughs.",
+            historical_signal="Feature demo reels outperform brand baseline by 2.1x.",
+            product_signal="The Ultimate Flare Pants: 18.2K views, #1 activewear seller.",
+            audience_signal="Working women demographic drives highest save-to-like ratio (1:5).",
+            seasonal_signal="Aligned with 'Move in Freedom' campaign.",
+            business_signal="Key revenue driver for everyday athleisure acquisition.",
         ),
-    ),
-    AIOpportunityRaw(
-        title="Why 10,000+ Men Chose the Cargo Pants — Real Reviews, Real Fits",
-        content_angle="Feature authentic-feeling customer perspectives and real outfit photos from buyers of the Parachute Cargo Pants, building social proof and urgency around low stock.",
-        audience="Gen-Z",
-        objective="Conversion",
-        platform="Instagram",
-        format="Carousel",
-        suggested_product_id="prod_002",
-        why=(
-            "Cargo Pants are the catalog's top volume driver with 1,200 units sold, but inventory is running low. "
-            "A social proof fit-check converts high-intent consideration into urgency before the drop sells out."
+        AIOpportunityRaw(
+            title="Breathe-Easy Racerback Tank: High-Intensity Summer Essential",
+            content_angle="Demonstrate sweat-wicking breathability and non-chafing seams across 4 workout types.",
+            audience="Women 22-38",
+            objective="Engagement + Product Discovery",
+            platform="Instagram",
+            format="Carousel",
+            suggested_product_id="prod_bc_02",
+            why="Racerback Tank has high catalog views (12.4K) and 8.4% engagement in summer workout guides.",
+            historical_signal="Workout styling carousels achieve 4.2K saves.",
+            product_signal="Breathe-Easy Racerback: 12.4K views, 920 units sold.",
+            audience_signal="Active fitness demographic drives 42% share rate.",
+            seasonal_signal="High heat workout essential for summer months.",
+            business_signal="High bundle affinity with Flare Pants and Leggings.",
         ),
-        historical_signal=(
-            "Social proof carousel posts (posts 18–20) averaged 5.8% ER with strong comment "
-            "and share rates, outperforming static product posts by 2.2×."
+        AIOpportunityRaw(
+            title="Desk to Yoga: 3 Ways to Style High-Rise Movement Leggings",
+            content_angle="Show seamless work-from-home blazer styling transitioning straight to evening pilates.",
+            audience="Women 22-38",
+            objective="Conversion",
+            platform="Instagram",
+            format="Reel",
+            suggested_product_id="prod_bc_03",
+            why="Work-to-workout transitions convert 2.4x higher than standard gym footage.",
+            historical_signal="Transition reels converted 210 direct sales in previous drops.",
+            product_signal="High-Rise Movement Leggings: 15.6K views, 1,140 sales.",
+            audience_signal="Corporate remote workers segment represents 60% of recurring orders.",
+            seasonal_signal="Core activewear year-round anchor.",
+            business_signal="Top replenishment product across existing customer base.",
         ),
-        product_signal=(
-            "Cargo Pants: 13,800 views, 1,200 sales (highest in catalog), currently Low Stock. "
-            "The low inventory creates a natural urgency signal for the caption."
+        AIOpportunityRaw(
+            title="Lightweight Weatherproof Layering with the All-Day Windbreaker",
+            content_angle="Highlight packable design, water-resistant coating, and breathable back vents.",
+            audience="Women 22-38",
+            objective="Product Discovery",
+            platform="Instagram",
+            format="Carousel",
+            suggested_product_id="prod_bc_04",
+            why="Outdoor running content generates 7.9% ER with high save rate during transition weather.",
+            historical_signal="Packable jacket demos drive 48K impressions.",
+            product_signal="All-Day Movement Windbreaker: 9.8K views, 650 sales.",
+            audience_signal="Outdoor runners and morning commuters affinity.",
+            seasonal_signal="Essential outer layer for morning runs and light drizzle.",
+            business_signal="Expands brand perception into outerwear category.",
         ),
-        audience_signal=(
-            "Gen-Z audience engages strongly with community and social proof content. "
-            "Posts featuring real customer fits consistently drive shares above format average."
+        AIOpportunityRaw(
+            title="Squat-Proof & Sweat-Wicking: 7-Day Ultimate Activewear Challenge",
+            content_angle="Community wear-test proving shape retention and zero roll-down waistbands after 7 workouts.",
+            audience="Women 22-38",
+            objective="Community Engagement",
+            platform="Instagram",
+            format="Reel",
+            suggested_product_id="prod_bc_01",
+            why="Authentic wear-test proofs build high customer trust and reduce return rates.",
+            historical_signal="Durability test reels average 8.1% ER and 890 comments.",
+            product_signal="The Ultimate Flare Pants: 18.2K views, 5-star community reviews.",
+            audience_signal="Value-conscious quality seekers demographic.",
+            seasonal_signal="Active movement year-round challenge.",
+            business_signal="Reduces hesitation and increases first-time buyer confidence.",
         ),
-        seasonal_signal=(
-            "Cargo Pants are an all-season staple, keeping this relevant year-round. "
-            "However, the low stock urgency makes publishing this week particularly timely."
+    ],
+    "souled_store": [
+        AIOpportunityRaw(
+            title="Vintage Marvel Drop: 3 Ways to Style Oversized Comic Tees",
+            content_angle="Streetwear layering with vintage comic back-prints and baggy denim.",
+            audience="Gen-Z / Pop Culture Fans",
+            objective="Engagement + Product Discovery",
+            platform="Instagram",
+            format="Reel",
+            suggested_product_id="prod_tss_01",
+            why="Licensed Marvel drops generate viral engagement spikes (11.2K likes, 6.2K clicks).",
+            historical_signal="Drop alert Reels achieve 9.6% ER vs 5.2% brand feed avg.",
+            product_signal="Marvel Oversized Vintage Tee: 22.1K views, 1,890 units sold.",
+            audience_signal="Pop culture collectors have 82% repeat purchase affinity.",
+            seasonal_signal="Direct match for 'Fandom Street Drop' campaign.",
+            business_signal="Immediate hype and rapid drop sell-through.",
         ),
-        business_signal=(
-            "Converting existing high-intent visitors on a nearly sold-out product "
-            "is a direct revenue opportunity. Conversion is the right objective here."
+        AIOpportunityRaw(
+            title="Heavyweight Supima Cotton: Streetwear Texture & Wash Review",
+            content_angle="Macro fabric texture close-ups showing zero shrinkage and thick collar ribbing.",
+            audience="Gen-Z",
+            objective="Conversion",
+            platform="Instagram",
+            format="Carousel",
+            suggested_product_id="prod_tss_02",
+            why="Quality review carousels convert premium buyers with 8.6% engagement.",
+            historical_signal="Fabric test posts generate 3.4K saves and 1,800 clicks.",
+            product_signal="Supima Heavyweight Cotton Tee: 16.4K views, 1,280 sales.",
+            audience_signal="Streetwear enthusiasts seeking premium cotton weights.",
+            seasonal_signal="Everyday premium drop staple.",
+            business_signal="Highest customer satisfaction rating (4.9/5).",
         ),
-    ),
-    AIOpportunityRaw(
-        title="How to Dress for 40°C Without Looking Like You've Given Up",
-        content_angle="An educational guide addressing the specific pain point of dressing well in extreme Indian summer heat, featuring the Linen Shirt and Co-ord Set as solutions.",
-        audience="Gen-Z",
-        objective="Education",
-        platform="Instagram",
-        format="Carousel",
-        suggested_product_id="prod_001",
-        why=(
-            "Extreme summer heat creates high search and save intent around breathable fabrics. "
-            "A practical heatwave styling guide positions the brand as a credible styling authority "
-            "while driving organic discovery for the linen collection."
+        AIOpportunityRaw(
+            title="Anime Street Drop: Jujutsu Kaisen Graphic Tee Styling Guide",
+            content_angle="Match dynamic anime graphic prints with modern Japanese streetwear layering.",
+            audience="Gen-Z / Anime Fandom",
+            objective="Engagement + Product Discovery",
+            platform="Instagram",
+            format="Reel",
+            suggested_product_id="prod_tss_03",
+            why="Anime collection drops drive highest comment velocity (2,400+ comments per drop).",
+            historical_signal="Anime launch reels achieve 10.2% ER across Gen-Z viewers.",
+            product_signal="Jujutsu Kaisen Graphic Tee: 19.8K views, 1,620 sales.",
+            audience_signal="Highly passionate fandom community with 74% share rate.",
+            seasonal_signal="Campaign drop alignment with latest streaming arc.",
+            business_signal="Fastest selling license category with zero discount reliance.",
         ),
-        historical_signal=(
-            "Educational posts (posts 9–11) averaged 6.2% ER with notably high save rates "
-            "(1.7× the static post average), indicating audiences return to this content. "
-            "The summer fabric guide post generated 820 saves on 55K impressions."
+        AIOpportunityRaw(
+            title="Batman Shadow Collection: Dark Streetwear Aesthetic Lookbook",
+            content_angle="Moody night photography showcasing tonal Batman back graphics and cargo styling.",
+            audience="Gen-Z",
+            objective="Brand Engagement",
+            platform="Instagram",
+            format="Carousel",
+            suggested_product_id="prod_tss_04",
+            why="Tonal superhero collections attract mature streetwear buyers who avoid loud color prints.",
+            historical_signal="Aesthetic night-shoot carousels generate 64K reach.",
+            product_signal="Batman Dark Knight Hoodie: 14.5K views, 980 sales.",
+            audience_signal="Urban collectors seeking understated licensed merch.",
+            seasonal_signal="Monsoon/autumn transition hero outerwear.",
+            business_signal="Higher average order value item with strong margin profile.",
         ),
-        product_signal=(
-            "The Linen Shirt's breathability and lightweight construction are directly relevant "
-            "to the heat problem. The product description and features strongly support the "
-            "educational narrative without requiring any invented claims."
+        AIOpportunityRaw(
+            title="Friends Nostalgia Drop: Central Perk Vintage Crewneck Styling",
+            content_angle="Cosy 90s retro café aesthetics paired with washed vintage denim.",
+            audience="Millennials / Sitcom Fans",
+            objective="Conversion",
+            platform="Instagram",
+            format="Reel",
+            suggested_product_id="prod_tss_05",
+            why="90s nostalgia triggers emotional buying and high gift-sharing behaviour.",
+            historical_signal="Nostalgia sitcom clips drive 14.8K saves and high bio click-through.",
+            product_signal="Friends 90s Vintage Crewneck: 17.2K views, 1,340 sales.",
+            audience_signal="Millennial buyers with highest gifting intent.",
+            seasonal_signal="Evergreen comfort apparel anchor.",
+            business_signal="Top-rated repeat gift purchase item across all categories.",
         ),
-        audience_signal=(
-            "Gen-Z men actively seek styling and lifestyle advice on Instagram. "
-            "Educational content with practical utility consistently outperforms generic product posts "
-            "by 2.3× in saves — the key metric for content that drives future purchase intent."
-        ),
-        seasonal_signal=(
-            "Peak summer temperature content is highly timely in August. "
-            "This type of post has a long content lifespan as audiences save and return to it."
-        ),
-        business_signal=(
-            "Educational content builds brand trust and positions SNITCH as a styling authority, "
-            "not just a retailer. This supports long-term customer retention while driving "
-            "short-term product discovery for the linen range."
-        ),
-    ),
-]
+    ],
+}
+
+FALLBACK_OPPORTUNITIES: list[AIOpportunityRaw] = FALLBACK_OPPORTUNITIES_BY_BRAND["snitch"]
+
 
 
 _STYLING_SLIDES = [

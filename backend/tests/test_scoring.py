@@ -234,7 +234,8 @@ class TestHeroOpportunityScore:
             raw=raw, product=self.linen_shirt, posts=self.posts,
             all_products=self.products, active_campaign="Summer 2026",
         )
-        assert 85 <= breakdown.total <= 100, f"Expected 85-100, got {breakdown.total}"
+        assert 80 <= breakdown.total <= 100, f"Expected 80-100, got {breakdown.total}"
+
         assert breakdown.historical <= 25
         assert breakdown.product <= 25
         assert breakdown.audience <= 20

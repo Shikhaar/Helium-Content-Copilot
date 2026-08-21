@@ -35,7 +35,11 @@ from app.services.ai.prompts import (
     build_strategist_system_prompt,
     build_strategist_user_prompt,
 )
-from app.services.ai.fallback_data import FALLBACK_OPPORTUNITIES, FALLBACK_CONTENT
+from app.services.ai.fallback_data import (
+    FALLBACK_CONTENT,
+    FALLBACK_OPPORTUNITIES,
+    FALLBACK_OPPORTUNITIES_BY_BRAND,
+)
 from app.services.ai.validator import ContentQualityValidator
 
 logger = get_logger(__name__)
@@ -155,7 +159,8 @@ class OpenAIProvider(BaseAIProvider):
             return validated, False
         except Exception as exc:
             logger.warning("AI provider get_opportunities error (%s) — using fallback demo data", exc)
-            return AIOpportunitiesResponse(opportunities=FALLBACK_OPPORTUNITIES), True
+            fallback_opps = FALLBACK_OPPORTUNITIES_BY_BRAND.get(brand.id, FALLBACK_OPPORTUNITIES)
+            return AIOpportunitiesResponse(opportunities=fallback_opps), True
 
     async def generate_content(
         self,
@@ -268,8 +273,10 @@ class FallbackAIProvider(BaseAIProvider):
         posts: list[HistoricalPost],
         performance: PerformanceSummary,
     ) -> tuple[AIOpportunitiesResponse, bool]:
-        logger.info("Using fallback opportunity data (demo mode)")
-        return AIOpportunitiesResponse(opportunities=FALLBACK_OPPORTUNITIES), True
+        logger.info("Using fallback opportunity data for brand='%s'", brand.id)
+        fallback_opps = FALLBACK_OPPORTUNITIES_BY_BRAND.get(brand.id, FALLBACK_OPPORTUNITIES)
+        return AIOpportunitiesResponse(opportunities=fallback_opps), True
+
 
     async def generate_content(
         self,

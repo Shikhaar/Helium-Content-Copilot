@@ -18,9 +18,11 @@ from app.models.schemas import (
     AnalyzeResponse,
     ApiResponse,
     Brand,
+    BrandStats,
     CalendarEntry,
     ContentDraft,
     ContentStatus,
+    CreateBrandRequest,
     CreateProductRequest,
     GenerateContentRequest,
     Opportunity,
@@ -152,8 +154,115 @@ async def update_brand(
 
     return await repo.update(brand)
 
+@router.post("/brands", response_model=Brand, status_code=status.HTTP_201_CREATED)
+async def create_brand(
+    req: CreateBrandRequest,
+    db: aiosqlite.Connection = Depends(get_db_conn),
+    user: UserContext | None = Depends(get_optional_user),
+):
+    """Create a new brand, slugifying the name into an ID if not provided."""
+    import re
+    repo = BrandRepository(db)
+    workspace_id = user.workspace_id if user else "default_workspace"
 
-# ── Products Endpoints ────────────────────────────────────────────────────────
+    # Resolve brand ID: use provided custom ID or slugify from name
+    if req.id:
+        brand_id = re.sub(r"[^a-z0-9-]", "-", req.id.lower().strip()).strip("-")
+    else:
+        brand_id = re.sub(r"[^a-z0-9]+", "-", req.name.lower().strip()).strip("-")
+
+    # 409 Conflict if ID or name already exists in this workspace
+    existing = await repo.get_by_id(brand_id)
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"A brand with ID '{brand_id}' already exists. Choose a different name or provide a unique ID.",
+        )
+
+    # Validate tone (1–5 items)
+    tone = [t.strip() for t in req.tone if t.strip()]
+    if not tone:
+        tone = ["Confident"]
+    tone = tone[:5]
+
+    from app.models.schemas import BrandAudience
+    audience = req.audience or BrandAudience(
+        age_range="18-28",
+        location="India",
+        interests=[],
+        shopping_behavior=[],
+    )
+
+    new_brand = Brand(
+        id=brand_id,
+        workspace_id=workspace_id,
+        name=req.name.strip(),
+        description=req.description.strip(),
+        tone=tone,
+        campaign=req.campaign.strip(),
+        audience=audience,
+    )
+    created = await repo.create(new_brand)
+    logger.info("POST /api/brands -> created brand id='%s' name='%s'", created.id, created.name)
+    return created
+
+
+@router.get("/brands/{brand_id}/stats", response_model=BrandStats)
+async def get_brand_stats(
+    brand_id: str,
+    db: aiosqlite.Connection = Depends(get_db_conn),
+    user: UserContext | None = Depends(get_optional_user),
+):
+    """Return counts of dependent records for a brand (products, posts, opportunities, drafts, calendar)."""
+    repo = BrandRepository(db)
+    if user:
+        await verify_brand_access(brand_id, user, repo)
+    else:
+        brand = await repo.get_by_id(brand_id)
+        if not brand:
+            raise HTTPException(status_code=404, detail=f"Brand '{brand_id}' not found.")
+    counts = await repo.get_brand_stats(brand_id)
+    return BrandStats(
+        brand_id=brand_id,
+        products=counts["products"],
+        historical_posts=counts["historical_posts"],
+        opportunities=counts["opportunities"],
+        content_drafts=counts["content_drafts"],
+        calendar_entries=counts["calendar_entries"],
+    )
+
+
+@router.delete("/brands/{brand_id}")
+async def delete_brand(
+    brand_id: str,
+    db: aiosqlite.Connection = Depends(get_db_conn),
+    user: UserContext | None = Depends(get_optional_user),
+):
+    """Delete a brand and all its dependent records. Prevents deleting the last remaining brand."""
+    repo = BrandRepository(db)
+
+    # Authorization: verify the user can access this brand
+    if user:
+        await verify_brand_access(brand_id, user, repo)
+    else:
+        brand = await repo.get_by_id(brand_id)
+        if not brand:
+            raise HTTPException(status_code=404, detail=f"Brand '{brand_id}' not found.")
+
+    # Safety: prevent deletion of the last remaining brand
+    workspace_id = user.workspace_id if user else None
+    remaining = await repo.list_all(workspace_id=workspace_id)
+    if len(remaining) <= 1:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot delete the last remaining brand. At least one brand must exist.",
+        )
+
+    await repo.delete(brand_id)
+    logger.info("DELETE /api/brands/%s -> brand and cascade deleted", brand_id)
+    return {"status": "ok", "message": f"Brand '{brand_id}' and all its data have been permanently deleted."}
+
+
 
 @router.get("/brands/{brand_id}/products", response_model=list[Product])
 @router.get("/products", response_model=list[Product])
@@ -254,6 +363,7 @@ async def list_opportunities(
     effective_brand_id = brand_id or "snitch"
     logger.info("GET opportunities for brand_id='%s'", effective_brand_id)
     opps = await OpportunityRepository(db).list_all(brand_id=effective_brand_id)
+    opps = opps[:5]
 
     # Enrich product names
     product_repo = ProductRepository(db)
@@ -263,6 +373,7 @@ async def list_opportunities(
             opp.suggested_product_name = product.name
 
     return opps
+
 
 
 @router.post("/brands/{brand_id}/analyze", response_model=AnalyzeResponse)

@@ -129,7 +129,8 @@ export default function Dashboard({
   const heroMultiplier = (heroFormatEr / Math.max(brandAvgErVal, 0.1)).toFixed(1);
   const brandKey = (brand?.id || 'snitch').toLowerCase();
   const images = BRAND_IMAGES[brandKey] || BRAND_IMAGES.snitch;
-  const visibleOtherOpps = showAllOpportunities ? otherOpps : otherOpps.slice(0, 3);
+  const visibleOtherOpps = showAllOpportunities ? otherOpps : otherOpps.slice(0, 2);
+
 
   // Confidence text helper
   const confidence = (score: number) =>
@@ -479,7 +480,7 @@ export default function Dashboard({
                 alignItems: 'start',
               }}
             >
-              {/* Left 70%: Other Opportunities — editorial list */}
+              {/* Left 70%: Other Opportunities — editorial list (Rank 02 to 05, collapsible) */}
               <div style={{ minWidth: 0 }}>
                 <div
                   style={{
@@ -492,7 +493,7 @@ export default function Dashboard({
                   }}
                 >
                   <div className="label">Other Opportunities</div>
-                  {otherOpps.length > 3 && (
+                  {otherOpps.length > 2 && (
                     <button
                       onClick={() => setShowAllOpportunities(!showAllOpportunities)}
                       style={{
@@ -603,8 +604,8 @@ export default function Dashboard({
                   ))}
                 </div>
 
-                {/* View More/Fewer toggle at bottom */}
-                {otherOpps.length > 3 && (
+                {/* Collapsible toggle button below list */}
+                {otherOpps.length > 2 && (
                   <button
                     onClick={() => setShowAllOpportunities(!showAllOpportunities)}
                     style={{
@@ -622,15 +623,17 @@ export default function Dashboard({
                   >
                     {showAllOpportunities
                       ? 'Show fewer opportunities'
-                      : `View ${otherOpps.length - 3} more opportunities`}
+                      : `View ${otherOpps.length - 2} more opportunities`}
                     {showAllOpportunities ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
                   </button>
                 )}
               </div>
 
+
               {/* Right 30%: Data Connection Panel */}
               <div>
                 <div
+
                   style={{
                     display: 'flex',
                     alignItems: 'center',
