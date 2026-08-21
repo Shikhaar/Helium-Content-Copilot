@@ -174,15 +174,16 @@ class CandidateOpportunity(BaseModel):
 
 
 class ScoreBreakdown(BaseModel):
-    historical: int = Field(..., ge=0, le=25, description="Historical performance score /25")
-    product: int = Field(..., ge=0, le=25, description="Product relevance score /25")
-    audience: int = Field(..., ge=0, le=20, description="Audience fit score /20")
-    seasonal: int = Field(..., ge=0, le=15, description="Seasonal relevance score /15")
-    objective: int = Field(..., ge=0, le=15, description="Business objective fit score /15")
+    historical: int = Field(0, ge=0, le=25, description="Historical performance score /25")
+    product: int = Field(0, ge=0, le=25, description="Product relevance score /25")
+    audience: int = Field(0, ge=0, le=20, description="Audience fit score /20")
+    seasonal: int = Field(0, ge=0, le=15, description="Seasonal relevance score /15")
+    objective: int = Field(0, ge=0, le=15, description="Business objective fit score /15")
 
     @property
     def total(self) -> int:
         return self.historical + self.product + self.audience + self.seasonal + self.objective
+
 
 
 # ──────────────────────────────────────────────────────────────────────────────

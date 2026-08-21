@@ -331,12 +331,16 @@ class OpportunityRepository(BaseRepository[Opportunity]):
             if analysis_run_id:
                 opp.analysis_run_id = analysis_run_id
             await self._db.execute(
-                """INSERT INTO opportunities VALUES (
-                    :id,:brand_id,:analysis_run_id,:title,:content_angle,:audience,:objective,:platform,
-                    :format,:suggested_product_id,:why,:historical_signal,
-                    :product_signal,:audience_signal,:seasonal_signal,
-                    :business_signal,:score,:score_breakdown,:confidence,
-                    :confidence_reason,:created_at,:is_demo
+                """INSERT INTO opportunities (
+                    id, brand_id, analysis_run_id, title, content_angle, audience, objective,
+                    platform, format, suggested_product_id, why, historical_signal,
+                    product_signal, audience_signal, seasonal_signal, business_signal,
+                    score, score_breakdown, confidence, confidence_reason, created_at, is_demo
+                ) VALUES (
+                    :id, :brand_id, :analysis_run_id, :title, :content_angle, :audience, :objective,
+                    :platform, :format, :suggested_product_id, :why, :historical_signal,
+                    :product_signal, :audience_signal, :seasonal_signal, :business_signal,
+                    :score, :score_breakdown, :confidence, :confidence_reason, :created_at, :is_demo
                 )""",
                 {
                     "id": opp.id,
@@ -393,13 +397,22 @@ class OpportunityRepository(BaseRepository[Opportunity]):
     @staticmethod
     def _row_to_opportunity(row: aiosqlite.Row) -> Opportunity:
         raw_sb = row["score_breakdown"]
+        breakdown_data = {}
         if raw_sb:
             try:
                 breakdown_data = json.loads(raw_sb) if isinstance(raw_sb, str) else raw_sb
             except Exception:
                 breakdown_data = {}
-        else:
+        if not isinstance(breakdown_data, dict):
             breakdown_data = {}
+
+        score_breakdown = ScoreBreakdown(
+            historical=int(breakdown_data.get("historical", 0)),
+            product=int(breakdown_data.get("product", 0)),
+            audience=int(breakdown_data.get("audience", 0)),
+            seasonal=int(breakdown_data.get("seasonal", 0)),
+            objective=int(breakdown_data.get("objective", 0)),
+        )
 
         return Opportunity(
             id=row["id"],
@@ -420,7 +433,7 @@ class OpportunityRepository(BaseRepository[Opportunity]):
             seasonal_signal=row["seasonal_signal"],
             business_signal=row["business_signal"],
             score=row["score"],
-            score_breakdown=ScoreBreakdown(**breakdown_data),
+            score_breakdown=score_breakdown,
             confidence=Confidence.HIGH if (row["confidence"] or "").lower() in ("high", "good") else Confidence.MEDIUM if (row["confidence"] or "").lower() in ("medium", "moderate") else Confidence.LOW,
             confidence_reason=row["confidence_reason"],
             created_at=row["created_at"],
@@ -438,10 +451,14 @@ class ContentRepository(BaseRepository[ContentDraft]):
         draft.brand_id = effective_brand_id
         logger.info("Creating content draft id=%s brand_id=%s status=%s", draft.id, effective_brand_id, draft.status)
         await self._db.execute(
-            """INSERT INTO content_drafts VALUES (
-                :id,:brand_id,:opportunity_id,:platform,:format,:audience,:objective,
-                :slides,:caption,:cta,:hashtags,:status,
-                :scheduled_date,:scheduled_time,:created_at,:updated_at,:is_demo
+            """INSERT INTO content_drafts (
+                id, brand_id, opportunity_id, platform, format, audience, objective,
+                slides, caption, cta, hashtags, status,
+                scheduled_date, scheduled_time, created_at, updated_at, is_demo
+            ) VALUES (
+                :id, :brand_id, :opportunity_id, :platform, :format, :audience, :objective,
+                :slides, :caption, :cta, :hashtags, :status,
+                :scheduled_date, :scheduled_time, :created_at, :updated_at, :is_demo
             )""",
             {
                 "id": draft.id,
@@ -564,8 +581,10 @@ class CalendarRepository(BaseRepository[CalendarEntry]):
         entry.brand_id = effective_brand_id
         logger.info("Upserting calendar entry id=%s brand_id=%s", entry.id, effective_brand_id)
         await self._db.execute(
-            """INSERT OR REPLACE INTO calendar_entries VALUES (
-                :id,:brand_id,:draft_id,:title,:platform,:format,:status,:scheduled_datetime
+            """INSERT OR REPLACE INTO calendar_entries (
+                id, brand_id, draft_id, title, platform, format, status, scheduled_datetime
+            ) VALUES (
+                :id, :brand_id, :draft_id, :title, :platform, :format, :status, :scheduled_datetime
             )""",
             {
                 "id": entry.id,
@@ -579,6 +598,7 @@ class CalendarRepository(BaseRepository[CalendarEntry]):
             },
         )
         await self._db.commit()
+
 
     async def list_all(self, brand_id: str | None = None) -> list[CalendarEntry]:
         if brand_id:
