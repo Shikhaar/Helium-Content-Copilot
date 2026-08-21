@@ -324,8 +324,16 @@ async def generate_content(
 ):
     """Generate production-ready content draft from an opportunity."""
     logger.info("POST /api/content/generate | opp_id=%s format=%s", req.opportunity_id, req.format)
-    svc = _make_content_service(db)
-    return await svc.generate_draft(req)
+    try:
+        svc = _make_content_service(db)
+        return await svc.generate(req)
+    except ValueError as exc:
+        logger.error("Content generation failed: %s", exc)
+        raise HTTPException(status_code=422, detail=str(exc))
+    except Exception as exc:
+        logger.exception("Unexpected error in content generation: %s", exc)
+        raise HTTPException(status_code=500, detail="Content generation failed. Please try again.")
+
 
 
 @router.get("/content/{draft_id}", response_model=ContentDraft)

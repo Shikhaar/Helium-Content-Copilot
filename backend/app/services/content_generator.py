@@ -61,7 +61,8 @@ class ContentGeneratorService:
         if not product:
             raise ValueError(f"Product not found: {opportunity.suggested_product_id}")
 
-        brand = await self._brand_repo.get()
+        brand_id = getattr(opportunity, "brand_id", "snitch") or "snitch"
+        brand = await self._brand_repo.get_by_id(brand_id) or await self._brand_repo.get()
         if not brand:
             raise ValueError("Brand not seeded")
 
@@ -166,3 +167,9 @@ class ContentGeneratorService:
         logger.info("Calendar entry %s for draft %s", "updated" if existing_entry else "created", draft_id)
 
         return draft
+
+    # Aliases for flexibility across route calls
+    generate_draft = generate
+    update_draft = update
+    approve_draft = approve
+    schedule_draft = schedule
