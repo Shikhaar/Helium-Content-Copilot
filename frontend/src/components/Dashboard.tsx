@@ -17,19 +17,19 @@ interface DashboardProps {
 
 const BRAND_COLLAGE_IMAGES: Record<string, { main: string; top: string; bottom: string }> = {
   snitch: {
-    main: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400&auto=format&fit=crop&q=80',
-    top: 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=300&auto=format&fit=crop&q=80',
-    bottom: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=300&auto=format&fit=crop&q=80',
+    main: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=600&auto=format&fit=crop&q=80',
+    top: 'https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?w=400&auto=format&fit=crop&q=80',
+    bottom: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=400&auto=format&fit=crop&q=80',
   },
   blissclub: {
-    main: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=400&auto=format&fit=crop&q=80',
-    top: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=300&auto=format&fit=crop&q=80',
-    bottom: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=300&auto=format&fit=crop&q=80',
+    main: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&auto=format&fit=crop&q=80',
+    top: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=400&auto=format&fit=crop&q=80',
+    bottom: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=400&auto=format&fit=crop&q=80',
   },
   souled_store: {
-    main: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=400&auto=format&fit=crop&q=80',
-    top: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=300&auto=format&fit=crop&q=80',
-    bottom: 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=300&auto=format&fit=crop&q=80',
+    main: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=600&auto=format&fit=crop&q=80',
+    top: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=400&auto=format&fit=crop&q=80',
+    bottom: 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=400&auto=format&fit=crop&q=80',
   },
 };
 
@@ -177,7 +177,7 @@ export default function Dashboard({
     f => f.format.toLowerCase() === heroFormat.toLowerCase()
   );
   const heroFormatEr = heroFormatStat?.avg_engagement_rate 
-    ?? (heroFormat.toLowerCase() === 'reel' ? 8.8 : heroFormat.toLowerCase() === 'carousel' ? 7.4 : 6.2);
+    ?? (heroFormat.toLowerCase() === 'reel' ? 8.8 : heroFormat.toLowerCase() === 'carousel' ? 8.4 : 7.2);
   const heroMultiplier = (heroFormatEr / Math.max(brandAvgErVal, 0.1)).toFixed(1);
 
   const brandKey = (brand?.id || 'snitch').toLowerCase();
@@ -273,570 +273,555 @@ export default function Dashboard({
           <AnalyzingState brandName={brandName} step={loadingStep} />
         </div>
       ) : (
-        /* ── 2-Column Dashboard Grid: Opportunities on Left, Insights & Instagram on Right ── */
-        <div className="dashboard-grid-layout">
-          {/* ── Left Column: Opportunities ────────────────────────────────────────── */}
-          <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: 24 }}>
-            {/* HERO OPPORTUNITY */}
-            {topOpp && (
-              <div>
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    height: 28,
-                    marginBottom: 10,
-                  }}
-                >
-                  <div className="label">YOUR NEXT BEST OPPORTUNITY</div>
-                  <button className="btn-ghost" onClick={onAnalyze} style={{ fontSize: 11, gap: 4, padding: '4px 8px' }}>
-                    <RefreshCw size={11} /> Re-analyse
-                  </button>
-                </div>
+        /* ── Full Dashboard: Hero Opportunity Banner Top + 2-Column Split Bottom ── */
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+          {/* ── 1. Full-Width Hero Opportunity Card (Exact Reference Design) ── */}
+          {topOpp && (
+            <div>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: 12,
+                }}
+              >
+                <div className="label">YOUR NEXT BEST OPPORTUNITY</div>
+                <button className="btn-ghost" onClick={onAnalyze} style={{ fontSize: 12, gap: 5, padding: '4px 10px' }}>
+                  <RefreshCw size={12} /> Re-analyse
+                </button>
+              </div>
 
-                {/* Spacious & Luxurious Hero Card Matching Exact Editorial Aesthetic */}
-                <div
-                  id="hero-opportunity-card"
-                  style={{
-                    border: '1px solid var(--border)',
-                    borderRadius: 14,
-                    background: 'var(--surface)',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease',
-                    padding: '22px 24px',
-                    boxShadow: '0 2px 8px rgba(32, 27, 23, 0.04)',
-                  }}
-                  onClick={() => onViewOpportunity(topOpp.id)}
-                  onMouseEnter={e => {
-                    (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-strong)';
-                    (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 20px rgba(32, 27, 23, 0.07)';
-                  }}
-                  onMouseLeave={e => {
-                    (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
-                    (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(32, 27, 23, 0.04)';
-                  }}
-                >
-                  <div className="hero-card-layout">
-                    {/* ── Left: 3-Image Collage (165px x 160px) ── */}
-                    <div
-                      style={{
-                        display: 'grid',
-                        gridTemplateColumns: '1.2fr 0.9fr',
-                        gap: 4,
-                        width: 165,
-                        height: 160,
-                        borderRadius: 10,
-                        overflow: 'hidden',
-                        background: 'rgba(238, 231, 220, 0.4)',
-                        flexShrink: 0,
-                      }}
-                    >
-                      {/* Main large portrait on left */}
-                      <div style={{ position: 'relative', height: '100%', overflow: 'hidden' }}>
+              {/* Exact Magazine-Editorial Hero Card */}
+              <div
+                id="hero-opportunity-card"
+                style={{
+                  border: '1px solid var(--border)',
+                  borderRadius: 14,
+                  background: 'var(--surface)',
+                  cursor: 'pointer',
+                  transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
+                  padding: '24px 30px',
+                  boxShadow: '0 2px 8px rgba(32, 27, 23, 0.04)',
+                }}
+                onClick={() => onViewOpportunity(topOpp.id)}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-strong)';
+                  (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 20px rgba(32, 27, 23, 0.07)';
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
+                  (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(32, 27, 23, 0.04)';
+                }}
+              >
+                <div className="hero-card-layout">
+                  {/* ── Left: 3-Image Collage (210px x 200px) ── */}
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1.2fr 0.9fr',
+                      gap: 6,
+                      width: 210,
+                      height: 200,
+                      borderRadius: 14,
+                      overflow: 'hidden',
+                      background: 'rgba(238, 231, 220, 0.4)',
+                      flexShrink: 0,
+                    }}
+                  >
+                    {/* Main large portrait on left */}
+                    <div style={{ position: 'relative', height: '100%', overflow: 'hidden' }}>
+                      <img
+                        src={collage.main}
+                        alt={`${topOpp.title} main`}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        onError={e => {
+                          (e.currentTarget as HTMLElement).style.display = 'none';
+                        }}
+                      />
+                    </div>
+                    {/* Stacked 2 portraits on right */}
+                    <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr', gap: 6, height: '100%' }}>
+                      <div style={{ position: 'relative', overflow: 'hidden' }}>
                         <img
-                          src={collage.main}
-                          alt={`${topOpp.title} main`}
+                          src={collage.top}
+                          alt={`${topOpp.title} angle 1`}
                           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                           onError={e => {
                             (e.currentTarget as HTMLElement).style.display = 'none';
                           }}
                         />
                       </div>
-                      {/* Stacked 2 portraits on right */}
-                      <div style={{ display: 'grid', gridTemplateRows: '1fr 1fr', gap: 4, height: '100%' }}>
-                        <div style={{ position: 'relative', overflow: 'hidden' }}>
-                          <img
-                            src={collage.top}
-                            alt={`${topOpp.title} angle 1`}
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                            onError={e => {
-                              (e.currentTarget as HTMLElement).style.display = 'none';
-                            }}
-                          />
-                        </div>
-                        <div style={{ position: 'relative', overflow: 'hidden' }}>
-                          <img
-                            src={collage.bottom}
-                            alt={`${topOpp.title} angle 2`}
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                            onError={e => {
-                              (e.currentTarget as HTMLElement).style.display = 'none';
-                            }}
-                          />
-                        </div>
+                      <div style={{ position: 'relative', overflow: 'hidden' }}>
+                        <img
+                          src={collage.bottom}
+                          alt={`${topOpp.title} angle 2`}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          onError={e => {
+                            (e.currentTarget as HTMLElement).style.display = 'none';
+                          }}
+                        />
                       </div>
                     </div>
+                  </div>
 
-                    {/* ── Center: Strategic Content & Real-Time Multipliers ── */}
-                    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minWidth: 0, padding: '2px 0' }}>
-                      <div>
-                        {/* Title in warm editorial serif */}
-                        <h2
-                          className="serif-heading"
-                          style={{
-                            fontSize: 20,
-                            fontWeight: 600,
-                            color: 'var(--text-primary)',
-                            lineHeight: 1.3,
-                            marginBottom: 8,
-                            letterSpacing: '-0.01em',
-                          }}
-                        >
-                          {topOpp.title}
-                        </h2>
-
-                        {/* Pill tags */}
-                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
-                          <span
-                            style={{
-                              fontSize: 11,
-                              fontWeight: 600,
-                              padding: '3px 9px',
-                              borderRadius: 5,
-                              background: 'rgba(238, 231, 220, 0.85)',
-                              color: 'var(--brown-dark)',
-                              fontFamily: 'var(--font-sans)',
-                            }}
-                          >
-                            {topOpp.objective || 'Product Discovery'}
-                          </span>
-                          <span
-                            style={{
-                              fontSize: 11,
-                              fontWeight: 600,
-                              padding: '3px 9px',
-                              borderRadius: 5,
-                              background: 'rgba(238, 231, 220, 0.85)',
-                              color: 'var(--brown-dark)',
-                              fontFamily: 'var(--font-sans)',
-                            }}
-                          >
-                            {topOpp.platform} {topOpp.format}
-                          </span>
-                          {topOpp.is_demo && (
-                            <span className="demo-banner" style={{ margin: 0, padding: '2px 7px', fontSize: 10 }}>
-                              Demo
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Strategic qualitative reasoning (clamped to 2 lines) */}
-                        <p
-                          style={{
-                            fontSize: 12.5,
-                            color: 'var(--text-secondary)',
-                            lineHeight: 1.5,
-                            marginBottom: 12,
-                            display: '-webkit-box',
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden',
-                          }}
-                        >
-                          {topOpp.why}
-                        </p>
-                      </div>
-
-                      {/* Dynamic Real-Time Multiplier Stats Row */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-                        <div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>
-                            <span style={{ color: 'var(--green)', fontSize: 14 }}>↑</span>
-                            <span>{heroFormatEr.toFixed(1)}% engagement</span>
-                          </div>
-                          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>
-                            Historical avg
-                          </div>
-                        </div>
-
-                        <div style={{ width: 1, height: 24, background: 'var(--border)' }} />
-
-                        <div>
-                          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>
-                            {heroMultiplier}x
-                          </div>
-                          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>
-                            vs brand average
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* ── Right Column: Score Pillar & Full-Width CTA Button ── */}
-                    <div
+                  {/* ── Center: Title, Badges, Reason, Dynamic Multipliers ── */}
+                  <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', minWidth: 0 }}>
+                    {/* Title in large warm editorial serif */}
+                    <h2
+                      className="serif-heading"
                       style={{
-                        borderLeft: '1px solid var(--border)',
-                        paddingLeft: 22,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        alignItems: 'stretch',
-                        minWidth: 210,
-                        flexShrink: 0,
+                        fontSize: 26,
+                        fontWeight: 600,
+                        color: 'var(--text-primary)',
+                        lineHeight: 1.25,
+                        marginBottom: 10,
+                        letterSpacing: '-0.01em',
                       }}
-                      className="hero-score-pillar"
                     >
-                      <div>
-                        {/* Big Score */}
-                        <div style={{ display: 'flex', alignItems: 'baseline', gap: 3 }}>
-                          <span
-                            style={{
-                              fontSize: 44,
-                              fontFamily: 'var(--font-serif)',
-                              fontWeight: 600,
-                              color: '#343B2A',
-                              lineHeight: 1,
-                              letterSpacing: '-0.02em',
-                            }}
-                          >
-                            {topOpp.score}
-                          </span>
-                          <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'var(--font-serif)' }}>
-                            /100
-                          </span>
-                        </div>
+                      {topOpp.title}
+                    </h2>
 
-                        {/* Confidence Badge */}
-                        <div
-                          style={{
-                            fontSize: 11,
-                            fontWeight: 600,
-                            color: topOpp.score >= 90 ? 'var(--green)' : topOpp.score >= 75 ? 'var(--amber)' : 'var(--text-muted)',
-                            marginTop: 5,
-                          }}
-                        >
-                          {topOpp.score >= 90 ? 'High confidence' : topOpp.score >= 75 ? 'Good confidence' : 'Moderate'}
+                    {/* Pill tags */}
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
+                      <span
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 600,
+                          padding: '4px 10px',
+                          borderRadius: 6,
+                          background: 'rgba(238, 231, 220, 0.85)',
+                          color: 'var(--brown-dark)',
+                          fontFamily: 'var(--font-sans)',
+                        }}
+                      >
+                        {topOpp.objective || 'Product Education'}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 600,
+                          padding: '4px 10px',
+                          borderRadius: 6,
+                          background: 'rgba(238, 231, 220, 0.85)',
+                          color: 'var(--brown-dark)',
+                          fontFamily: 'var(--font-sans)',
+                        }}
+                      >
+                        {topOpp.platform} {topOpp.format}
+                      </span>
+                      {topOpp.is_demo && (
+                        <span className="demo-banner" style={{ margin: 0, padding: '3px 8px', fontSize: 10 }}>
+                          Demo
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Strategic qualitative reasoning */}
+                    <p
+                      style={{
+                        fontSize: 14,
+                        color: 'var(--text-secondary)',
+                        lineHeight: 1.55,
+                        marginBottom: 16,
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      {topOpp.why}
+                    </p>
+
+                    {/* Dynamic Real-Time Multiplier Stats Row */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>
+                          <span style={{ color: 'var(--green)', fontSize: 15 }}>↑</span>
+                          <span>{heroFormatEr.toFixed(1)}% engagement</span>
+                        </div>
+                        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
+                          Historical avg
                         </div>
                       </div>
 
-                      {/* CTA Button */}
-                      <button
-                        className="btn-primary"
-                        onClick={e => {
-                          e.stopPropagation();
-                          onViewOpportunity(topOpp.id);
-                        }}
+                      <div style={{ width: 1, height: 26, background: 'var(--border)' }} />
+
+                      <div>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>
+                          {heroMultiplier}x
+                        </div>
+                        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
+                          vs brand average
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ── Right Column: Score Pillar & CTA Button ── */}
+                  <div
+                    style={{
+                      borderLeft: '1px solid var(--border)',
+                      paddingLeft: 32,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      alignItems: 'flex-start',
+                      height: '100%',
+                      minHeight: 190,
+                      minWidth: 230,
+                      flexShrink: 0,
+                    }}
+                    className="hero-score-pillar"
+                  >
+                    <div>
+                      {/* Big Serif Score */}
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 3 }}>
+                        <span
+                          style={{
+                            fontSize: 64,
+                            fontFamily: 'var(--font-serif)',
+                            fontWeight: 500,
+                            color: '#343B2A',
+                            lineHeight: 1,
+                            letterSpacing: '-0.03em',
+                          }}
+                        >
+                          {topOpp.score}
+                        </span>
+                        <span style={{ fontSize: 18, color: 'var(--text-muted)', fontFamily: 'var(--font-serif)' }}>
+                          /100
+                        </span>
+                      </div>
+
+                      {/* Confidence Badge */}
+                      <div
                         style={{
-                          width: '100%',
                           fontSize: 12,
                           fontWeight: 600,
-                          borderRadius: 7,
-                          padding: '10px 14px',
-                          background: '#3A382C',
-                          color: '#FAF8F5',
+                          color: topOpp.score >= 90 ? 'var(--green)' : topOpp.score >= 75 ? 'var(--amber)' : 'var(--text-muted)',
+                          marginTop: 6,
+                        }}
+                      >
+                        {topOpp.score >= 90 ? 'High confidence' : topOpp.score >= 75 ? 'Good confidence' : 'Moderate'}
+                      </div>
+                    </div>
+
+                    {/* CTA Button */}
+                    <button
+                      className="btn-primary"
+                      onClick={e => {
+                        e.stopPropagation();
+                        onViewOpportunity(topOpp.id);
+                      }}
+                      style={{
+                        fontSize: 13,
+                        fontWeight: 600,
+                        borderRadius: 8,
+                        padding: '11px 18px',
+                        background: '#3A382C',
+                        color: '#FAF8F5',
+                        border: 'none',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        whiteSpace: 'nowrap',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                        transition: 'background 0.15s ease',
+                      }}
+                      onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = '#2B2A20')}
+                      onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = '#3A382C')}
+                    >
+                      <span>See why this is recommended</span>
+                      <span>→</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── 2. Lower Section: Other Opportunities (Left) & Insights/Instagram (Right) ── */}
+          <div className="dashboard-subgrid-layout">
+            {/* ── Left Subcolumn: Other Opportunities ── */}
+            <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {otherOpps.length > 0 && (
+                <div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginBottom: 12,
+                    }}
+                  >
+                    <div className="label">
+                      OTHER OPPORTUNITIES ({otherOpps.length})
+                    </div>
+                    {otherOpps.length > 3 && (
+                      <button
+                        onClick={() => setShowAllOpportunities(!showAllOpportunities)}
+                        style={{
+                          background: 'none',
                           border: 'none',
+                          color: 'var(--brown-primary)',
+                          fontSize: 11,
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 4,
+                          padding: 0,
+                        }}
+                      >
+                        {showAllOpportunities ? 'Show 3' : `View all ${otherOpps.length}`}
+                        {showAllOpportunities ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+                      </button>
+                    )}
+                  </div>
+
+                  <div style={{ border: '1px solid var(--border)', borderRadius: 12, background: 'var(--surface)', overflow: 'hidden' }}>
+                    {visibleOtherOpps.map((opp, i) => {
+                      const thumbUrl = OTHER_OPP_THUMBNAILS[i % OTHER_OPP_THUMBNAILS.length];
+                      const isLast = i === visibleOtherOpps.length - 1 && (!otherOpps.length || otherOpps.length <= 3 || showAllOpportunities);
+                      return (
+                        <div
+                          key={opp.id}
+                          id={`opportunity-row-${i + 2}`}
+                          onClick={() => onViewOpportunity(opp.id)}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 16,
+                            padding: '14px 20px',
+                            borderBottom: isLast ? 'none' : '1px solid var(--border)',
+                            cursor: 'pointer',
+                            transition: 'background 0.12s ease',
+                          }}
+                          onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'var(--surface-subtle)')}
+                          onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'transparent')}
+                        >
+                          <div
+                            style={{
+                              fontSize: 12,
+                              fontWeight: 700,
+                              color: 'var(--text-muted)',
+                              width: 22,
+                              flexShrink: 0,
+                              fontVariantNumeric: 'tabular-nums',
+                            }}
+                          >
+                            {String(i + 2).padStart(2, '0')}
+                          </div>
+
+                          {/* 36x36px Product thumbnail */}
+                          <div
+                            style={{
+                              width: 36,
+                              height: 36,
+                              borderRadius: 6,
+                              overflow: 'hidden',
+                              background: 'rgba(238, 231, 220, 0.6)',
+                              flexShrink: 0,
+                            }}
+                          >
+                            <img
+                              src={thumbUrl}
+                              alt={opp.title}
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                              onError={e => {
+                                (e.currentTarget as HTMLElement).style.display = 'none';
+                              }}
+                            />
+                          </div>
+
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div
+                              style={{
+                                fontSize: 13,
+                                fontWeight: 600,
+                                color: 'var(--text-primary)',
+                                marginBottom: 4,
+                                letterSpacing: '-0.01em',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              {opp.title}
+                            </div>
+                            <div style={{ display: 'flex', gap: 5 }}>
+                              <span className="badge badge-neutral" style={{ fontSize: 10 }}>{opp.format.toUpperCase()}</span>
+                              <span className="badge badge-neutral" style={{ fontSize: 10 }}>{opp.platform.toUpperCase()}</span>
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                            <div>
+                              <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+                                {opp.score}
+                              </span>
+                              <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 1 }}>/100</span>
+                            </div>
+                            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-muted)' }}>→</div>
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                    {/* Bottom View More Button */}
+                    {otherOpps.length > 3 && (
+                      <button
+                        onClick={() => setShowAllOpportunities(!showAllOpportunities)}
+                        style={{
+                          width: '100%',
+                          padding: '12px 16px',
+                          background: 'rgba(255, 252, 247, 0.75)',
+                          borderTop: '1px solid var(--border)',
+                          borderLeft: 'none',
+                          borderRight: 'none',
+                          borderBottom: 'none',
+                          color: 'var(--brown-primary)',
+                          fontSize: 12,
+                          fontWeight: 600,
                           cursor: 'pointer',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           gap: 6,
-                          whiteSpace: 'nowrap',
-                          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
                           transition: 'background 0.15s ease',
-                          boxSizing: 'border-box',
-                        }}
-                        onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = '#2B2A20')}
-                        onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = '#3A382C')}
-                      >
-                        <span>See why this is recommended</span>
-                        <span>→</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* OTHER OPPORTUNITIES (Expandable: Show 3 + View More) */}
-            {otherOpps.length > 0 && (
-              <div>
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    marginBottom: 10,
-                  }}
-                >
-                  <div className="label">
-                    OTHER OPPORTUNITIES ({otherOpps.length})
-                  </div>
-                  {otherOpps.length > 3 && (
-                    <button
-                      onClick={() => setShowAllOpportunities(!showAllOpportunities)}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: 'var(--brown-primary)',
-                        fontSize: 11,
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 4,
-                        padding: 0,
-                      }}
-                    >
-                      {showAllOpportunities ? 'Show 3' : `View all ${otherOpps.length}`}
-                      {showAllOpportunities ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-                    </button>
-                  )}
-                </div>
-
-                <div style={{ border: '1px solid var(--border)', borderRadius: 10, background: 'var(--surface)', overflow: 'hidden' }}>
-                  {visibleOtherOpps.map((opp, i) => {
-                    const thumbUrl = OTHER_OPP_THUMBNAILS[i % OTHER_OPP_THUMBNAILS.length];
-                    const isLast = i === visibleOtherOpps.length - 1 && (!otherOpps.length || otherOpps.length <= 3 || showAllOpportunities);
-                    return (
-                      <div
-                        key={opp.id}
-                        id={`opportunity-row-${i + 2}`}
-                        onClick={() => onViewOpportunity(opp.id)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 14,
-                          padding: '12px 18px',
-                          borderBottom: isLast ? 'none' : '1px solid var(--border)',
-                          cursor: 'pointer',
-                          transition: 'background 0.12s ease',
                         }}
                         onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'var(--surface-subtle)')}
-                        onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'transparent')}
+                        onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(255, 252, 247, 0.75)')}
                       >
-                        <div
-                          style={{
-                            fontSize: 12,
-                            fontWeight: 700,
-                            color: 'var(--text-muted)',
-                            width: 22,
-                            flexShrink: 0,
-                            fontVariantNumeric: 'tabular-nums',
-                          }}
-                        >
-                          {String(i + 2).padStart(2, '0')}
-                        </div>
-
-                        {/* 36x36px Product thumbnail */}
-                        <div
-                          style={{
-                            width: 36,
-                            height: 36,
-                            borderRadius: 6,
-                            overflow: 'hidden',
-                            background: 'rgba(238, 231, 220, 0.6)',
-                            flexShrink: 0,
-                          }}
-                        >
-                          <img
-                            src={thumbUrl}
-                            alt={opp.title}
-                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                            onError={e => {
-                              (e.currentTarget as HTMLElement).style.display = 'none';
-                            }}
-                          />
-                        </div>
-
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div
-                            style={{
-                              fontSize: 13,
-                              fontWeight: 600,
-                              color: 'var(--text-primary)',
-                              marginBottom: 4,
-                              letterSpacing: '-0.01em',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap',
-                            }}
-                          >
-                            {opp.title}
-                          </div>
-                          <div style={{ display: 'flex', gap: 5 }}>
-                            <span className="badge badge-neutral" style={{ fontSize: 10 }}>{opp.format.toUpperCase()}</span>
-                            <span className="badge badge-neutral" style={{ fontSize: 10 }}>{opp.platform.toUpperCase()}</span>
-                          </div>
-                        </div>
-
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-                          <div>
-                            <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
-                              {opp.score}
-                            </span>
-                            <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 1 }}>/100</span>
-                          </div>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-muted)' }}>→</div>
-                        </div>
-                      </div>
-                    );
-                  })}
-
-                  {/* Bottom View More Button */}
-                  {otherOpps.length > 3 && (
-                    <button
-                      onClick={() => setShowAllOpportunities(!showAllOpportunities)}
-                      style={{
-                        width: '100%',
-                        padding: '11px 16px',
-                        background: 'rgba(255, 252, 247, 0.75)',
-                        borderTop: '1px solid var(--border)',
-                        borderLeft: 'none',
-                        borderRight: 'none',
-                        borderBottom: 'none',
-                        color: 'var(--brown-primary)',
-                        fontSize: 12,
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: 6,
-                        transition: 'background 0.15s ease',
-                      }}
-                      onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'var(--surface-subtle)')}
-                      onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(255, 252, 247, 0.75)')}
-                    >
-                      <span>
-                        {showAllOpportunities
-                          ? 'Show fewer opportunities ↑'
-                          : `View ${otherOpps.length - 3} more opportunities (${otherOpps.length} total) ↓`}
-                      </span>
-                    </button>
-                  )}
+                        <span>
+                          {showAllOpportunities
+                            ? 'Show fewer opportunities ↑'
+                            : `View ${otherOpps.length - 3} more opportunities (${otherOpps.length} total) ↓`}
+                        </span>
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-
-          {/* ── Right Column: Insights & Instagram Connect Card ─────────────────── */}
-          <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: 24, height: '100%', justifyContent: 'space-between' }}>
-            <div>
-              {/* Header sitting on identical horizontal baseline */}
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  height: 28,
-                  marginBottom: 10,
-                }}
-              >
-                <div className="label">THIS WEEK'S INSIGHTS</div>
-              </div>
-
-              {/* THIS WEEK'S INSIGHTS CARD */}
-              <div
-                style={{
-                  border: '1px solid var(--border)',
-                  borderRadius: 10,
-                  background: 'var(--surface)',
-                  padding: '20px 20px',
-                }}
-              >
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  {dynamicInsights.map(insight => {
-                    const Icon = insight.icon;
-                    return (
-                      <div key={insight.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                        <div
-                          style={{
-                            width: 32,
-                            height: 32,
-                            borderRadius: 6,
-                            background: 'rgba(238, 231, 220, 0.65)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            flexShrink: 0,
-                            color: 'var(--brown-dark)',
-                          }}
-                        >
-                          <Icon size={15} />
-                        </div>
-                        <div>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>
-                            {insight.title}
-                          </div>
-                          <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.4 }}>
-                            {insight.description}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+              )}
             </div>
 
-            {/* CONNECT INSTAGRAM PROMPT CARD (Bottom Right of Screen) */}
-            <div
-              style={{
-                marginTop: 'auto',
-                padding: '16px 18px',
-                background: 'rgba(238, 231, 220, 0.55)',
-                border: '1px solid var(--border)',
-                borderRadius: 10,
-                boxSizing: 'border-box',
-              }}
-            >
+            {/* ── Right Subcolumn: Insights & Instagram ── */}
+            <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', gap: 20, justifyContent: 'space-between' }}>
+              <div>
+                <div className="label" style={{ marginBottom: 12 }}>THIS WEEK'S INSIGHTS</div>
+                <div
+                  style={{
+                    border: '1px solid var(--border)',
+                    borderRadius: 12,
+                    background: 'var(--surface)',
+                    padding: '20px 20px',
+                  }}
+                >
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    {dynamicInsights.map(insight => {
+                      const Icon = insight.icon;
+                      return (
+                        <div key={insight.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                          <div
+                            style={{
+                              width: 32,
+                              height: 32,
+                              borderRadius: 6,
+                              background: 'rgba(238, 231, 220, 0.65)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              flexShrink: 0,
+                              color: 'var(--brown-dark)',
+                            }}
+                          >
+                            <Icon size={15} />
+                          </div>
+                          <div>
+                            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>
+                              {insight.title}
+                            </div>
+                            <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+                              {insight.description}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* CONNECT INSTAGRAM CARD */}
               <div
                 style={{
-                  fontSize: 13,
-                  fontWeight: 600,
-                  color: 'var(--text-primary)',
-                  lineHeight: 1.3,
-                  marginBottom: 3,
-                  letterSpacing: '-0.01em',
+                  padding: '16px 18px',
+                  background: 'rgba(238, 231, 220, 0.55)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 12,
+                  boxSizing: 'border-box',
                 }}
               >
-                Want more personalised insights?
+                <div
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: 'var(--text-primary)',
+                    lineHeight: 1.3,
+                    marginBottom: 3,
+                    letterSpacing: '-0.01em',
+                  }}
+                >
+                  Want more personalised insights?
+                </div>
+                <div
+                  style={{
+                    fontSize: 12,
+                    color: 'var(--text-secondary)',
+                    lineHeight: 1.35,
+                    marginBottom: 12,
+                  }}
+                >
+                  Connect your Instagram account
+                </div>
+                <button
+                  onClick={handleConnectInstagram}
+                  style={{
+                    width: '100%',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                    padding: '7px 12px',
+                    background: isInstagramClicked ? 'var(--brown-soft)' : 'var(--surface)',
+                    border: `1px solid ${isInstagramClicked ? 'var(--brown-primary)' : 'var(--border)'}`,
+                    borderRadius: 6,
+                    fontSize: 12,
+                    fontWeight: 500,
+                    color: isInstagramClicked ? 'var(--brown-primary)' : 'var(--text-primary)',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
+                  }}
+                  onMouseEnter={e => {
+                    if (!isInstagramClicked) {
+                      (e.currentTarget as HTMLElement).style.background = 'var(--bg-subtle)';
+                      (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-strong)';
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (!isInstagramClicked) {
+                      (e.currentTarget as HTMLElement).style.background = 'var(--surface)';
+                      (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
+                    }
+                  }}
+                >
+                  <InstagramIcon size={14} color={isInstagramClicked ? 'var(--brown-primary)' : 'var(--text-primary)'} />
+                  <span>{isInstagramClicked ? 'Coming Soon' : 'Connect Instagram'}</span>
+                </button>
               </div>
-              <div
-                style={{
-                  fontSize: 12,
-                  color: 'var(--text-secondary)',
-                  lineHeight: 1.35,
-                  marginBottom: 12,
-                }}
-              >
-                Connect your Instagram account
-              </div>
-              <button
-                onClick={handleConnectInstagram}
-                style={{
-                  width: '100%',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 8,
-                  padding: '7px 12px',
-                  background: isInstagramClicked ? 'var(--brown-soft)' : 'var(--surface)',
-                  border: `1px solid ${isInstagramClicked ? 'var(--brown-primary)' : 'var(--border)'}`,
-                  borderRadius: 6,
-                  fontSize: 12,
-                  fontWeight: 500,
-                  color: isInstagramClicked ? 'var(--brown-primary)' : 'var(--text-primary)',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease',
-                  boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
-                }}
-                onMouseEnter={e => {
-                  if (!isInstagramClicked) {
-                    (e.currentTarget as HTMLElement).style.background = 'var(--bg-subtle)';
-                    (e.currentTarget as HTMLElement).style.borderColor = 'var(--border-strong)';
-                  }
-                }}
-                onMouseLeave={e => {
-                  if (!isInstagramClicked) {
-                    (e.currentTarget as HTMLElement).style.background = 'var(--surface)';
-                    (e.currentTarget as HTMLElement).style.borderColor = 'var(--border)';
-                  }
-                }}
-              >
-                <InstagramIcon size={14} color={isInstagramClicked ? 'var(--brown-primary)' : 'var(--text-primary)'} />
-                <span>{isInstagramClicked ? 'Coming Soon' : 'Connect Instagram'}</span>
-              </button>
             </div>
           </div>
         </div>

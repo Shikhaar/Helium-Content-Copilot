@@ -579,24 +579,38 @@ h1, h2, h3, h4 {
 /* ── Hero Opportunity Card Layout ────────────────── */
 .hero-card-layout {
   display: grid;
-  grid-template-columns: 165px minmax(0, 1fr) 210px;
-  gap: 24px;
-  align-items: stretch;
+  grid-template-columns: 210px minmax(0, 1fr) 230px;
+  gap: 32px;
+  align-items: center;
 }
-@media (max-width: 900px) {
+@media (max-width: 960px) {
   .hero-card-layout {
     grid-template-columns: 1fr !important;
-    gap: 14px !important;
+    gap: 20px !important;
+    align-items: stretch !important;
   }
   .hero-score-pillar {
     border-left: none !important;
     border-top: 1px solid var(--border) !important;
     padding-left: 0 !important;
-    padding-top: 14px !important;
+    padding-top: 16px !important;
     flex-direction: row !important;
     justify-content: space-between !important;
     align-items: center !important;
     width: 100% !important;
     min-height: auto !important;
+  }
+}
+
+/* ── Lower Section Grid Layout (Other Opps + Insights) ────────── */
+.dashboard-subgrid-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: 24px;
+  align-items: stretch;
+}
+@media (max-width: 960px) {
+  .dashboard-subgrid-layout {
+    grid-template-columns: 1fr !important;
   }
 }
