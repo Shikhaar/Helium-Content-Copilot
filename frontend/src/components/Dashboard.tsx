@@ -18,18 +18,19 @@ interface DashboardProps {
 // ─── Placeholder image sets per brand ──────────────────────────────────────
 const BRAND_IMAGES: Record<string, { main: string; secondary: string }> = {
   snitch: {
-    main: 'https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?w=480&auto=format&fit=crop&q=80',
-    secondary: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=480&auto=format&fit=crop&q=80',
+    main: 'https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?w=600&auto=format&fit=crop&q=80',
+    secondary: 'https://images.unsplash.com/photo-1516257984-b1b4d707412e?w=600&auto=format&fit=crop&q=80',
   },
   blissclub: {
-    main: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=480&auto=format&fit=crop&q=80',
-    secondary: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=480&auto=format&fit=crop&q=80',
+    main: 'https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&auto=format&fit=crop&q=80',
+    secondary: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&auto=format&fit=crop&q=80',
   },
   souled_store: {
-    main: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=480&auto=format&fit=crop&q=80',
-    secondary: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=480&auto=format&fit=crop&q=80',
+    main: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=600&auto=format&fit=crop&q=80',
+    secondary: 'https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?w=600&auto=format&fit=crop&q=80',
   },
 };
+
 
 function InstagramIcon({ size = 14, color = 'currentColor' }: { size?: number; color?: string }) {
   return (
@@ -48,15 +49,16 @@ function AnalyzingState({ brandName, step }: { brandName: string; step: number }
     'Analysing historical posts',
     'Identifying opportunities',
     'Scoring recommendations',
-    'Finalising results',
+    'Ranking impact',
   ];
   return (
-    <div style={{ padding: '52px 0', display: 'flex', flexDirection: 'column', gap: 28 }}>
-      <div>
-        <div style={{ fontSize: 20, fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.02em', fontFamily: 'var(--font-serif)' }}>
-          Analysing {brandName}
-        </div>
-        <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>
+    <div style={{ padding: '40px 0' }}>
+      <div style={{ marginBottom: 24 }}>
+        <div className="label" style={{ marginBottom: 6 }}>Intelligence Engine</div>
+        <h2 className="serif-heading" style={{ fontSize: 22, color: 'var(--text-primary)', marginBottom: 8 }}>
+          Analysing {brandName} Content Opportunities
+        </h2>
+        <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>
           Reviewing historical posts, catalog, and performance signals
         </div>
       </div>
@@ -138,35 +140,27 @@ export default function Dashboard({
   return (
     <div className="page-container">
       {/* ── Page Header ────────────────────────────────────────────────── */}
-      <div style={{ marginBottom: 32 }}>
+      <div className="page-header" style={{ marginBottom: 32 }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <h1
-              className="serif-heading"
-              style={{
-                fontSize: 30,
-                fontWeight: 500,
-                color: 'var(--text-primary)',
-                lineHeight: 1.2,
-                marginBottom: 6,
-                letterSpacing: '-0.02em',
-              }}
-            >
+          <div>
+            <h1 className="serif-heading" style={{ fontSize: 32, marginBottom: 6, color: 'var(--text-primary)' }}>
               What should {brandName} post next?
             </h1>
-            <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5, maxWidth: 520 }}>
+            <p style={{ fontSize: 14, color: 'var(--text-secondary)' }}>
               Based on what has worked, what's selling, and what's relevant right now.
             </p>
           </div>
 
-          {/* Re-analyse — visually secondary */}
+          {/* Re-analyse button */}
           {analyzeResult && (
             <button
+              id="re-analyse-btn"
               className="btn-ghost"
               onClick={onAnalyze}
-              style={{ fontSize: 12, padding: '6px 10px', marginTop: 4, flexShrink: 0, gap: 5 }}
+              disabled={isAnalyzing}
+              style={{ fontSize: 13, gap: 6, flexShrink: 0 }}
             >
-              <RefreshCw size={11} strokeWidth={1.8} />
+              <RefreshCw size={13} className={isAnalyzing ? 'spin' : ''} />
               Re-analyse
             </button>
           )}
@@ -180,7 +174,7 @@ export default function Dashboard({
         )}
       </div>
 
-      {/* ── Contextual Metrics Row (plain, no cards) ────────────────────── */}
+      {/* ── Contextual Metrics Row (plain, reduced dominance) ─────────── */}
       <div className="metrics-plain-row">
         {[
           { value: prodCount, label: 'Products', sub: 'in catalog' },
@@ -189,10 +183,10 @@ export default function Dashboard({
           { value: scheduledCount, label: 'Scheduled', sub: 'this week' },
         ].map((m) => (
           <div className="metrics-plain-item" key={m.label}>
-            <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.04em', lineHeight: 1 }}>
+            <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-secondary)', letterSpacing: '-0.02em', lineHeight: 1 }}>
               {m.value}
             </div>
-            <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 4, fontWeight: 500 }}>{m.label}</div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4, fontWeight: 500 }}>{m.label}</div>
             <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 1 }}>{m.sub}</div>
           </div>
         ))}
@@ -203,7 +197,7 @@ export default function Dashboard({
         /* Empty State */
         <div style={{ padding: '48px 0' }}>
           <div className="label" style={{ marginBottom: 12 }}>Content Intelligence</div>
-          <h2 className="serif-heading" style={{ fontSize: 24, marginBottom: 10, color: 'var(--text-primary)' }}>
+          <h2 className="serif-heading" style={{ fontSize: 24, marginBottom: 10, color: '#16120E' }}>
             Find your next best opportunity
           </h2>
           <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.6, maxWidth: 420, marginBottom: 28 }}>
@@ -240,123 +234,147 @@ export default function Dashboard({
                 }}
               >
                 <div className="hero-card-layout">
-                  {/* ── Image Area ── */}
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 6,
-                      width: 220,
-                      flexShrink: 0,
-                    }}
-                  >
-                    {/* Dominant image — 2:3 portrait */}
+                  {/* ── 1. Hero Media Gallery (Intentional two-image editorial block) ── */}
+                  <div className="hero-media-zone">
+                    {/* Primary Dominant Image (~65% height) */}
                     <div
                       style={{
-                        borderRadius: 10,
+                        borderRadius: 8,
                         overflow: 'hidden',
                         background: 'var(--surface-subtle)',
-                        aspectRatio: '3 / 4',
+                        height: 195,
                         width: '100%',
                       }}
                     >
                       <img
                         src={images.main}
                         alt={topOpp.title}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', objectPosition: 'center top' }}
                         onError={e => { (e.currentTarget as HTMLElement).style.display = 'none'; }}
                       />
                     </div>
-                    {/* Supporting image — landscape */}
+                    {/* Secondary Supporting Image (~35% height) */}
                     <div
                       style={{
                         borderRadius: 8,
                         overflow: 'hidden',
                         background: 'var(--surface-subtle)',
-                        aspectRatio: '3 / 1.5',
+                        height: 100,
                         width: '100%',
                       }}
                     >
                       <img
                         src={images.secondary}
                         alt={`${topOpp.title} supporting`}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', objectPosition: 'center' }}
                         onError={e => { (e.currentTarget as HTMLElement).style.display = 'none'; }}
                       />
                     </div>
                   </div>
 
-                  {/* ── Recommendation Content ── */}
-                  <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minWidth: 0, gap: 20 }}>
-                    <div>
-                      {/* Quiet format metadata */}
-                      <div
-                        style={{
-                          fontSize: 11,
-                          color: 'var(--text-muted)',
-                          letterSpacing: '0.02em',
-                          fontWeight: 500,
-                          marginBottom: 10,
-                          textTransform: 'uppercase',
-                        }}
-                      >
-                        {topOpp.objective || 'Product Education'} · {topOpp.platform} {topOpp.format}
-                        {topOpp.is_demo && <span className="demo-banner" style={{ marginLeft: 8, fontSize: 9, padding: '2px 6px' }}>Demo</span>}
+
+                  {/* ── 2. Recommendation Content (Natural, compact vertical flow) ── */}
+                  <div className="hero-content-zone">
+                    {/* Quiet format metadata */}
+                    <div
+                      style={{
+                        fontSize: 11,
+                        color: 'var(--text-muted)',
+                        letterSpacing: '0.05em',
+                        fontWeight: 600,
+                        marginBottom: 8,
+                        textTransform: 'uppercase',
+                      }}
+                    >
+                      {topOpp.objective || 'Product Education'} · {topOpp.platform} {topOpp.format}
+                      {topOpp.is_demo && <span className="demo-banner" style={{ marginLeft: 8, fontSize: 9, padding: '2px 6px' }}>Demo</span>}
+                    </div>
+
+                    {/* Big editorial title — Strongest visual element */}
+                    <h2
+                      className="serif-heading"
+                      style={{
+                        fontSize: 28,
+                        fontWeight: 500,
+                        color: '#16120E',
+                        lineHeight: 1.22,
+                        marginBottom: 14,
+                        letterSpacing: '-0.02em',
+                      }}
+                    >
+                      {topOpp.title}
+                    </h2>
+
+                    {/* Why This Opportunity */}
+                    <div style={{ marginBottom: 16 }}>
+                      <div className="label" style={{ marginBottom: 4 }}>Why this opportunity</div>
+                      <p style={{
+                        fontSize: 13.5,
+                        color: '#2B231C',
+                        lineHeight: 1.6,
+                      }}>
+                        {topOpp.why}
+                      </p>
+                    </div>
+
+                    {/* Supporting Metrics: Scannable 3-stat row */}
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 20,
+                        padding: '12px 16px',
+                        borderRadius: 8,
+                        background: 'rgba(217, 200, 181, 0.16)',
+                        border: '1px solid var(--border)',
+                        marginBottom: 14,
+                      }}
+                    >
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 17, fontWeight: 700, color: '#16120E', lineHeight: 1 }}>
+                          {heroFormatEr.toFixed(1)}%
+                        </div>
+                        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4, fontWeight: 500 }}>
+                          Historical engagement
+                        </div>
                       </div>
 
-                      {/* Big editorial title */}
-                      <h2
-                        className="serif-heading"
-                        style={{
-                          fontSize: 28,
-                          fontWeight: 500,
-                          color: 'var(--text-primary)',
-                          lineHeight: 1.2,
-                          marginBottom: 20,
-                          letterSpacing: '-0.02em',
-                        }}
-                      >
-                        {topOpp.title}
-                      </h2>
+                      <div style={{ width: 1, height: 26, background: 'var(--border)', flexShrink: 0 }} />
 
-                      {/* Why This Opportunity */}
-                      <div style={{ marginBottom: 16 }}>
-                        <div className="label" style={{ marginBottom: 6 }}>Why this opportunity</div>
-                        <p style={{
-                          fontSize: 14,
-                          color: 'var(--text-secondary)',
-                          lineHeight: 1.65,
-                        }}>
-                          {topOpp.why}
-                        </p>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 17, fontWeight: 700, color: '#16120E', lineHeight: 1 }}>
+                          {heroMultiplier}×
+                        </div>
+                        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4, fontWeight: 500 }}>
+                          vs brand average
+                        </div>
                       </div>
 
-                      {/* Evidence inline row */}
-                      <div className="evidence-inline-row" style={{ marginBottom: 20 }}>
-                        <div>
-                          <div className="evidence-stat">↑ {heroFormatEr.toFixed(1)}% engagement</div>
-                          <div className="evidence-label">Historical avg</div>
+                      <div style={{ width: 1, height: 26, background: 'var(--border)', flexShrink: 0 }} />
+
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 17, fontWeight: 700, color: '#16120E', lineHeight: 1 }}>
+                          {brandKey === 'blissclub' ? '18.2K' : brandKey === 'souled_store' ? '16.4K' : '14.2K'}
                         </div>
-                        <div className="evidence-sep" />
-                        <div>
-                          <div className="evidence-stat">{heroMultiplier}× brand average</div>
-                          <div className="evidence-label">Format multiplier</div>
+                        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4, fontWeight: 500 }}>
+                          Catalog views
                         </div>
-                        {topOpp.suggested_product_name && (
-                          <>
-                            <div className="evidence-sep" />
-                            <div>
-                              <div className="evidence-stat" style={{ fontSize: 12, maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                {topOpp.suggested_product_name}
-                              </div>
-                              <div className="evidence-label">Featured product</div>
-                            </div>
-                          </>
-                        )}
                       </div>
                     </div>
 
-                    {/* CTA */}
+                    {/* Featured Product line */}
+                    {topOpp.suggested_product_name && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 22, fontSize: 12 }}>
+                        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+                          Featured product:
+                        </span>
+                        <span style={{ fontWeight: 600, color: '#16120E', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {topOpp.suggested_product_name}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Primary Action CTA */}
                     <div>
                       <button
                         className="btn-primary"
@@ -376,52 +394,53 @@ export default function Dashboard({
                           (e.currentTarget as HTMLElement).querySelector('.cta-arrow')?.setAttribute('style', 'transform: translateX(0); transition: transform 0.15s ease;');
                         }}
                       >
-                        See why this is recommended
+                        View recommendation
                         <span className="cta-arrow" style={{ transition: 'transform 0.15s ease' }}>→</span>
                       </button>
                     </div>
                   </div>
 
-                  {/* ── Score Pillar (secondary visual weight) ── */}
-                  <div
-                    className="hero-score-pillar"
-                    style={{
-                      borderLeft: '1px solid var(--border)',
-                      paddingLeft: 32,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'flex-start',
-                      alignItems: 'flex-start',
-                      gap: 4,
-                      minWidth: 140,
-                      flexShrink: 0,
-                    }}
-                  >
-                    {/* Score — secondary, not the first thing you see */}
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 6 }}>
+                  {/* ── 3. Score Column (Tightly integrated, right-aligned pillar) ── */}
+                  <div className="hero-score-pillar">
+                    {/* Score */}
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, marginBottom: 2 }}>
                       <span
                         style={{
-                          fontSize: 52,
+                          fontSize: 48,
                           fontFamily: 'var(--font-serif)',
                           fontWeight: 400,
-                          color: 'var(--text-primary)',
+                          color: '#16120E',
                           lineHeight: 1,
                           letterSpacing: '-0.04em',
                         }}
                       >
                         {topOpp.score}
                       </span>
-                      <span style={{ fontSize: 14, color: 'var(--text-muted)', fontFamily: 'var(--font-serif)' }}>
+                      <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'var(--font-serif)' }}>
                         /100
                       </span>
                     </div>
 
-                    <div style={{ fontSize: 11, fontWeight: 500, color: confidenceColor(topOpp.score) }}>
+                    {/* Meaningful Rating */}
+                    <div style={{ fontSize: 12, fontWeight: 600, color: '#16120E', marginBottom: 2 }}>
+                      {topOpp.score >= 80 ? 'Strong opportunity' : topOpp.score >= 60 ? 'Moderate opportunity' : 'Emerging opportunity'}
+                    </div>
+
+                    {/* Semantic Confidence */}
+                    <div style={{
+                      fontSize: 11,
+                      fontWeight: 500,
+                      color: topOpp.score >= 80 ? '#15803D' : topOpp.score >= 60 ? '#B45309' : 'var(--text-muted)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 4,
+                    }}>
+                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: topOpp.score >= 80 ? '#15803D' : topOpp.score >= 60 ? '#B45309' : 'var(--text-muted)', flexShrink: 0 }} />
                       {confidence(topOpp.score)}
                     </div>
 
-                    {/* Score breakdown bar — quiet visual */}
-                    <div style={{ marginTop: 16, width: '100%' }}>
+                    {/* Score breakdown bar */}
+                    <div style={{ marginTop: 12, width: '100%' }}>
                       <div
                         style={{
                           height: 3,
@@ -435,16 +454,17 @@ export default function Dashboard({
                           style={{
                             height: '100%',
                             width: `${topOpp.score}%`,
-                            background: topOpp.score >= 80 ? 'var(--green)' : topOpp.score >= 60 ? 'var(--amber)' : 'var(--border-strong)',
+                            background: topOpp.score >= 80 ? '#15803D' : topOpp.score >= 60 ? '#B45309' : 'var(--border-strong)',
                             borderRadius: 2,
                             transition: 'width 0.6s ease',
                           }}
                         />
                       </div>
-                      <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 6 }}>Impact score</div>
+                      <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 5 }}>Impact score</div>
                     </div>
                   </div>
                 </div>
+
               </div>
             </div>
           )}
@@ -505,10 +525,10 @@ export default function Dashboard({
                       {/* Rank number */}
                       <div
                         style={{
-                          fontSize: 11,
+                          fontSize: 12,
                           fontWeight: 600,
                           color: 'var(--text-muted)',
-                          width: 20,
+                          width: 24,
                           flexShrink: 0,
                           paddingTop: 2,
                           fontVariantNumeric: 'tabular-nums',
@@ -521,68 +541,63 @@ export default function Dashboard({
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div
                           style={{
-                            fontSize: 14,
+                            fontSize: 14.5,
                             fontWeight: 600,
-                            color: 'var(--text-primary)',
+                            color: '#16120E',
                             letterSpacing: '-0.01em',
                             marginBottom: 4,
-                            lineHeight: 1.3,
+                            lineHeight: 1.35,
                           }}
                         >
                           {opp.title}
                         </div>
                         <div
                           style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 6,
                             fontSize: 11,
                             color: 'var(--text-muted)',
-                            fontWeight: 500,
-                            letterSpacing: '0.01em',
-                            textTransform: 'uppercase',
-                            marginBottom: 6,
                           }}
                         >
-                          {opp.format} · {opp.platform}
+                          <span style={{ fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                            {opp.format} · {opp.platform}
+                          </span>
+                          {opp.suggested_product_name && (
+                            <>
+                              <span>·</span>
+                              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                {opp.suggested_product_name}
+                              </span>
+                            </>
+                          )}
                         </div>
-                        {opp.why && (
-                          <div
-                            style={{
-                              fontSize: 12,
-                              color: 'var(--text-secondary)',
-                              lineHeight: 1.5,
-                              display: '-webkit-box',
-                              WebkitLineClamp: 1,
-                              WebkitBoxOrient: 'vertical',
-                              overflow: 'hidden',
-                            }}
-                          >
-                            {opp.why}
-                          </div>
-                        )}
                       </div>
 
-                      {/* Score + arrow */}
+                      {/* Score Badge */}
                       <div
                         style={{
                           display: 'flex',
                           alignItems: 'center',
                           gap: 2,
                           flexShrink: 0,
+                          paddingLeft: 12,
                           paddingTop: 2,
                         }}
                       >
                         <span
                           style={{
-                            fontSize: 18,
+                            fontSize: 15,
                             fontFamily: 'var(--font-serif)',
-                            fontWeight: 400,
-                            color: 'var(--text-primary)',
-                            letterSpacing: '-0.03em',
+                            fontWeight: 500,
+                            color: '#16120E',
+                            fontVariantNumeric: 'tabular-nums',
                           }}
                         >
                           {opp.score}
                         </span>
-                        <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 1, marginRight: 10 }}>/100</span>
-                        <span style={{ color: 'var(--text-muted)', fontSize: 14, fontWeight: 400 }}>→</span>
+                        <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'var(--font-serif)', marginRight: 6 }}>/100</span>
+                        <span style={{ color: 'var(--text-muted)', fontSize: 13 }}>→</span>
                       </div>
                     </div>
                   ))}

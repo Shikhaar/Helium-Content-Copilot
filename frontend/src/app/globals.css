@@ -578,15 +578,47 @@ h1, h2, h3, h4 {
 
 /* ── Hero Opportunity Card Layout ────────────────── */
 .hero-card-layout {
-  display: grid;
-  grid-template-columns: 220px minmax(0, 1fr) auto;
-  gap: 36px;
-  align-items: stretch;
+  display: flex;
+  align-items: flex-start;
+  gap: 32px;
+  max-width: 940px;
+}
+.hero-media-zone {
+  width: 230px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.hero-content-zone {
+  flex: 1;
+  min-width: 300px;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+}
+.hero-score-pillar {
+  width: 140px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--border);
+  padding-left: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
 }
 @media (max-width: 960px) {
   .hero-card-layout {
-    grid-template-columns: 1fr !important;
-    gap: 20px !important;
+    flex-direction: column !important;
+    gap: 24px !important;
+    max-width: 100% !important;
+  }
+  .hero-media-zone {
+    width: 100% !important;
+    max-width: 280px !important;
+  }
+  .hero-content-zone {
+    max-width: 100% !important;
   }
   .hero-score-pillar {
     border-left: none !important;
@@ -600,6 +632,9 @@ h1, h2, h3, h4 {
     min-height: auto !important;
   }
 }
+
+
+
 
 /* ── Opportunity Separator List ──────────────────── */
 .opp-list-row {
