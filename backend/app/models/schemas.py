@@ -55,6 +55,7 @@ class ContentStatus(str, Enum):
 
 class Confidence(str, Enum):
     HIGH = "High"
+    GOOD = "Good"
     MEDIUM = "Medium"
     LOW = "Low"
 

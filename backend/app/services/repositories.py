@@ -413,7 +413,7 @@ class OpportunityRepository(BaseRepository[Opportunity]):
             business_signal=row["business_signal"],
             score=row["score"],
             score_breakdown=ScoreBreakdown(**breakdown_data),
-            confidence=Confidence(row["confidence"]),
+            confidence=Confidence.HIGH if (row["confidence"] or "").lower() in ("high", "good") else Confidence.MEDIUM if (row["confidence"] or "").lower() in ("medium", "moderate") else Confidence.LOW,
             confidence_reason=row["confidence_reason"],
             created_at=row["created_at"],
             is_demo=bool(row["is_demo"]),
