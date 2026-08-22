@@ -185,7 +185,7 @@ async def verify_brand_access(
     brand_ws = brand.workspace_id or "default_workspace"
     user_ws = user.workspace_id or "default_workspace"
 
-    if brand_ws != "default_workspace" and user_ws != brand_ws:
+    if brand_ws != user_ws:
         logger.warning(
             "Brand access denied: user='%s' workspace='%s' -> brand='%s' workspace='%s'",
             user.clerk_user_id,

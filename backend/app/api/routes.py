@@ -439,6 +439,29 @@ async def generate_content(
         raise HTTPException(status_code=500, detail="Content generation failed. Please try again.")
 
 
+@router.post("/content/regenerate", response_model=ContentDraft)
+async def regenerate_content(
+    req: GenerateContentRequest,
+    db: aiosqlite.Connection = Depends(get_db_conn),
+    user: UserContext = Depends(get_current_user),
+):
+    """Regenerate content draft from an opportunity after verifying brand access."""
+    opp = await OpportunityRepository(db).get_by_id(req.opportunity_id)
+    if not opp:
+        raise HTTPException(status_code=404, detail="Opportunity not found")
+    await verify_brand_access(opp.brand_id, user, BrandRepository(db))
+
+    try:
+        svc = _make_content_service(db)
+        return await svc.generate(req)
+    except ValueError as exc:
+        logger.error("Content regeneration failed: %s", exc)
+        raise HTTPException(status_code=422, detail=str(exc))
+    except Exception as exc:
+        logger.exception("Unexpected error in content regeneration: %s", exc)
+        raise HTTPException(status_code=500, detail="Content regeneration failed. Please try again.")
+
+
 @router.get("/content/{draft_id}", response_model=ContentDraft)
 async def get_draft(
     draft_id: str,
@@ -477,6 +500,22 @@ async def update_draft(
         draft.hashtags = updates.hashtags
 
     return await repo.update(draft, brand_id=draft.brand_id)
+
+
+@router.post("/content/{draft_id}/approve", response_model=ContentDraft)
+async def approve_draft(
+    draft_id: str,
+    db: aiosqlite.Connection = Depends(get_db_conn),
+    user: UserContext = Depends(get_current_user),
+):
+    """Mark content draft as approved after verifying brand access."""
+    draft = await ContentRepository(db).get_by_id(draft_id)
+    if not draft:
+        raise HTTPException(status_code=404, detail="Draft not found")
+    await verify_brand_access(draft.brand_id, user, BrandRepository(db))
+
+    svc = _make_content_service(db)
+    return await svc.approve_draft(draft_id)
 
 
 @router.post("/content/{draft_id}/schedule", response_model=ContentDraft)
