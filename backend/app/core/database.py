@@ -138,11 +138,30 @@ CREATE INDEX IF NOT EXISTS idx_calendar_brand_datetime ON calendar_entries(brand
 """
 
 
+_SQLITE_FALLBACK = "helium_dev.db"
+
+
+def _resolve_db_path(url: str) -> str:
+    """Resolve a database URL to an aiosqlite-compatible file path.
+
+    PostgreSQL URLs are not supported by aiosqlite — fall back to the local
+    SQLite file so the server can start in local-dev mode even when .env
+    points at a Supabase instance.
+    """
+    if url.startswith("sqlite:///"):
+        return url.replace("sqlite:///", "")
+    if url.startswith("postgresql://") or url.startswith("postgres://"):
+        logger.info(
+            "PostgreSQL DATABASE_URL detected — using local SQLite fallback '%s' for aiosqlite layer",
+            _SQLITE_FALLBACK,
+        )
+        return _SQLITE_FALLBACK
+    return url
+
+
 async def get_db() -> aiosqlite.Connection:
     """Open and return a database connection with row_factory and foreign key enforcement set."""
-    db_path = settings.database_url
-    if db_path.startswith("sqlite:///"):
-        db_path = db_path.replace("sqlite:///", "")
+    db_path = _resolve_db_path(settings.database_url)
     db = await aiosqlite.connect(db_path)
     db.row_factory = aiosqlite.Row
     # Enforce FK constraints including ON DELETE CASCADE
@@ -153,9 +172,7 @@ async def get_db() -> aiosqlite.Connection:
 async def init_db() -> None:
     """Initialise tables and indexes, migrating existing tables to multi-tenant schema if needed."""
     logger.info("Initialising database schema at %s", settings.database_url)
-    db_path = settings.database_url
-    if db_path.startswith("sqlite:///"):
-        db_path = db_path.replace("sqlite:///", "")
+    db_path = _resolve_db_path(settings.database_url)
 
     async with aiosqlite.connect(db_path) as db:
         await db.execute("PRAGMA journal_mode=WAL;")
