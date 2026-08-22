@@ -83,6 +83,7 @@ async def verify_clerk_token(token: str) -> UserContext:
                 signing_key.key,
                 algorithms=["RS256"],
                 options={"verify_exp": True},
+                leeway=30,  # 30-second clock skew tolerance
             )
             clerk_user_id = payload.get("sub")
             if not clerk_user_id:
