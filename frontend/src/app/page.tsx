@@ -188,6 +188,10 @@ export default function Home() {
       }
     } else if (tab === 'calendar') {
       setScreen({ name: 'calendar' });
+      // Refresh calendar entries so newly scheduled posts appear
+      api.getCalendar(selectedBrandId)
+        .then(cal => setCalendarEntries(cal))
+        .catch(() => {/* non-fatal */});
     } else if (tab === 'brand') {
       setScreen({ name: 'brand' });
     }
@@ -289,6 +293,8 @@ export default function Home() {
       setCurrentDraft(updated);
       const cal = await api.getCalendar(selectedBrandId);
       setCalendarEntries(cal);
+      // Navigate to calendar so the user sees the scheduled post
+      navigate({ name: 'calendar' });
       return updated;
     } catch (e: any) {
       setError(e.message || 'Scheduling failed.');

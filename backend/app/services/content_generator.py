@@ -91,6 +91,7 @@ class ContentGeneratorService:
         now = datetime.now(timezone.utc).isoformat()
         draft = ContentDraft(
             id=str(uuid.uuid4()),
+            brand_id=brand_id,
             opportunity_id=request.opportunity_id,
             platform=platform_str,
             format=format_str,
@@ -108,7 +109,7 @@ class ContentGeneratorService:
             is_demo=is_demo,
         )
 
-        await self._content_repo.create(draft)
+        await self._content_repo.create(draft, brand_id=brand_id)
         return draft
 
     async def update(self, draft_id: str, updates: UpdateDraftRequest) -> ContentDraft:
@@ -127,7 +128,7 @@ class ContentGeneratorService:
         if updates.hashtags is not None:
             draft = draft.model_copy(update={"hashtags": updates.hashtags})
 
-        return await self._content_repo.update(draft)
+        return await self._content_repo.update(draft, brand_id=draft.brand_id)
 
     async def approve(self, draft_id: str) -> ContentDraft:
         """Mark content as approved — human has reviewed and signed off."""
@@ -137,7 +138,7 @@ class ContentGeneratorService:
             raise ValueError(f"Draft not found: {draft_id}")
 
         draft = draft.model_copy(update={"status": ContentStatus.APPROVED})
-        return await self._content_repo.update(draft)
+        return await self._content_repo.update(draft, brand_id=draft.brand_id)
 
     async def schedule(self, draft_id: str, schedule: ScheduleRequest) -> ContentDraft:
         """Schedule or reschedule a draft and add/update it in the calendar."""
@@ -162,7 +163,7 @@ class ContentGeneratorService:
             "scheduled_date": schedule.scheduled_date,
             "scheduled_time": schedule.scheduled_time,
         })
-        await self._content_repo.update(draft)
+        await self._content_repo.update(draft, brand_id=draft.brand_id)
 
         # Check if an existing calendar entry exists for this draft (rescheduling scenario)
         existing_entry = await self._calendar_repo.get_by_draft_id(draft.id)
@@ -170,6 +171,7 @@ class ContentGeneratorService:
 
         calendar_entry = CalendarEntry(
             id=entry_id,
+            brand_id=draft.brand_id,
             draft_id=draft.id,
             title=title,
             platform=draft.platform,
@@ -177,8 +179,8 @@ class ContentGeneratorService:
             status=ContentStatus.SCHEDULED,
             scheduled_datetime=f"{schedule.scheduled_date}T{schedule.scheduled_time}:00",
         )
-        await self._calendar_repo.upsert(calendar_entry)
-        logger.info("Calendar entry %s for draft %s", "updated" if existing_entry else "created", draft_id)
+        await self._calendar_repo.upsert(calendar_entry, brand_id=draft.brand_id)
+        logger.info("Calendar entry %s for draft %s (brand: %s)", "updated" if existing_entry else "created", draft_id, draft.brand_id)
 
         return draft
 
