@@ -26,10 +26,23 @@ const BASE_URL =
     ? '/api'
     : 'http://localhost:8000/api');
 
-let _authToken: string | null = null;
+// Store a token-getter function rather than a static token.
+// Clerk short-lived JWTs expire every ~60 seconds, so we must call
+// getToken() before every request to always get a fresh, valid token.
+let _getToken: (() => Promise<string | null>) | null = null;
 
 export const setApiAuthToken = (token: string | null) => {
-  _authToken = token;
+  // Legacy single-value setter — wrap in a getter for backward compat.
+  if (token) {
+    _getToken = () => Promise.resolve(token);
+  } else {
+    _getToken = null;
+  }
+};
+
+/** Register Clerk's getToken function so every request fetches a fresh JWT. */
+export const setTokenGetter = (getter: (() => Promise<string | null>) | null) => {
+  _getToken = getter;
 };
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
@@ -38,8 +51,11 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
     ...(options?.headers as Record<string, string>),
   };
 
-  if (_authToken) {
-    headers['Authorization'] = `Bearer ${_authToken}`;
+  if (_getToken) {
+    const token = await _getToken();
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
   }
 
   const res = await fetch(`${BASE_URL}${path}`, {

@@ -2,7 +2,7 @@
 import React from 'react';
 import { Menu } from 'lucide-react';
 import { useAuth } from '@clerk/nextjs';
-import { api, setApiAuthToken } from '../lib/api';
+import { api, setApiAuthToken, setTokenGetter } from '../lib/api';
 import type {
   AnalyzeResponse,
   Brand,
@@ -107,15 +107,22 @@ export default function Home() {
     }
   }, []);
 
+  // Register Clerk's getToken as a live getter so every API request
+  // fetches a fresh JWT — avoids "token expired" errors after ~60s.
+  React.useEffect(() => {
+    if (isLoaded && isSignedIn && getToken) {
+      setTokenGetter(() => getToken());
+    } else {
+      setTokenGetter(null);
+    }
+    return () => setTokenGetter(null);
+  }, [isLoaded, isSignedIn, getToken]);
+
   // Load initial brands list and active brand data
   React.useEffect(() => {
+    if (!isLoaded) return;
     const loadBootstrap = async () => {
       try {
-        if (isSignedIn) {
-          const token = await getToken();
-          setApiAuthToken(token);
-        }
-
         const brandsList = await api.listBrands();
         setBrands(brandsList);
         const initialBrandId = brandsList.length > 0 ? brandsList[0].id : 'snitch';
@@ -127,7 +134,7 @@ export default function Home() {
       }
     };
     loadBootstrap();
-  }, [isSignedIn, getToken, loadBrandData]);
+  }, [isLoaded, isSignedIn, getToken, loadBrandData]);
 
   // Brand Switcher Handler
   const handleBrandChange = async (brandId: string) => {
