@@ -232,6 +232,15 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
     ? 'STRONG-CONFIDENCE OPPORTUNITY'
     : 'MODERATE OPPORTUNITY';
 
+  // Automatically scroll to the top of the viewport when opening an opportunity
+  React.useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    const mainEl = document.querySelector('main');
+    if (mainEl) {
+      mainEl.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }
+  }, [opportunity.id]);
+
   return (
     <div className="page-container fade-up" style={{ maxWidth: 980, boxSizing: 'border-box', paddingBottom: 48 }}>
       {/* ── 1. Top Navigation ────────────────────────────────────────── */}

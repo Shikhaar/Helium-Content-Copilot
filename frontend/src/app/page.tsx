@@ -70,6 +70,17 @@ export default function Home() {
   const selectedBrandIdRef = React.useRef(selectedBrandId);
   selectedBrandIdRef.current = selectedBrandId;
 
+  // Ref to scrollable main content container
+  const mainRef = React.useRef<HTMLElement | null>(null);
+
+  // Automatically scroll viewport to top whenever the active screen or opportunity changes
+  React.useEffect(() => {
+    if (mainRef.current) {
+      mainRef.current.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [screen]);
+
   // Function to load all data for a specific brand
   const loadBrandData = React.useCallback(async (brandId: string) => {
     try {
@@ -632,7 +643,7 @@ export default function Home() {
           </span>
         </header>
 
-        <main style={{ flex: 1, overflowY: 'auto', minWidth: 0 }}>
+        <main ref={mainRef} style={{ flex: 1, overflowY: 'auto', minWidth: 0 }}>
           {/* Error banner */}
           {error && (
             <div style={{
