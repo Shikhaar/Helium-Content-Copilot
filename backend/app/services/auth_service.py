@@ -152,6 +152,16 @@ async def get_current_user(
 ) -> UserContext:
     """FastAPI dependency for protecting endpoints with Clerk authentication."""
     if not authorization:
+        # In local development or testing, fall back to default dev user if no token provided
+        if settings.environment == "development" or settings.testing:
+            return UserContext(
+                clerk_user_id="user_dev_123",
+                email="developer@brandbrew.internal",
+                name="BrandBrew Developer",
+                avatar_url=None,
+                role="editor",
+                workspace_id="default_workspace",
+            )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authentication required to access this resource.",

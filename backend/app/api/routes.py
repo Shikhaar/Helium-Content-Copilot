@@ -15,6 +15,7 @@ import uuid
 import aiosqlite
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
+from app.core.config import settings
 from app.core.database import get_db
 from app.core.logging_config import get_logger
 from app.models.schemas import (
@@ -92,6 +93,14 @@ def _make_content_service(db: aiosqlite.Connection) -> ContentGeneratorService:
         calendar_repo=CalendarRepository(db),
         ai_provider=get_ai_provider(),
     )
+
+
+# ── Health Check ──────────────────────────────────────────────────────────────
+
+@router.get("/health")
+async def health_check():
+    """Health check endpoint for container monitoring and frontend connectivity check."""
+    return {"status": "ok", "service": "brandbrew-backend", "ai_enabled": settings.ai_enabled}
 
 
 # ── Brands & Workspace Tenancy ────────────────────────────────────────────────
