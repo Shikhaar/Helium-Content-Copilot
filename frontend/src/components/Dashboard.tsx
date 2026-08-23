@@ -223,8 +223,6 @@ export default function Dashboard({
           {topOpp && (
             <div>
               <div className="label" style={{ marginBottom: 16 }}>Your next best opportunity</div>
-
-              {/* Opportunity Card — editorial layout, no heavy border */}
               <div
                 id="hero-opportunity-card"
                 onClick={() => onViewOpportunity(topOpp.id)}
@@ -235,237 +233,278 @@ export default function Dashboard({
                 }}
               >
                 <div className="hero-card-layout">
-                  {/* ── 1. Hero Media Gallery (Intentional two-image editorial block) ── */}
+                  {/* ── 1. Hero Media Gallery ── */}
                   <div className="hero-media-zone">
-                    {/* Primary Dominant Image (~65% height) */}
-                    <div
-                      style={{
-                        borderRadius: 8,
-                        overflow: 'hidden',
-                        background: 'var(--surface-subtle)',
-                        height: 195,
-                        width: '100%',
-                      }}
-                    >
+                    {/* Primary — dominant hero image */}
+                    <div style={{ position: 'relative', borderRadius: 8, overflow: 'hidden', background: 'var(--surface-subtle)', height: 244, width: '100%' }}>
                       <img
                         src={images.main}
                         alt={topOpp.title}
                         style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', objectPosition: 'center top' }}
                         onError={e => { (e.currentTarget as HTMLElement).style.display = 'none'; }}
                       />
-                    </div>
-                    {/* Secondary Supporting Image (~35% height) */}
-                    <div
-                      style={{
-                        borderRadius: 8,
-                        overflow: 'hidden',
-                        background: 'var(--surface-subtle)',
-                        height: 100,
-                        width: '100%',
-                      }}
-                    >
-                      <img
-                        src={images.secondary}
-                        alt={`${topOpp.title} supporting`}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', objectPosition: 'center' }}
-                        onError={e => { (e.currentTarget as HTMLElement).style.display = 'none'; }}
-                      />
+                      {/* Contact-strip thumbnails — intentional editorial composition, not a second rectangle */}
+                      <div
+                        style={{
+                          position: 'absolute',
+                          bottom: 8,
+                          right: 8,
+                          display: 'flex',
+                          gap: 3,
+                        }}
+                      >
+                        {[images.main, images.secondary, images.main].map((src, i) => (
+                          <div
+                            key={i}
+                            style={{
+                              width: 32,
+                              height: 32,
+                              borderRadius: 4,
+                              overflow: 'hidden',
+                              border: '1.5px solid rgba(255,255,255,0.9)',
+                              opacity: i === 0 ? 1 : i === 1 ? 0.85 : 0.65,
+                              boxShadow: '0 1px 3px rgba(33,25,20,0.18)',
+                            }}
+                          >
+                            <img
+                              src={src}
+                              alt=""
+                              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                              onError={e => { (e.currentTarget as HTMLElement).style.display = 'none'; }}
+                            />
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
 
-
-                  {/* ── 2. Recommendation Content (Natural, compact vertical flow) ── */}
-                  <div className="hero-content-zone">
-                    {/* Quiet format metadata */}
+                {/* ── 2. Recommendation Content ── */}
+                <div className="hero-content-zone">
+                  {/* Format metadata + BrandBrew Pick stamp — on same row */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
                     <div
                       style={{
-                        fontSize: 11,
+                        fontSize: 10,
                         color: 'var(--text-muted)',
-                        letterSpacing: '0.05em',
+                        letterSpacing: '0.06em',
                         fontWeight: 600,
-                        marginBottom: 8,
                         textTransform: 'uppercase',
                       }}
                     >
                       {topOpp.objective || 'Product Education'} · {topOpp.platform} {topOpp.format}
                       {topOpp.is_demo && <span className="demo-banner" style={{ marginLeft: 8, fontSize: 9, padding: '2px 6px' }}>Demo</span>}
                     </div>
-
-                    {/* Big editorial title — Strongest visual element */}
-                    <h2
-                      className="serif-heading"
+                    {/* BrandBrew Pick — editorial signature stamp */}
+                    <span
                       style={{
-                        fontSize: 28,
-                        fontWeight: 500,
-                        color: '#16120E',
-                        lineHeight: 1.22,
-                        marginBottom: 14,
-                        letterSpacing: '-0.02em',
-                      }}
-                    >
-                      {topOpp.title}
-                    </h2>
-
-                    {/* Why This Opportunity */}
-                    <div style={{ marginBottom: 16 }}>
-                      <div className="label" style={{ marginBottom: 4 }}>Why this opportunity</div>
-                      <p style={{
-                        fontSize: 13.5,
-                        color: '#2B231C',
-                        lineHeight: 1.6,
-                      }}>
-                        {topOpp.why}
-                      </p>
-                    </div>
-
-                    {/* Supporting Metrics: Scannable 3-stat row */}
-                    <div
-                      style={{
-                        display: 'flex',
+                        display: 'inline-flex',
                         alignItems: 'center',
-                        gap: 20,
-                        padding: '12px 16px',
-                        borderRadius: 8,
-                        background: 'rgba(217, 200, 181, 0.16)',
-                        border: '1px solid var(--border)',
-                        marginBottom: 14,
+                        gap: 5,
+                        fontSize: 9,
+                        fontWeight: 700,
+                        letterSpacing: '0.1em',
+                        textTransform: 'uppercase',
+                        color: 'var(--brown-primary)',
+                        border: '1px solid var(--accent-border)',
+                        borderTop: '2px solid var(--brown-primary)',
+                        padding: '3px 8px 3px 6px',
+                        borderRadius: '0 0 3px 3px',
+                        flexShrink: 0,
+                        background: 'rgba(90,56,40,0.04)',
                       }}
                     >
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 17, fontWeight: 700, color: '#16120E', lineHeight: 1 }}>
-                          {heroFormatEr.toFixed(1)}%
-                        </div>
-                        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4, fontWeight: 500 }}>
-                          Historical engagement
-                        </div>
-                      </div>
-
-                      <div style={{ width: 1, height: 26, background: 'var(--border)', flexShrink: 0 }} />
-
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 17, fontWeight: 700, color: '#16120E', lineHeight: 1 }}>
-                          {heroMultiplier}×
-                        </div>
-                        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4, fontWeight: 500 }}>
-                          vs brand average
-                        </div>
-                      </div>
-
-                      <div style={{ width: 1, height: 26, background: 'var(--border)', flexShrink: 0 }} />
-
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 17, fontWeight: 700, color: '#16120E', lineHeight: 1 }}>
-                          {brandKey === 'blissclub' ? '18.2K' : brandKey === 'souled_store' ? '16.4K' : '14.2K'}
-                        </div>
-                        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4, fontWeight: 500 }}>
-                          Catalog views
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Featured Product line */}
-                    {topOpp.suggested_product_name && (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 22, fontSize: 12 }}>
-                        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
-                          Featured product:
-                        </span>
-                        <span style={{ fontWeight: 600, color: '#16120E', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {topOpp.suggested_product_name}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Primary Action CTA */}
-                    <div>
-                      <button
-                        className="btn-primary"
-                        onClick={e => { e.stopPropagation(); onViewOpportunity(topOpp.id); }}
-                        style={{
-                          fontSize: 13,
-                          padding: '10px 20px',
-                          borderRadius: 7,
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: 6,
-                        }}
-                        onMouseEnter={e => {
-                          (e.currentTarget as HTMLElement).querySelector('.cta-arrow')?.setAttribute('style', 'transform: translateX(3px); transition: transform 0.15s ease;');
-                        }}
-                        onMouseLeave={e => {
-                          (e.currentTarget as HTMLElement).querySelector('.cta-arrow')?.setAttribute('style', 'transform: translateX(0); transition: transform 0.15s ease;');
-                        }}
-                      >
-                        View recommendation
-                        <span className="cta-arrow" style={{ transition: 'transform 0.15s ease' }}>→</span>
-                      </button>
-                    </div>
+                      <span style={{ width: 4, height: 4, background: 'var(--brown-primary)', borderRadius: '50%', flexShrink: 0 }} />
+                      BrandBrew Pick
+                    </span>
                   </div>
 
-                  {/* ── 3. Score Column (Tightly integrated, right-aligned pillar) ── */}
-                  <div className="hero-score-pillar">
-                    {/* Score */}
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, marginBottom: 2 }}>
-                      <span
+                  {/* Dominant editorial title */}
+                  <h2
+                    className="serif-heading"
+                    style={{
+                      fontSize: 26,
+                      fontWeight: 500,
+                      color: '#16120E',
+                      lineHeight: 1.22,
+                      marginBottom: 12,
+                      letterSpacing: '-0.02em',
+                    }}
+                  >
+                    {topOpp.title}
+                  </h2>
+
+                  {/* Why This Opportunity — accent-annotated */}
+                  <div style={{ marginBottom: 14, paddingLeft: 10, borderLeft: '2px solid var(--brown-primary)', opacity: 1 }}>
+                    <div className="label" style={{ marginBottom: 3, color: 'var(--brown-primary)', opacity: 0.7 }}>Why this opportunity</div>
+                    <p style={{ fontSize: 13, color: '#2B231C', lineHeight: 1.62 }}>
+                      {topOpp.why}
+                    </p>
+                  </div>
+
+                  {/* Evidence — open typographic stat strip, not a box */}
+                  <div
+                    style={{
+                      display: 'flex',
+                      gap: 0,
+                      marginBottom: 14,
+                      borderTop: '1px solid var(--border)',
+                      borderBottom: '1px solid var(--border)',
+                      padding: '10px 0',
+                    }}
+                  >
+                    {[
+                      { value: `${heroFormatEr.toFixed(1)}%`, label: 'Historical engagement' },
+                      { value: `${heroMultiplier}×`, label: 'vs brand average' },
+                      {
+                        value: brandKey === 'blissclub' ? '18.2K' : brandKey === 'souled_store' ? '16.4K' : '14.2K',
+                        label: 'Catalog views',
+                      },
+                    ].map((stat, i) => (
+                      <div
+                        key={stat.label}
                         style={{
-                          fontSize: 48,
-                          fontFamily: 'var(--font-serif)',
-                          fontWeight: 400,
-                          color: '#16120E',
-                          lineHeight: 1,
-                          letterSpacing: '-0.04em',
+                          flex: 1,
+                          paddingLeft: i === 0 ? 0 : 16,
+                          borderLeft: i === 0 ? 'none' : '1px solid var(--border)',
+                          minWidth: 0,
                         }}
                       >
-                        {topOpp.score}
+                        <div style={{ fontSize: 18, fontWeight: 700, color: '#16120E', lineHeight: 1, letterSpacing: '-0.02em' }}>
+                          {stat.value}
+                        </div>
+                        <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 3, fontWeight: 500, letterSpacing: '0.01em' }}>
+                          {stat.label}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Featured product — tight before CTA */}
+                  {topOpp.suggested_product_name && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 14, fontSize: 12 }}>
+                      <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+                        Featured product:
                       </span>
-                      <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'var(--font-serif)' }}>
-                        /100
+                      <span style={{ fontWeight: 600, color: '#16120E', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {topOpp.suggested_product_name}
                       </span>
                     </div>
+                  )}
 
-                    {/* Meaningful Rating */}
-                    <div style={{ fontSize: 12, fontWeight: 600, color: '#16120E', marginBottom: 2 }}>
-                      {topOpp.score >= 80 ? 'Strong opportunity' : topOpp.score >= 60 ? 'Moderate opportunity' : 'Emerging opportunity'}
-                    </div>
+                  {/* CTA — natural conclusion of evidence flow */}
+                  <button
+                    className="btn-primary"
+                    onClick={e => { e.stopPropagation(); onViewOpportunity(topOpp.id); }}
+                    style={{
+                      fontSize: 13,
+                      padding: '9px 18px',
+                      borderRadius: 6,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      alignSelf: 'flex-start',
+                    }}
+                    onMouseEnter={e => {
+                      (e.currentTarget as HTMLElement).querySelector('.cta-arrow')?.setAttribute('style', 'transform: translateX(3px); transition: transform 0.15s ease;');
+                    }}
+                    onMouseLeave={e => {
+                      (e.currentTarget as HTMLElement).querySelector('.cta-arrow')?.setAttribute('style', 'transform: translateX(0); transition: transform 0.15s ease;');
+                    }}
+                  >
+                    See why this is recommended
+                    <span className="cta-arrow" style={{ transition: 'transform 0.15s ease' }}>→</span>
+                  </button>
+                </div>
 
-                    {/* Semantic Confidence */}
-                    <div style={{
+                {/* ── 3. Score Pillar — BrandBrew's judgment, not a KPI ── */}
+                <div className="hero-score-pillar">
+                  {/* BrandBrew supertitle — contextualises this as a judgment */}
+                  <div
+                    style={{
+                      fontSize: 9,
+                      fontWeight: 700,
+                      letterSpacing: '0.1em',
+                      textTransform: 'uppercase',
+                      color: 'var(--brown-primary)',
+                      opacity: 0.6,
+                      marginBottom: 6,
+                    }}
+                  >
+                    BrandBrew's read
+                  </div>
+
+                  {/* Primary judgment — most important semantic */}
+                  <div
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: '#16120E',
+                      letterSpacing: '-0.01em',
+                      lineHeight: 1.2,
+                      marginBottom: 8,
+                    }}
+                  >
+                    {topOpp.score >= 80 ? 'Strong opportunity' : topOpp.score >= 60 ? 'Moderate opportunity' : 'Emerging opportunity'}
+                  </div>
+
+                  {/* Score number — large, confirms the interpretation */}
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 2, marginBottom: 8 }}>
+                    <span
+                      style={{
+                        fontSize: 44,
+                        fontFamily: 'var(--font-serif)',
+                        fontWeight: 400,
+                        color: '#16120E',
+                        lineHeight: 1,
+                        letterSpacing: '-0.04em',
+                      }}
+                    >
+                      {topOpp.score}
+                    </span>
+                    <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'var(--font-serif)', paddingBottom: 2 }}>
+                      /100
+                    </span>
+                  </div>
+
+                  {/* Confidence — supporting signal */}
+                  <div
+                    style={{
                       fontSize: 11,
                       fontWeight: 500,
                       color: topOpp.score >= 80 ? '#15803D' : topOpp.score >= 60 ? '#B45309' : 'var(--text-muted)',
                       display: 'flex',
                       alignItems: 'center',
                       gap: 4,
-                    }}>
-                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: topOpp.score >= 80 ? '#15803D' : topOpp.score >= 60 ? '#B45309' : 'var(--text-muted)', flexShrink: 0 }} />
-                      {confidence(topOpp.score)}
-                    </div>
+                      marginBottom: 12,
+                    }}
+                  >
+                    <span style={{ width: 5, height: 5, borderRadius: '50%', background: topOpp.score >= 80 ? '#15803D' : topOpp.score >= 60 ? '#B45309' : 'var(--text-muted)', flexShrink: 0 }} />
+                    {confidence(topOpp.score)}
+                  </div>
 
-                    {/* Score breakdown bar */}
-                    <div style={{ marginTop: 12, width: '100%' }}>
+                  {/* Thin editorial rule */}
+                  <div style={{ width: '100%', height: 1, background: 'var(--border)', marginBottom: 10, opacity: 0.6 }} />
+
+                  {/* Impact score bar — evidence, not a hero metric */}
+                  <div style={{ width: '100%' }}>
+                    <div style={{ fontSize: 9, color: 'var(--text-muted)', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 5 }}>
+                      Impact score
+                    </div>
+                    <div style={{ height: 2, borderRadius: 2, background: 'var(--border)', overflow: 'hidden', width: '100%' }}>
                       <div
                         style={{
-                          height: 3,
+                          height: '100%',
+                          width: `${topOpp.score}%`,
+                          background: topOpp.score >= 80 ? '#15803D' : topOpp.score >= 60 ? '#B45309' : 'var(--border-strong)',
                           borderRadius: 2,
-                          background: 'var(--border)',
-                          overflow: 'hidden',
-                          width: '100%',
+                          transition: 'width 0.6s ease',
                         }}
-                      >
-                        <div
-                          style={{
-                            height: '100%',
-                            width: `${topOpp.score}%`,
-                            background: topOpp.score >= 80 ? '#15803D' : topOpp.score >= 60 ? '#B45309' : 'var(--border-strong)',
-                            borderRadius: 2,
-                            transition: 'width 0.6s ease',
-                          }}
-                        />
-                      </div>
-                      <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 5 }}>Impact score</div>
+                      />
                     </div>
                   </div>
                 </div>
 
+                 </div>
               </div>
             </div>
           )}
