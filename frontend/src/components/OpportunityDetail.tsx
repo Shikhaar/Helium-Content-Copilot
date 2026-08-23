@@ -8,7 +8,6 @@ import {
   Users,
   Calendar,
   Target,
-  Sparkles,
   CheckCircle2,
   Flame,
 } from 'lucide-react';
@@ -376,12 +375,9 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
                   color: '#5A3828',
                   padding: '3px 10px',
                   borderRadius: 4,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 5,
+                  display: 'inline-block',
                 }}
               >
-                <Sparkles size={12} />
                 {confText}
               </span>
             </div>
