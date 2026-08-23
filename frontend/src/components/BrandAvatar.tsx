@@ -7,13 +7,13 @@ import React from 'react';
 export function getBrandLogo(brandId?: string, brandName?: string): string | null {
   const key = `${brandId || ''} ${brandName || ''}`.toLowerCase().replace(/[^a-z0-9]/g, '');
   if (key.includes('blissclub') || key.includes('bliss')) {
-    return '/brands/blissclub.svg';
+    return '/brands/blissclub.png';
   }
   if (key.includes('snitch')) {
-    return '/brands/snitch.svg';
+    return '/brands/snitch.png';
   }
   if (key.includes('souled') || key.includes('tss') || key.includes('thesouledstore')) {
-    return '/brands/souled_store.svg';
+    return '/brands/souled_store.png';
   }
   return null;
 }
