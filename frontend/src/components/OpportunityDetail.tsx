@@ -10,7 +10,7 @@ import {
   Target,
   CheckCircle2,
   Flame,
-  ShieldCheck,
+  ArrowUpRight,
 } from 'lucide-react';
 import type { Opportunity, Product } from '../lib/types';
 
@@ -381,7 +381,7 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
                   gap: 5,
                 }}
               >
-                <ShieldCheck size={13} />
+                <ArrowUpRight size={13} />
                 {confText}
               </span>
             </div>
