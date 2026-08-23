@@ -132,6 +132,9 @@ Generating content is cheap. Choosing what deserves creative effort is harder.
 ### Why deterministic scoring?
 A marketer should be able to understand and reproduce why an opportunity received its score.
 
+### Why authentic catalog images over synthetic AI generation?
+Generating synthetic images for e-commerce products (via DALL-E/Midjourney) burns high token costs ($0.08–$0.20/draft) and often hallucinates inaccurate product stitching, colors, or fabrics. BrandBrew pairs **real product photoshoot assets from the brand's catalog CDN** with **dynamic AI-generated text/CTA overlays**, keeping image token costs at **$0.00** while ensuring 100% authentic product visuals.
+
 ### Why human approval?
 The system assists creative decisions; it does not silently publish on behalf of the marketer.
 
@@ -176,7 +179,8 @@ Real brand performance data was unavailable for the assignment, so I created a t
 
 | Component | Result | Notes |
 | :--- | :---: | :--- |
-| **Backend Test Suite** | **47 / 47 passed** | 100% pass rate in `pytest` (0.77s) |
+| **Backend Test Suite** | **64 / 64 passed** | 100% pass rate in `pytest` across brand isolation, candidate generation, and scoring |
+| **Live API Suite** | **23 / 23 passed** | End-to-end verified on running FastAPI server |
 | **Authentication & RBAC** | **Passed** | Clerk JWT session verification, JWKS caching, and user sync tested |
 | **Scoring Boundary Tests** | **Passed** | Factor bounds (0–25, 0–20, 0–15) and stock multipliers verified |
 | **Pydantic Validation Tests** | **Passed** | Strict JSON schema validation for all requests and responses |

@@ -61,6 +61,20 @@ This roadmap documents the architectural expansion plan for when BrandBrew scale
 - **Creative Deduplication**: Automatically detect and penalize repetitive creative angles that the brand has posted within the past 30 days.
 - **Competitor Benchmark Clustering**: Vector similarity search over anonymized high-performing industry benchmarks.
 
+### 3.4 Production Visuals & Zero-Token Media Pipeline
+- **Problem**: Generating synthetic AI images for every slide of every draft (via DALL-E 3 / Midjourney) introduces high latency (15–30s), high unit costs ($0.08–$0.20 per draft), and frequent physical product hallucination (distorted stitches, logos, or fabric textures).
+- **Production Solution — Multi-Tier Media Architecture**:
+  1. **Tier 1 — Catalog Asset Compositing (0 AI Tokens · $0 Cost)**:
+     - Pull verified high-resolution studio photoshoot assets directly from the brand's connected Shopify / WooCommerce CDN (`product.image_url`, `product.lifestyle_urls`).
+     - Composite AI-generated hook overlays, feature badges, and CTA pills as responsive CSS/HTML layers on top of authentic product imagery.
+  2. **Tier 2 — Contextual Lifestyle Media API (0 AI Tokens · Free Tier)**:
+     - For situational mood backgrounds (e.g., *"morning outdoor yoga in sunlight"*, *"urban streetwear evening"*), the LLM outputs 2–3 visual search terms to query the Pexels / Unsplash CDN API.
+  3. **Tier 3 — On-Demand Custom AI Rendering (Lazy Loaded · ~$0.003 / Image)**:
+     - AI visual generation is never triggered automatically for all slides.
+     - Users can click an on-demand *"Generate Custom AI Visual"* button for specific scenes, routed to fast, cost-effective models (**FLUX.1-schnell** or **SDXL Lightning**) at $>10\times$ lower cost than legacy models.
+  4. **Headless Export Engine**:
+     - Client-side canvas / `@vercel/og` (Satori) pipeline converts composite layers into ready-to-publish 1080x1350 (4:5) and 1080x1920 (9:16) PNG/MP4 assets on export.
+
 ---
 
 ## 4. Phase 3: Enterprise Distributed Infrastructure (5,000+ Brands)
@@ -91,5 +105,6 @@ This roadmap documents the architectural expansion plan for when BrandBrew scale
 | **Auth & Tenancy** | Clerk JWT + Brand Scoping | Clerk B2B Orgs + RBAC | Enterprise SSO (SAML/Okta) + Fine-grained ABAC |
 | **Persistence** | Supabase Postgres + SQLite tests | Supabase Postgres + Read Replicas | Sharded Postgres + pgvector + Redis Cache |
 | **Recommendation Engine** | In-process 2-Stage (Candidate Gen + Math Scoring) | Async Worker Pool (Celery + Redis) | Real-time Stream Analytics (Flink + Kafka) |
+| **Visual Asset Pipeline** | Curated Layouts & Smart Placeholders | Catalog CDN Composites + Pexels API + On-Demand FLUX.1 | Distributed Headless Satori Rendering + Custom Fine-Tuned LoRAs |
 | **AI Strategist** | LLM Strategic Copywriting + Deterministic Math | LLM with Semantic Vector Memory | Multi-Model Routing + Fine-Tuned Domain Adapters |
 | **Social Data** | Synthetic Seed & Brand CSV Imports | Live Meta / Shopify Webhooks | Real-Time Telemetry Stream Processing |

@@ -77,11 +77,24 @@ The score is:
 This separation is intentional. LLMs are excellent at qualitative reasoning. They are not reliable at reproducible arithmetic.
 
 ---
+## Visual Asset Philosophy: Authentic Photos Over Synthetic AI Hallucinations
+
+A common pitfall in AI content generators is forcing synthetic text-to-image generation (e.g., DALL-E / Midjourney) for every post. For physical D2C brands, this fails in production:
+1. **Product Inaccuracy**: AI image generators cannot reproduce exact stitching, real fabric drape, proprietary colorways, or authentic brand hardware (e.g., Blissclub's 4-pocket flare pants).
+2. **Economic Waste**: Burning 4–5 AI image generation calls per draft adds $0.08–$0.20 per post and 20+ seconds of latency.
+
+### The BrandBrew Production Strategy:
+- **Real Catalog Assets ($0 Cost)**: The platform anchors visual creative directly to real studio product photoshoot imagery pulled from the brand's store catalog CDN.
+- **Dynamic Smart Overlays**: The AI generates the high-converting hook text, scene cues, and CTA pills as responsive layers overlaid onto authentic product photography.
+- **Contextual Lifestyle CDN**: Situational moods (e.g., sunrise yoga, urban streetwear backdrop) are dynamically queried via royalty-free Unsplash/Pexels APIs at 0 token cost.
+- **On-Demand AI Rendering**: High-speed, low-cost models (FLUX.1 Schnell at ~$0.003/image) are available strictly on-demand when explicit conceptual art is requested.
+
+---
 ## What This Isn't
 
-- **Not an image generator** — Visual art direction is provided as a brief, not as a generated asset
-- **Not a content calendar tool** — Scheduling is the final step of a linear workflow, not the starting point
-- **Not a generic AI writing assistant** — The system only creates content *for* validated opportunities, not on demand
+- **Not an uncontrolled image generator** — We prioritize authentic brand photography with dynamic layout overlays rather than burning tokens on hallucinatory product images.
+- **Not a content calendar tool** — Scheduling is the final step of a linear workflow, not the starting point.
+- **Not a generic AI writing assistant** — The system only creates content *for* validated opportunities, not on demand.
 
 ---
 ## Demo Data Transparency
