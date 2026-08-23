@@ -223,6 +223,95 @@ function SignalCard({
   );
 }
 
+/** Derives 3 plain-English data-backed bullet points and an action advisory from the opportunity */
+function buildConfidenceInsights(opportunity: Opportunity): {
+  bullets: { label: string; detail: string }[];
+  advisory: { headline: string; guidance: string };
+} {
+  const conf = opportunity.confidence;
+  const bd = opportunity.score_breakdown;
+
+  const bullets: { label: string; detail: string }[] = [];
+
+  // Bullet 1 — Historical proof
+  if (bd.historical >= 22) {
+    bullets.push({
+      label: 'Proven Historical Engagement',
+      detail: opportunity.historical_signal,
+    });
+  } else if (bd.historical >= 15) {
+    bullets.push({
+      label: 'Moderate Historical Evidence',
+      detail: opportunity.historical_signal,
+    });
+  } else {
+    bullets.push({
+      label: 'Limited Historical Data',
+      detail: `Only ${bd.historical}/25 historical score — this format has limited past data for this brand.`,
+    });
+  }
+
+  // Bullet 2 — Product demand
+  if (bd.product >= 22) {
+    bullets.push({
+      label: 'High-Demand Product Match',
+      detail: opportunity.product_signal,
+    });
+  } else if (bd.product >= 14) {
+    bullets.push({
+      label: 'Moderate Product Relevance',
+      detail: opportunity.product_signal,
+    });
+  } else {
+    bullets.push({
+      label: 'Lower Product Visibility',
+      detail: `Product scored ${bd.product}/25 — consider pairing with a higher-demand catalog item.`,
+    });
+  }
+
+  // Bullet 3 — Audience convergence
+  if (bd.audience >= 18) {
+    bullets.push({
+      label: 'Strong Audience Affinity',
+      detail: opportunity.audience_signal,
+    });
+  } else if (bd.audience >= 12) {
+    bullets.push({
+      label: 'Moderate Audience Fit',
+      detail: opportunity.audience_signal,
+    });
+  } else {
+    bullets.push({
+      label: 'Weak Audience Alignment',
+      detail: `Audience scored ${bd.audience}/20 — this audience segment shows lower historical engagement for this format.`,
+    });
+  }
+
+  // Action advisory based on confidence tier
+  let advisory: { headline: string; guidance: string };
+  if (conf === 'High') {
+    advisory = {
+      headline: 'Recommended Action: Scale this with full production budget.',
+      guidance:
+        'Multiple independent data signals agree this opportunity will outperform. Prioritise it in your content calendar, allocate full creative resources, and consider boosting with paid reach after posting.',
+    };
+  } else if (conf === 'Medium') {
+    advisory = {
+      headline: 'Recommended Action: Run as a controlled creative test.',
+      guidance:
+        'This opportunity has strong individual signals but limited combined proof. Produce a lean version first. Review the engagement data from your first post before committing to a full series or paid spend.',
+    };
+  } else {
+    advisory = {
+      headline: 'Recommended Action: Treat as an experimental format.',
+      guidance:
+        'There is limited historical data to validate this opportunity at high confidence. It may still succeed — but run it with a lower production investment and use the results to calibrate future scores for this format.',
+    };
+  }
+
+  return { bullets, advisory };
+}
+
 export default function OpportunityDetail({ opportunity, product, onBack, onGenerate }: OpportunityDetailProps) {
   const { score_breakdown: bd } = opportunity;
   const isTopScore = opportunity.score >= 90;
@@ -364,103 +453,75 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
                 letterSpacing: '0.04em',
               }}
             >
-              High Confidence
+              {opportunity.confidence} Confidence
             </div>
           </div>
         </div>
 
-        {/* ── Why we gave it this high score (Executive Highlights - All Beige Theme) ─── */}
-        <div
-          style={{
-            marginTop: 24,
-            paddingTop: 20,
-            borderTop: '1px solid #E8DED0',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-            gap: 16,
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-            <div
-              style={{
-                width: 22,
-                height: 22,
-                borderRadius: '50%',
-                background: '#E8D9C8',
-                color: '#5A3828',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-                marginTop: 1,
-              }}
-            >
-              <CheckCircle2 size={13} />
-            </div>
-            <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary, #211914)', marginBottom: 2 }}>
-                Perfect Historical Signal (25/25)
+        {/* ── Confidence Evidence — Dynamic 3-Bullet Advisory ─── */}
+        {(() => {
+          const { bullets, advisory } = buildConfidenceInsights(opportunity);
+          return (
+            <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid #E8DED0' }}>
+              {/* 3 Data-Backed Evidence Bullets */}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                  gap: 14,
+                  marginBottom: 18,
+                }}
+              >
+                {bullets.map((b, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                    <div
+                      style={{
+                        width: 22,
+                        height: 22,
+                        borderRadius: '50%',
+                        background: '#E8D9C8',
+                        color: '#5A3828',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                        marginTop: 1,
+                      }}
+                    >
+                      <CheckCircle2 size={13} />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary, #211914)', marginBottom: 2 }}>
+                        {b.label}
+                      </div>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary, #735F52)', lineHeight: 1.45 }}>
+                        <HighlightedText text={b.detail} />
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary, #735F52)', lineHeight: 1.4 }}>
-                Feature demo reels exceed brand baseline by <strong style={{ color: '#5A3828' }}>2.1x</strong> engagement.
-              </div>
-            </div>
-          </div>
 
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-            <div
-              style={{
-                width: 22,
-                height: 22,
-                borderRadius: '50%',
-                background: '#E8D9C8',
-                color: '#5A3828',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-                marginTop: 1,
-              }}
-            >
-              <CheckCircle2 size={13} />
-            </div>
-            <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary, #211914)', marginBottom: 2 }}>
-                #1 Catalog Product Relevance (25/25)
-              </div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary, #735F52)', lineHeight: 1.4 }}>
-                Directly matches top seller with high demand (<strong style={{ color: '#5A3828' }}>18.2K views</strong>).
+              {/* Action Advisory Strip */}
+              <div
+                style={{
+                  background: '#F4EDE4',
+                  border: '1px solid #D8C9B8',
+                  borderLeft: '3px solid #5A3828',
+                  borderRadius: 7,
+                  padding: '12px 16px',
+                }}
+              >
+                <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.06em', color: '#5A3828', textTransform: 'uppercase', marginBottom: 5 }}>
+                  {advisory.headline}
+                </div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary, #735F52)', lineHeight: 1.55 }}>
+                  {advisory.guidance}
+                </div>
               </div>
             </div>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-            <div
-              style={{
-                width: 22,
-                height: 22,
-                borderRadius: '50%',
-                background: '#E8D9C8',
-                color: '#5A3828',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-                marginTop: 1,
-              }}
-            >
-              <CheckCircle2 size={13} />
-            </div>
-            <div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary, #211914)', marginBottom: 2 }}>
-                High Audience Conversion (18/20)
-              </div>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary, #735F52)', lineHeight: 1.4 }}>
-                {opportunity.audience} delivers top <strong style={{ color: '#5A3828' }}>1:5 save-to-like</strong> ratio.
-              </div>
-            </div>
-          </div>
-        </div>
+          );
+        })()}
       </div>
 
       {/* ── 3. Strategic Rationale Callout Card ──────────────────────── */}
@@ -602,34 +663,34 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
           <SignalCard
-            title="Historical Signal"
+            title="Historical Performance"
             body={opportunity.historical_signal}
             icon={TrendingUp}
-            badgeText="2.1x Reel Lift"
+            badgeText={`${opportunity.score_breakdown.historical}/25`}
           />
           <SignalCard
             title="Product Demand"
             body={opportunity.product_signal}
             icon={ShoppingBag}
-            badgeText="Top Seller"
+            badgeText={`${opportunity.score_breakdown.product}/25`}
           />
           <SignalCard
             title="Audience Fit"
             body={opportunity.audience_signal}
             icon={Users}
-            badgeText="1:5 Ratio"
+            badgeText={`${opportunity.score_breakdown.audience}/20`}
           />
           <SignalCard
             title="Seasonal Alignment"
             body={opportunity.seasonal_signal}
             icon={Calendar}
-            badgeText="Active Campaign"
+            badgeText={`${opportunity.score_breakdown.seasonal}/15`}
           />
           <SignalCard
             title="Business Objective"
             body={opportunity.business_signal}
             icon={Target}
-            badgeText="Acquisition"
+            badgeText={`${opportunity.score_breakdown.objective}/15`}
           />
         </div>
       </div>
