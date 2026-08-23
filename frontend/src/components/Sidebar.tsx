@@ -237,26 +237,25 @@ export default function Sidebar({
               >
                 <img
                   src="/brandbrew-icon.png"
-                  alt="BrandBrew Logo"
+                  alt="BrandBrew Cup"
                   style={{
-                    width: 32,
-                    height: 32,
+                    width: 34,
+                    height: 34,
                     objectFit: 'contain',
                     display: 'block',
                     flexShrink: 0,
                   }}
                 />
-                <div
+                <img
+                  src="/brandbrew-text.png"
+                  alt="BrandBrew"
                   style={{
-                    fontSize: 18,
-                    fontWeight: 800,
-                    letterSpacing: '-0.02em',
-                    lineHeight: 1,
+                    height: 20,
+                    width: 'auto',
+                    objectFit: 'contain',
+                    display: 'block',
                   }}
-                >
-                  <span style={{ color: 'var(--text-primary, #211914)' }}>Brand</span>
-                  <span style={{ color: '#A66B38' }}>Brew</span>
-                </div>
+                />
               </button>
             ) : (
               <button

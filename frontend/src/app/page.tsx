@@ -616,15 +616,14 @@ export default function Home() {
             >
               <img
                 src="/brandbrew-icon.png"
-                alt="BrandBrew"
+                alt="BrandBrew Cup"
                 style={{ width: 28, height: 28, objectFit: 'contain' }}
               />
-              <div style={{ textAlign: 'left' }}>
-                <div style={{ fontSize: 14, fontWeight: 800, lineHeight: 1.1 }}>
-                  <span style={{ color: 'var(--text-primary)' }}>Brand</span>
-                  <span style={{ color: '#A66B38' }}>Brew</span>
-                </div>
-              </div>
+              <img
+                src="/brandbrew-text.png"
+                alt="BrandBrew"
+                style={{ height: 16, width: 'auto', objectFit: 'contain' }}
+              />
             </button>
           </div>
 
