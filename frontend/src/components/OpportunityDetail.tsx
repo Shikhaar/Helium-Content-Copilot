@@ -9,11 +9,7 @@ import {
   Calendar,
   Target,
   Sparkles,
-  Award,
   CheckCircle2,
-  Zap,
-  BarChart3,
-  Layers,
   Flame,
 } from 'lucide-react';
 import type { Opportunity, Product } from '../lib/types';
@@ -28,7 +24,7 @@ interface OpportunityDetailProps {
 /** Helper to highlight metrics (e.g., 2.1x, 9.3%, 18.2K, 1:5, #1, ₹2,499) in signal texts */
 function HighlightedText({ text }: { text: string }) {
   if (!text) return null;
-  // Match key metrics like 2.1x, 9.3%, 18.2K, 3.8K, 1:5, #1, ₹2,499, 4 pockets
+  // Match key metrics like 2.1x, 9.3%, 18.2K, 3.8K, 1:5, #1, ₹2,499
   const parts = text.split(/(\b\d+(?:\.\d+)?[xX%]\b|\b\d+(?:\.\d+)?[kK]\b|\b\d+:\d+\b|#\d+\b|₹\d+(?:,\d+)?)/g);
   return (
     <span>
@@ -39,8 +35,8 @@ function HighlightedText({ text }: { text: string }) {
               key={i}
               style={{
                 fontWeight: 700,
-                color: 'var(--brown-primary, #5A3828)',
-                background: 'rgba(90, 56, 40, 0.08)',
+                color: '#5A3828',
+                background: '#E8D9C8',
                 padding: '1px 6px',
                 borderRadius: 4,
                 display: 'inline-block',
@@ -71,7 +67,6 @@ function ScoreRow({
   icon: React.ElementType;
 }) {
   const pct = (score / max) * 100;
-  const isPerfect = score === max;
 
   return (
     <div
@@ -91,11 +86,11 @@ function ScoreRow({
             width: 28,
             height: 28,
             borderRadius: 6,
-            background: isPerfect ? 'rgba(73, 99, 74, 0.12)' : 'rgba(90, 56, 40, 0.08)',
+            background: '#E8DED0',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: isPerfect ? 'var(--green, #49634A)' : 'var(--brown-primary, #5A3828)',
+            color: '#5A3828',
             flexShrink: 0,
           }}
         >
@@ -113,10 +108,10 @@ function ScoreRow({
             fontSize: 10,
             fontWeight: 700,
             letterSpacing: '0.04em',
-            padding: '2px 8px',
+            padding: '3px 8px',
             borderRadius: 4,
-            background: isPerfect ? '#E7EFE8' : '#E8D9C8',
-            color: isPerfect ? '#49634A' : '#5A3828',
+            background: '#E8D9C8',
+            color: '#5A3828',
             display: 'inline-block',
           }}
         >
@@ -130,12 +125,7 @@ function ScoreRow({
           style={{
             height: '100%',
             borderRadius: 3,
-            background:
-              pct >= 90
-                ? 'linear-gradient(90deg, #49634A 0%, #688F6A 100%)'
-                : pct >= 75
-                ? 'linear-gradient(90deg, #5A3828 0%, #8A5B45 100%)'
-                : '#9A8778',
+            background: 'linear-gradient(90deg, #5A3828 0%, #7D4E38 100%)',
             width: `${pct}%`,
             transition: 'width 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
           }}
@@ -165,13 +155,11 @@ function SignalCard({
   body,
   icon: Icon,
   badgeText,
-  accentColor = '#5A3828',
 }: {
   title: string;
   body: string;
   icon: React.ElementType;
   badgeText?: string;
-  accentColor?: string;
 }) {
   return (
     <div
@@ -196,8 +184,8 @@ function SignalCard({
                 width: 26,
                 height: 26,
                 borderRadius: 6,
-                background: 'rgba(90, 56, 40, 0.08)',
-                color: accentColor,
+                background: '#E8DED0',
+                color: '#5A3828',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -215,11 +203,11 @@ function SignalCard({
               style={{
                 fontSize: 10,
                 fontWeight: 700,
-                color: accentColor,
-                background: 'rgba(90, 56, 40, 0.06)',
+                color: '#5A3828',
+                background: '#E8D9C8',
                 padding: '2px 7px',
                 borderRadius: 4,
-                border: '1px solid rgba(90, 56, 40, 0.12)',
+                border: '1px solid #D8C9B8',
               }}
             >
               {badgeText}
@@ -243,8 +231,6 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
     : opportunity.score >= 75
     ? 'STRONG-CONFIDENCE OPPORTUNITY'
     : 'MODERATE OPPORTUNITY';
-  const confBadgeBg = isTopScore ? '#E7EFE8' : '#E8D9C8';
-  const confColor = isTopScore ? '#49634A' : '#5A3828';
 
   return (
     <div className="page-container fade-up" style={{ maxWidth: 980, boxSizing: 'border-box', paddingBottom: 48 }}>
@@ -288,8 +274,8 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
                   fontWeight: 700,
                   letterSpacing: '0.08em',
                   textTransform: 'uppercase',
-                  background: confBadgeBg,
-                  color: confColor,
+                  background: '#E8D9C8',
+                  color: '#5A3828',
                   padding: '3px 10px',
                   borderRadius: 4,
                   display: 'inline-flex',
@@ -321,16 +307,16 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
               {opportunity.content_angle}
             </p>
 
-            {/* Opportunity Metadata Tags */}
+            {/* Opportunity Metadata Tags (clean without emojis) */}
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              <span className="badge badge-accent" style={{ fontSize: 11 }}>
-                🎯 {opportunity.audience}
+              <span className="badge badge-accent" style={{ fontSize: 11, background: '#E8D9C8', color: '#5A3828' }}>
+                {opportunity.audience}
               </span>
-              <span className="badge badge-neutral" style={{ fontSize: 11 }}>
-                ⚡ {opportunity.objective}
+              <span className="badge badge-neutral" style={{ fontSize: 11, background: '#E8DED0', color: '#43291D' }}>
+                {opportunity.objective}
               </span>
-              <span className="badge badge-neutral" style={{ fontSize: 11 }}>
-                📱 {opportunity.format} on {opportunity.platform}
+              <span className="badge badge-neutral" style={{ fontSize: 11, background: '#E8DED0', color: '#43291D' }}>
+                {opportunity.format} on {opportunity.platform}
               </span>
               {opportunity.is_demo && <span className="demo-banner">Demo Mode</span>}
             </div>
@@ -355,7 +341,7 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
             <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 4, marginBottom: 4 }}>
               <span
                 className="score-number score-animate"
-                style={{ fontSize: 44, fontWeight: 800, color: isTopScore ? 'var(--green, #49634A)' : 'var(--brown-primary, #5A3828)' }}
+                style={{ fontSize: 44, fontWeight: 800, color: '#5A3828' }}
               >
                 {opportunity.score}
               </span>
@@ -365,16 +351,16 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
               style={{
                 fontSize: 11,
                 fontWeight: 700,
-                color: isTopScore ? 'var(--green, #49634A)' : 'var(--brown-primary, #5A3828)',
+                color: '#5A3828',
                 letterSpacing: '0.04em',
               }}
             >
-              {isTopScore ? '★ High Confidence' : 'Strong Alignment'}
+              High Confidence
             </div>
           </div>
         </div>
 
-        {/* ── Why we gave it this high score (Executive Highlights) ─── */}
+        {/* ── Why we gave it this high score (Executive Highlights - All Beige Theme) ─── */}
         <div
           style={{
             marginTop: 24,
@@ -386,7 +372,20 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
           }}
         >
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-            <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#E7EFE8', color: '#49634A', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
+            <div
+              style={{
+                width: 22,
+                height: 22,
+                borderRadius: '50%',
+                background: '#E8D9C8',
+                color: '#5A3828',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                marginTop: 1,
+              }}
+            >
               <CheckCircle2 size={13} />
             </div>
             <div>
@@ -394,13 +393,26 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
                 Perfect Historical Signal (25/25)
               </div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary, #735F52)', lineHeight: 1.4 }}>
-                Feature demo reels exceed brand baseline by <strong style={{ color: 'var(--brown-primary)' }}>2.1x</strong> engagement.
+                Feature demo reels exceed brand baseline by <strong style={{ color: '#5A3828' }}>2.1x</strong> engagement.
               </div>
             </div>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-            <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#E7EFE8', color: '#49634A', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
+            <div
+              style={{
+                width: 22,
+                height: 22,
+                borderRadius: '50%',
+                background: '#E8D9C8',
+                color: '#5A3828',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                marginTop: 1,
+              }}
+            >
               <CheckCircle2 size={13} />
             </div>
             <div>
@@ -408,13 +420,26 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
                 #1 Catalog Product Relevance (25/25)
               </div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary, #735F52)', lineHeight: 1.4 }}>
-                Directly matches top seller with high demand (<strong style={{ color: 'var(--brown-primary)' }}>18.2K views</strong>).
+                Directly matches top seller with high demand (<strong style={{ color: '#5A3828' }}>18.2K views</strong>).
               </div>
             </div>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-            <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#E8D9C8', color: '#5A3828', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
+            <div
+              style={{
+                width: 22,
+                height: 22,
+                borderRadius: '50%',
+                background: '#E8D9C8',
+                color: '#5A3828',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                marginTop: 1,
+              }}
+            >
               <CheckCircle2 size={13} />
             </div>
             <div>
@@ -422,7 +447,7 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
                 High Audience Conversion (18/20)
               </div>
               <div style={{ fontSize: 12, color: 'var(--text-secondary, #735F52)', lineHeight: 1.4 }}>
-                {opportunity.audience} delivers top <strong style={{ color: 'var(--brown-primary)' }}>1:5 save-to-like</strong> ratio.
+                {opportunity.audience} delivers top <strong style={{ color: '#5A3828' }}>1:5 save-to-like</strong> ratio.
               </div>
             </div>
           </div>
@@ -435,7 +460,7 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
         style={{
           background: '#FFFCF7',
           border: '1px solid #D8C9B8',
-          borderLeft: '4px solid var(--brown-primary, #5A3828)',
+          borderLeft: '4px solid #5A3828',
           borderRadius: 8,
           padding: '22px 24px',
           marginBottom: 32,
@@ -443,8 +468,8 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-          <Flame size={16} color="var(--brown-primary, #5A3828)" />
-          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--brown-primary, #5A3828)' }}>
+          <Flame size={16} color="#5A3828" />
+          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#5A3828' }}>
             STRATEGIC RATIONALE & WHY THIS WINS
           </span>
         </div>
@@ -477,8 +502,8 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
             style={{
               fontSize: 12,
               fontWeight: 700,
-              color: 'var(--green, #49634A)',
-              background: '#E7EFE8',
+              color: '#5A3828',
+              background: '#E8D9C8',
               padding: '4px 10px',
               borderRadius: 6,
             }}
@@ -548,7 +573,7 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
               </span>
             </div>
 
-            <div style={{ fontSize: 20, fontWeight: 800, color: isTopScore ? 'var(--green, #49634A)' : 'var(--brown-primary, #5A3828)' }}>
+            <div style={{ fontSize: 20, fontWeight: 800, color: '#5A3828' }}>
               {opportunity.score} <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-muted, #9A8778)' }}>/ 100</span>
             </div>
           </div>
@@ -572,35 +597,30 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
             body={opportunity.historical_signal}
             icon={TrendingUp}
             badgeText="2.1x Reel Lift"
-            accentColor="#49634A"
           />
           <SignalCard
             title="Product Demand"
             body={opportunity.product_signal}
             icon={ShoppingBag}
             badgeText="Top Seller"
-            accentColor="#5A3828"
           />
           <SignalCard
             title="Audience Fit"
             body={opportunity.audience_signal}
             icon={Users}
             badgeText="1:5 Ratio"
-            accentColor="#5A3828"
           />
           <SignalCard
             title="Seasonal Alignment"
             body={opportunity.seasonal_signal}
             icon={Calendar}
             badgeText="Active Campaign"
-            accentColor="#735F52"
           />
           <SignalCard
             title="Business Objective"
             body={opportunity.business_signal}
             icon={Target}
             badgeText="Acquisition"
-            accentColor="#735F52"
           />
         </div>
       </div>
@@ -623,13 +643,13 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
               style={{
                 fontSize: 11,
                 fontWeight: 700,
-                color: product.inventory_status === 'In Stock' ? 'var(--green, #49634A)' : 'var(--amber, #8A6A32)',
-                background: product.inventory_status === 'In Stock' ? '#E7EFE8' : '#F4ECDC',
+                color: '#5A3828',
+                background: '#E8D9C8',
                 padding: '3px 8px',
                 borderRadius: 4,
               }}
             >
-              ● {product.inventory_status}
+              {product.inventory_status}
             </span>
           </div>
 
@@ -654,7 +674,7 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
                       borderRadius: 4,
                     }}
                   >
-                    ✓ {f}
+                    {f}
                   </span>
                 ))}
               </div>
