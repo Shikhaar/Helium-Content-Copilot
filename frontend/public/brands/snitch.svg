@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="100%" height="100%">
+  <defs>
+    <linearGradient id="snitchDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1A1A1A" />
+      <stop offset="100%" stop-color="#080808" />
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="120" height="120" rx="26" fill="url(#snitchDark)" />
+  
+  <!-- Snitch Iconic Sharp Geometric 'S' Monogram -->
+  <g transform="translate(60, 48)">
+    <path d="M 16 -24 L -12 -24 L -18 -8 L 4 -8 C 10 -8 14 -5 14 0 C 14 6 9 10 2 10 L -18 10 L -18 24 L 10 24 C 20 24 28 17 28 4 C 28 -6 22 -14 12 -18 L 16 -24 Z" fill="#FFFFFF" />
+    <path d="M -16 24 L 12 24 L 18 8 L -4 8 C -10 8 -14 5 -14 0 C -14 -6 -9 -10 -2 -10 L 18 -10 L 18 -24 L -10 -24 C -20 -24 -28 -17 -28 -4 C -28 6 -22 14 -12 18 L -16 24 Z" fill="#FFFFFF" opacity="0.9" />
+  </g>
+  
+  <!-- Snitch Bold Wordmark -->
+  <text x="60" y="97" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif" font-size="15" font-weight="900" letter-spacing="3" fill="#FFFFFF" text-anchor="middle">SNITCH</text>
+</svg>

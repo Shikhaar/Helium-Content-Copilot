@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useUser, useClerk } from '@clerk/nextjs';
 import UserProfileModal from './UserProfileModal';
+import BrandAvatar from './BrandAvatar';
 import type { Brand } from '../lib/types';
 
 export type Tab = 'opportunities' | 'create' | 'calendar' | 'brand';
@@ -478,26 +479,12 @@ export default function Sidebar({
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: 1 }}>
-                  <div
-                    style={{
-                      width: 30,
-                      height: 30,
-                      borderRadius: 6,
-                      background: 'var(--brown-dark)',
-                      color: 'var(--surface)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 11,
-                      fontWeight: 800,
-                      letterSpacing: '-0.02em',
-                      fontFamily: 'var(--font-sans)',
-                      flexShrink: 0,
-                      boxShadow: '0 1px 3px rgba(44, 24, 16, 0.15)',
-                    }}
-                  >
-                    {brandMonogram}
-                  </div>
+                  <BrandAvatar
+                    brandId={activeBrandId}
+                    brandName={brandName}
+                    size={30}
+                    borderRadius={6}
+                  />
                   <div style={{ minWidth: 0, flex: 1 }}>
                     <div
                       style={{
@@ -541,23 +528,21 @@ export default function Sidebar({
             ) : (
               <div
                 style={{
-                  width: 34,
-                  height: 34,
-                  borderRadius: 8,
-                  background: 'var(--brown-dark)',
-                  color: 'var(--surface)',
                   display: 'flex',
-                  alignItems: 'center',
                   justifyContent: 'center',
-                  margin: '0 auto',
+                  alignItems: 'center',
                   cursor: 'pointer',
-                  fontSize: 12,
-                  fontWeight: 800,
+                  margin: '0 auto',
                 }}
                 onClick={() => setIsBrandMenuOpen(!isBrandMenuOpen)}
                 title={`${brandName} · ${campaign}`}
               >
-                {brandMonogram}
+                <BrandAvatar
+                  brandId={activeBrandId}
+                  brandName={brandName}
+                  size={34}
+                  borderRadius={8}
+                />
               </div>
             )}
 
@@ -624,24 +609,13 @@ export default function Sidebar({
                         if (!isSelected) (e.currentTarget as HTMLElement).style.background = 'transparent';
                       }}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
-                        <div
-                          style={{
-                            width: 22,
-                            height: 22,
-                            borderRadius: 4,
-                            background: isSelected ? 'var(--brown-dark)' : 'rgba(238, 231, 220, 0.8)',
-                            color: isSelected ? 'var(--surface)' : 'var(--text-primary)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: 9,
-                            fontWeight: 800,
-                            flexShrink: 0,
-                          }}
-                        >
-                          {mono}
-                        </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
+                        <BrandAvatar
+                          brandId={b.id}
+                          brandName={b.name}
+                          size={24}
+                          borderRadius={5}
+                        />
                         <div style={{ minWidth: 0 }}>
                           <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>
                             {b.name}

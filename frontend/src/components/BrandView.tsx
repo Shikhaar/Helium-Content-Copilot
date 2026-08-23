@@ -5,6 +5,7 @@ import {
   ChevronDown, AlertTriangle, Building2, Layers
 } from 'lucide-react';
 import { api } from '../lib/api';
+import BrandAvatar from './BrandAvatar';
 import type {
   Brand, BrandStats, CreateBrandRequest, CreateProductRequest,
   PerformanceSummary, Product, UpdateBrandRequest
@@ -267,19 +268,13 @@ export default function BrandView({
               onClick={() => setIsSwitcherOpen(o => !o)}
               style={{
                 display: 'flex', alignItems: 'center', gap: 8,
-                padding: '8px 14px', borderRadius: 8,
+                padding: '7px 12px', borderRadius: 8,
                 background: 'var(--bg-card)', border: '1px solid var(--border-medium)',
                 color: 'var(--text-primary)', cursor: 'pointer', fontSize: 13, fontWeight: 600,
                 transition: 'border-color 0.15s',
               }}
             >
-              <div style={{
-                width: 22, height: 22, borderRadius: 5, background: 'var(--brown-dark)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 10, fontWeight: 800, color: 'var(--surface)', flexShrink: 0,
-              }}>
-                {brand.name.charAt(0)}
-              </div>
+              <BrandAvatar brandId={activeBrandId} brandName={brand.name} size={22} borderRadius={5} />
               <span>{brand.name}</span>
               <ChevronDown size={14} style={{ opacity: 0.6, transition: 'transform 0.2s', transform: isSwitcherOpen ? 'rotate(180deg)' : 'rotate(0deg)' }} />
             </button>
@@ -306,16 +301,7 @@ export default function BrandView({
                       transition: 'background 0.1s',
                     }}
                   >
-                    <div style={{
-                      width: 28, height: 28, borderRadius: 6, flexShrink: 0,
-                      background: b.id === activeBrandId ? 'var(--brown-dark)' : 'var(--bg-subtle)',
-                      border: '1.5px solid ' + (b.id === activeBrandId ? 'var(--brown-dark)' : 'var(--border)'),
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 11, fontWeight: 800,
-                      color: b.id === activeBrandId ? 'var(--surface)' : 'var(--text-secondary)',
-                    }}>
-                      {b.name.charAt(0)}
-                    </div>
+                    <BrandAvatar brandId={b.id} brandName={b.name} size={28} borderRadius={6} />
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 1 }}>{b.name}</div>
                       <div style={{ fontSize: 11, color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.campaign}</div>
@@ -356,14 +342,7 @@ export default function BrandView({
       <div className="card" style={{ padding: 28, marginBottom: 24, position: 'relative' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <div style={{
-              width: 40, height: 40, borderRadius: 8,
-              background: 'var(--brown-dark)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 16, fontWeight: 800, color: 'var(--surface)',
-            }}>
-              {brand.name.charAt(0)}
-            </div>
+            <BrandAvatar brandId={activeBrandId} brandName={brand.name} size={42} borderRadius={8} />
             <div>
               <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--text-primary)' }}>{brand.name}</div>
               <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>
