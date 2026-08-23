@@ -191,7 +191,7 @@ export default function Sidebar({
       <aside
         className={`sidebar-container ${isMobileOpen ? 'mobile-drawer-open' : 'mobile-drawer-closed'}`}
         style={{
-          width: isCollapsed ? 64 : 220,
+          width: isCollapsed ? 64 : 240,
           height: '100vh',
           maxHeight: '100vh',
           position: 'sticky',
@@ -218,6 +218,7 @@ export default function Sidebar({
               display: 'flex',
               alignItems: 'center',
               justifyContent: isCollapsed ? 'center' : 'space-between',
+              gap: 8,
             }}
           >
             {!isCollapsed ? (
@@ -226,12 +227,13 @@ export default function Sidebar({
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 10,
+                  gap: 8,
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
                   padding: 0,
                   textAlign: 'left',
+                  minWidth: 0,
                 }}
                 title="BrandBrew Home"
               >
@@ -239,8 +241,8 @@ export default function Sidebar({
                   src="/brandbrew-icon.png"
                   alt="BrandBrew Cup"
                   style={{
-                    width: 34,
-                    height: 34,
+                    width: 30,
+                    height: 30,
                     objectFit: 'contain',
                     display: 'block',
                     flexShrink: 0,
@@ -250,10 +252,11 @@ export default function Sidebar({
                   src="/brandbrew-text.png"
                   alt="BrandBrew"
                   style={{
-                    height: 20,
+                    height: 18,
                     width: 'auto',
                     objectFit: 'contain',
                     display: 'block',
+                    flexShrink: 0,
                   }}
                 />
               </button>
@@ -299,6 +302,8 @@ export default function Sidebar({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  flexShrink: 0,
+                  marginLeft: 'auto',
                 }}
                 onMouseEnter={e => {
                   (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)';
