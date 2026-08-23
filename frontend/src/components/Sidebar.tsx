@@ -226,6 +226,7 @@ export default function Sidebar({
                 style={{
                   display: 'flex',
                   alignItems: 'center',
+                  gap: 10,
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
@@ -235,15 +236,42 @@ export default function Sidebar({
                 title="BrandBrew Home"
               >
                 <img
-                  src="/brandbrew-logo.png"
-                  alt="BrandBrew — Content Intelligence"
+                  src="/brandbrew-icon.png"
+                  alt="BrandBrew Logo"
                   style={{
-                    height: 32,
-                    width: 'auto',
+                    width: 36,
+                    height: 36,
                     objectFit: 'contain',
                     display: 'block',
+                    flexShrink: 0,
                   }}
                 />
+                <div>
+                  <div
+                    style={{
+                      fontSize: 16,
+                      fontWeight: 800,
+                      letterSpacing: '-0.02em',
+                      lineHeight: 1.1,
+                    }}
+                  >
+                    <span style={{ color: 'var(--text-primary, #211914)' }}>Brand</span>
+                    <span style={{ color: '#A66B38' }}>Brew</span>
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 9,
+                      fontWeight: 700,
+                      color: 'var(--text-muted, #9A8778)',
+                      letterSpacing: '0.1em',
+                      textTransform: 'uppercase',
+                      marginTop: 3,
+                      lineHeight: 1,
+                    }}
+                  >
+                    Content Intelligence
+                  </div>
+                </div>
               </button>
             ) : (
               <button
@@ -263,8 +291,8 @@ export default function Sidebar({
                   src="/brandbrew-icon.png"
                   alt="BrandBrew"
                   style={{
-                    height: 28,
-                    width: 'auto',
+                    width: 32,
+                    height: 32,
                     objectFit: 'contain',
                     display: 'block',
                   }}
