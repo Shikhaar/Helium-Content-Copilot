@@ -356,14 +356,19 @@ class OpportunityRepository(BaseRepository[Opportunity]):
         effective_brand_id = brand_id or (opportunities[0].brand_id if opportunities else "snitch")
         logger.info("Saving %d opportunities to DB for brand='%s'", len(opportunities), effective_brand_id)
         
-        # Delete previous opportunities for this brand to prevent stale duplicates
-        await self._db.execute("DELETE FROM opportunities WHERE brand_id = ?", (effective_brand_id,))
+        # Delete previous unreferenced opportunities for this brand to prevent stale duplicates while respecting FK constraints
+        await self._db.execute(
+            """DELETE FROM opportunities 
+               WHERE brand_id = ? 
+                 AND id NOT IN (SELECT opportunity_id FROM content_drafts WHERE opportunity_id IS NOT NULL AND brand_id = ?)""",
+            (effective_brand_id, effective_brand_id),
+        )
         for opp in opportunities:
             opp.brand_id = effective_brand_id
             if analysis_run_id:
                 opp.analysis_run_id = analysis_run_id
             await self._db.execute(
-                """INSERT INTO opportunities (
+                """INSERT OR REPLACE INTO opportunities (
                     id, brand_id, analysis_run_id, title, content_angle, audience, objective,
                     platform, format, suggested_product_id, why, historical_signal,
                     product_signal, audience_signal, seasonal_signal, business_signal,

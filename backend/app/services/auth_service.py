@@ -60,14 +60,25 @@ async def verify_clerk_token(token: str) -> UserContext:
     if clean_token.lower().startswith("bearer "):
         clean_token = clean_token[7:].strip()
 
-    # 1. Test-only bypass — ONLY active when settings.testing=True.
-    #    In production, settings.testing is False and cannot be triggered.
+    # 1. Test-only bypass — active when settings.testing=True.
     if settings.testing:
         if clean_token in ("valid-test-token", "test-token") or clean_token.startswith("test_"):
             return UserContext(
                 clerk_user_id="user_test_123",
                 email="tester@brandbrew.internal",
                 name="BrandBrew Tester",
+                avatar_url=None,
+                role="editor",
+                workspace_id="default_workspace",
+            )
+
+    # 2. Local development token bypass
+    if settings.environment == "development":
+        if clean_token in ("valid-test-token", "test-token", "dev-token") or clean_token.startswith(("test_", "dev_")):
+            return UserContext(
+                clerk_user_id="user_dev_123",
+                email="developer@brandbrew.internal",
+                name="BrandBrew Developer",
                 avatar_url=None,
                 role="editor",
                 workspace_id="default_workspace",

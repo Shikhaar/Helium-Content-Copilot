@@ -17,12 +17,21 @@ def configure_logging() -> None:
     )
     date_format = "%Y-%m-%d %H:%M:%S"
 
+    # Ensure Windows console / streams handle UTF-8 without crashing on cp1252
+    if hasattr(sys.stdout, "reconfigure"):
+        try:
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
+
+    handler = logging.StreamHandler(sys.stdout)
+
     logging.basicConfig(
         level=getattr(logging, settings.log_level.upper(), logging.INFO),
         format=log_format,
         datefmt=date_format,
         handlers=[
-            logging.StreamHandler(sys.stdout),
+            handler,
         ],
     )
 

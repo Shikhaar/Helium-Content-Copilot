@@ -26,9 +26,10 @@ class Settings(BaseSettings):
     clerk_issuer: str = ""
     clerk_jwks_url: str = ""
 
-    # Server
+    # Server & Environment
     host: str = "0.0.0.0"
     port: int = 8000
+    environment: str = "development"
 
     # Test isolation — set BRANDBREW_TESTING=true in CI only, never in production
     testing: bool = False
