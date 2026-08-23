@@ -10,6 +10,7 @@ import {
   Target,
   CheckCircle2,
   Flame,
+  ShieldCheck,
 } from 'lucide-react';
 import type { Opportunity, Product } from '../lib/types';
 
@@ -375,9 +376,12 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
                   color: '#5A3828',
                   padding: '3px 10px',
                   borderRadius: 4,
-                  display: 'inline-block',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 5,
                 }}
               >
+                <ShieldCheck size={13} />
                 {confText}
               </span>
             </div>
