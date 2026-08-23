@@ -32,15 +32,20 @@ export default function SignInPage() {
           style={{
             display: 'inline-flex',
             alignItems: 'center',
+            gap: 10,
             justifyContent: 'center',
             marginBottom: 6,
           }}
         >
           <img
-            src="/brandbrew-logo.png"
+            src="/brandbrew-icon.png"
             alt="BrandBrew"
-            style={{ height: 38, width: 'auto', objectFit: 'contain' }}
+            style={{ width: 36, height: 36, objectFit: 'contain' }}
           />
+          <div style={{ fontSize: 22, fontWeight: 800, lineHeight: 1 }}>
+            <span style={{ color: 'var(--text-primary)' }}>Brand</span>
+            <span style={{ color: '#A66B38' }}>Brew</span>
+          </div>
         </div>
 
         <h1

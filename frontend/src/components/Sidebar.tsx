@@ -239,38 +239,23 @@ export default function Sidebar({
                   src="/brandbrew-icon.png"
                   alt="BrandBrew Logo"
                   style={{
-                    width: 36,
-                    height: 36,
+                    width: 32,
+                    height: 32,
                     objectFit: 'contain',
                     display: 'block',
                     flexShrink: 0,
                   }}
                 />
-                <div>
-                  <div
-                    style={{
-                      fontSize: 16,
-                      fontWeight: 800,
-                      letterSpacing: '-0.02em',
-                      lineHeight: 1.1,
-                    }}
-                  >
-                    <span style={{ color: 'var(--text-primary, #211914)' }}>Brand</span>
-                    <span style={{ color: '#A66B38' }}>Brew</span>
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 9,
-                      fontWeight: 700,
-                      color: 'var(--text-muted, #9A8778)',
-                      letterSpacing: '0.1em',
-                      textTransform: 'uppercase',
-                      marginTop: 3,
-                      lineHeight: 1,
-                    }}
-                  >
-                    Content Intelligence
-                  </div>
+                <div
+                  style={{
+                    fontSize: 18,
+                    fontWeight: 800,
+                    letterSpacing: '-0.02em',
+                    lineHeight: 1,
+                  }}
+                >
+                  <span style={{ color: 'var(--text-primary, #211914)' }}>Brand</span>
+                  <span style={{ color: '#A66B38' }}>Brew</span>
                 </div>
               </button>
             ) : (
