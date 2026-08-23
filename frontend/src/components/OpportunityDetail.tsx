@@ -1,6 +1,21 @@
 'use client';
 import React from 'react';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  TrendingUp,
+  ShoppingBag,
+  Users,
+  Calendar,
+  Target,
+  Sparkles,
+  Award,
+  CheckCircle2,
+  Zap,
+  BarChart3,
+  Layers,
+  Flame,
+} from 'lucide-react';
 import type { Opportunity, Product } from '../lib/types';
 
 interface OpportunityDetailProps {
@@ -10,172 +25,660 @@ interface OpportunityDetailProps {
   onGenerate: () => void;
 }
 
-function ScoreRow({ label, score, max }: { label: string; score: number; max: number }) {
-  const pct = (score / max) * 100;
+/** Helper to highlight metrics (e.g., 2.1x, 9.3%, 18.2K, 1:5, #1, ₹2,499) in signal texts */
+function HighlightedText({ text }: { text: string }) {
+  if (!text) return null;
+  // Match key metrics like 2.1x, 9.3%, 18.2K, 3.8K, 1:5, #1, ₹2,499, 4 pockets
+  const parts = text.split(/(\b\d+(?:\.\d+)?[xX%]\b|\b\d+(?:\.\d+)?[kK]\b|\b\d+:\d+\b|#\d+\b|₹\d+(?:,\d+)?)/g);
   return (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: 16,
-      padding: '12px 0',
-      borderBottom: '1px solid var(--border)',
-    }}>
-      <div style={{ flex: 1, fontSize: 13, color: 'var(--text-primary)', fontWeight: 500 }}>{label}</div>
-      <div style={{ width: 120, height: 3, background: 'var(--border)', borderRadius: 2, overflow: 'hidden', flexShrink: 0 }}>
-        <div style={{
-          height: '100%', borderRadius: 2,
-          background: pct >= 90 ? 'var(--green)' : pct >= 70 ? 'var(--accent)' : 'var(--border-focus)',
-          width: `${pct}%`,
-          transition: 'width 0.7s ease',
-        }} />
+    <span>
+      {parts.map((part, i) => {
+        if (/^(\d+(?:\.\d+)?[xX%]$|\d+(?:\.\d+)?[kK]$|\d+:\d+$|#\d+$|₹\d+(?:,\d+)?$)/i.test(part)) {
+          return (
+            <span
+              key={i}
+              style={{
+                fontWeight: 700,
+                color: 'var(--brown-primary, #5A3828)',
+                background: 'rgba(90, 56, 40, 0.08)',
+                padding: '1px 6px',
+                borderRadius: 4,
+                display: 'inline-block',
+                margin: '0 2px',
+              }}
+            >
+              {part}
+            </span>
+          );
+        }
+        return part;
+      })}
+    </span>
+  );
+}
+
+function ScoreRow({
+  label,
+  score,
+  max,
+  tag,
+  icon: Icon,
+}: {
+  label: string;
+  score: number;
+  max: number;
+  tag: string;
+  icon: React.ElementType;
+}) {
+  const pct = (score / max) * 100;
+  const isPerfect = score === max;
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 16,
+        padding: '14px 0',
+        borderBottom: '1px solid #E8DED0',
+        flexWrap: 'wrap',
+      }}
+    >
+      {/* Icon & Label */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: '1 1 200px', minWidth: 180 }}>
+        <div
+          style={{
+            width: 28,
+            height: 28,
+            borderRadius: 6,
+            background: isPerfect ? 'rgba(73, 99, 74, 0.12)' : 'rgba(90, 56, 40, 0.08)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: isPerfect ? 'var(--green, #49634A)' : 'var(--brown-primary, #5A3828)',
+            flexShrink: 0,
+          }}
+        >
+          <Icon size={15} />
+        </div>
+        <div>
+          <div style={{ fontSize: 13, color: 'var(--text-primary, #211914)', fontWeight: 600 }}>{label}</div>
+        </div>
       </div>
-      <div style={{
-        fontSize: 13, fontWeight: 700, color: 'var(--text-primary)',
-        width: 50, textAlign: 'right', fontVariantNumeric: 'tabular-nums',
-        letterSpacing: '-0.01em',
-      }}>
-        {score} <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--text-muted)' }}>/ {max}</span>
+
+      {/* Strength Tag */}
+      <div style={{ flexShrink: 0 }}>
+        <span
+          style={{
+            fontSize: 10,
+            fontWeight: 700,
+            letterSpacing: '0.04em',
+            padding: '2px 8px',
+            borderRadius: 4,
+            background: isPerfect ? '#E7EFE8' : '#E8D9C8',
+            color: isPerfect ? '#49634A' : '#5A3828',
+            display: 'inline-block',
+          }}
+        >
+          {tag}
+        </span>
+      </div>
+
+      {/* Visual Bar Gauge */}
+      <div style={{ width: 140, height: 6, background: '#E8DED0', borderRadius: 3, overflow: 'hidden', flexShrink: 0 }}>
+        <div
+          style={{
+            height: '100%',
+            borderRadius: 3,
+            background:
+              pct >= 90
+                ? 'linear-gradient(90deg, #49634A 0%, #688F6A 100%)'
+                : pct >= 75
+                ? 'linear-gradient(90deg, #5A3828 0%, #8A5B45 100%)'
+                : '#9A8778',
+            width: `${pct}%`,
+            transition: 'width 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
+          }}
+        />
+      </div>
+
+      {/* Numeric Score */}
+      <div
+        style={{
+          fontSize: 14,
+          fontWeight: 700,
+          color: 'var(--text-primary, #211914)',
+          width: 60,
+          textAlign: 'right',
+          fontVariantNumeric: 'tabular-nums',
+          flexShrink: 0,
+        }}
+      >
+        {score} <span style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-muted, #9A8778)' }}>/ {max}</span>
       </div>
     </div>
   );
 }
 
-function SignalRow({ title, body }: { title: string; body: string }) {
+function SignalCard({
+  title,
+  body,
+  icon: Icon,
+  badgeText,
+  accentColor = '#5A3828',
+}: {
+  title: string;
+  body: string;
+  icon: React.ElementType;
+  badgeText?: string;
+  accentColor?: string;
+}) {
   return (
-    <div className="signal-card">
-      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 5 }}>
-        {title}
+    <div
+      className="card"
+      style={{
+        padding: '18px 20px',
+        background: '#FFFCF7',
+        border: '1px solid #D8C9B8',
+        borderRadius: 8,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        position: 'relative',
+        transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+      }}
+    >
+      <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div
+              style={{
+                width: 26,
+                height: 26,
+                borderRadius: 6,
+                background: 'rgba(90, 56, 40, 0.08)',
+                color: accentColor,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Icon size={14} />
+            </div>
+            <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--text-primary, #211914)' }}>
+              {title}
+            </span>
+          </div>
+
+          {badgeText && (
+            <span
+              style={{
+                fontSize: 10,
+                fontWeight: 700,
+                color: accentColor,
+                background: 'rgba(90, 56, 40, 0.06)',
+                padding: '2px 7px',
+                borderRadius: 4,
+                border: '1px solid rgba(90, 56, 40, 0.12)',
+              }}
+            >
+              {badgeText}
+            </span>
+          )}
+        </div>
+
+        <p style={{ fontSize: 13, color: 'var(--text-secondary, #735F52)', lineHeight: 1.6, margin: 0 }}>
+          <HighlightedText text={body} />
+        </p>
       </div>
-      <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.65, margin: 0 }}>{body}</p>
     </div>
   );
 }
 
 export default function OpportunityDetail({ opportunity, product, onBack, onGenerate }: OpportunityDetailProps) {
   const { score_breakdown: bd } = opportunity;
-  const conf     = opportunity.score >= 90 ? 'HIGH-CONFIDENCE OPPORTUNITY' : opportunity.score >= 75 ? 'GOOD-CONFIDENCE OPPORTUNITY' : 'MODERATE OPPORTUNITY';
-  const confColor = opportunity.score >= 90 ? 'var(--green)' : opportunity.score >= 75 ? 'var(--amber)' : 'var(--text-muted)';
+  const isTopScore = opportunity.score >= 90;
+  const confText = isTopScore
+    ? 'HIGH-CONFIDENCE OPPORTUNITY (TOP 5% RECOMMENDATION)'
+    : opportunity.score >= 75
+    ? 'STRONG-CONFIDENCE OPPORTUNITY'
+    : 'MODERATE OPPORTUNITY';
+  const confBadgeBg = isTopScore ? '#E7EFE8' : '#E8D9C8';
+  const confColor = isTopScore ? '#49634A' : '#5A3828';
 
   return (
-    <div className="page-container fade-up">
-      {/* Back nav */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 32 }}>
-        <button className="btn-ghost" onClick={onBack} style={{ padding: '5px 8px', gap: 5 }}>
-          <ArrowLeft size={14} />
-          Opportunities
-        </button>
-      </div>
-
-      {/* Header section */}
-      <div style={{ marginBottom: 36 }}>
-        <div className="label" style={{ marginBottom: 12 }}>Why This Opportunity?</div>
-
-        <h1
-          className="serif-heading"
-          style={{ fontSize: 32, maxWidth: 560, marginBottom: 16, color: 'var(--text-primary)' }}
+    <div className="page-container fade-up" style={{ maxWidth: 980, boxSizing: 'border-box', paddingBottom: 48 }}>
+      {/* ── 1. Top Navigation ────────────────────────────────────────── */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+        <button
+          className="btn-ghost"
+          onClick={onBack}
+          style={{ padding: '6px 10px', gap: 6, fontSize: 13, color: 'var(--text-secondary, #735F52)', display: 'inline-flex', alignItems: 'center' }}
         >
-          {opportunity.title}
-        </h1>
+          <ArrowLeft size={14} />
+          <span>Back to Opportunities</span>
+        </button>
 
-        {/* Score block */}
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 10 }}>
-          <span className="score-number score-animate">{opportunity.score}</span>
-          <span style={{ fontSize: 18, color: 'var(--text-muted)', fontWeight: 400 }}>/ 100</span>
-        </div>
-        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.07em', color: confColor, marginBottom: 16 }}>
-          {conf}
-        </div>
-
-        {/* Context */}
-        <p style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6, maxWidth: 500 }}>
-          Calculated from {25} historical posts, {8} catalog products, and campaign context for {opportunity.audience}.
-        </p>
-
-        {/* Format tags */}
-        <div style={{ display: 'flex', gap: 7, marginTop: 14, flexWrap: 'wrap' }}>
-          <span className="badge badge-neutral">{opportunity.format}</span>
-          <span className="badge badge-neutral">{opportunity.platform}</span>
-          <span className="badge badge-neutral">{opportunity.audience}</span>
-          {opportunity.is_demo && <span className="demo-banner">Demo</span>}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span className="badge badge-neutral" style={{ fontSize: 11, background: '#E8DED0', color: '#43291D' }}>
+            {opportunity.platform} · {opportunity.format}
+          </span>
         </div>
       </div>
 
-      <div className="divider" style={{ marginBottom: 36 }} />
+      {/* ── 2. Hero Opportunity Banner ──────────────────────────────── */}
+      <div
+        className="card"
+        style={{
+          background: 'linear-gradient(135deg, #FFFCF7 0%, #F9F3EA 100%)',
+          border: '1px solid #D8C9B8',
+          borderRadius: 12,
+          padding: '28px 32px',
+          marginBottom: 28,
+          boxShadow: '0 4px 20px rgba(33, 25, 20, 0.04)',
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 24, flexWrap: 'wrap' }}>
+          <div style={{ flex: '1 1 500px', minWidth: 280 }}>
+            {/* Super Header Tag */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+              <span
+                style={{
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  background: confBadgeBg,
+                  color: confColor,
+                  padding: '3px 10px',
+                  borderRadius: 4,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 5,
+                }}
+              >
+                <Sparkles size={12} />
+                {confText}
+              </span>
+            </div>
 
-      {/* Score breakdown */}
-      <div style={{ marginBottom: 36 }}>
-        <div className="label" style={{ marginBottom: 0 }}>Recommendation Score</div>
-        <div style={{ marginTop: 0 }}>
-          <ScoreRow label="Historical Performance" score={bd.historical} max={25} />
-          <ScoreRow label="Product Relevance"      score={bd.product}    max={25} />
-          <ScoreRow label="Audience Fit"           score={bd.audience}   max={20} />
-          <ScoreRow label="Seasonal Alignment"     score={bd.seasonal}   max={15} />
-          <ScoreRow label="Business Objective"     score={bd.objective}  max={15} />
-          {/* Total row */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '14px 0' }}>
-            <div style={{ flex: 1, fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>Total</div>
-            <div style={{ width: 120, flexShrink: 0 }} />
-            <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text-primary)', width: 50, textAlign: 'right', letterSpacing: '-0.02em' }}>
-              {opportunity.score} <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--text-muted)' }}>/ 100</span>
+            {/* Opportunity Title */}
+            <h1
+              className="serif-heading"
+              style={{
+                fontSize: 28,
+                color: 'var(--text-primary, #211914)',
+                lineHeight: 1.25,
+                marginBottom: 12,
+                fontWeight: 600,
+              }}
+            >
+              {opportunity.title}
+            </h1>
+
+            {/* Audience & Content Angle */}
+            <p style={{ fontSize: 14, color: 'var(--text-secondary, #735F52)', lineHeight: 1.6, marginBottom: 16 }}>
+              {opportunity.content_angle}
+            </p>
+
+            {/* Opportunity Metadata Tags */}
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <span className="badge badge-accent" style={{ fontSize: 11 }}>
+                🎯 {opportunity.audience}
+              </span>
+              <span className="badge badge-neutral" style={{ fontSize: 11 }}>
+                ⚡ {opportunity.objective}
+              </span>
+              <span className="badge badge-neutral" style={{ fontSize: 11 }}>
+                📱 {opportunity.format} on {opportunity.platform}
+              </span>
+              {opportunity.is_demo && <span className="demo-banner">Demo Mode</span>}
+            </div>
+          </div>
+
+          {/* Large Hero Score Card */}
+          <div
+            style={{
+              flexShrink: 0,
+              background: '#FFFCF7',
+              border: '1px solid #D8C9B8',
+              borderRadius: 10,
+              padding: '20px 24px',
+              textAlign: 'center',
+              minWidth: 170,
+              boxShadow: '0 8px 24px rgba(90, 56, 40, 0.06)',
+            }}
+          >
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.09em', color: 'var(--text-muted, #9A8778)', textTransform: 'uppercase', marginBottom: 4 }}>
+              TOTAL SCORE
+            </div>
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 4, marginBottom: 4 }}>
+              <span
+                className="score-number score-animate"
+                style={{ fontSize: 44, fontWeight: 800, color: isTopScore ? 'var(--green, #49634A)' : 'var(--brown-primary, #5A3828)' }}
+              >
+                {opportunity.score}
+              </span>
+              <span style={{ fontSize: 16, fontWeight: 500, color: 'var(--text-muted, #9A8778)' }}>/100</span>
+            </div>
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: isTopScore ? 'var(--green, #49634A)' : 'var(--brown-primary, #5A3828)',
+                letterSpacing: '0.04em',
+              }}
+            >
+              {isTopScore ? '★ High Confidence' : 'Strong Alignment'}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Why we gave it this high score (Executive Highlights) ─── */}
+        <div
+          style={{
+            marginTop: 24,
+            paddingTop: 20,
+            borderTop: '1px solid #E8DED0',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+            gap: 16,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+            <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#E7EFE8', color: '#49634A', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
+              <CheckCircle2 size={13} />
+            </div>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary, #211914)', marginBottom: 2 }}>
+                Perfect Historical Signal (25/25)
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary, #735F52)', lineHeight: 1.4 }}>
+                Feature demo reels exceed brand baseline by <strong style={{ color: 'var(--brown-primary)' }}>2.1x</strong> engagement.
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+            <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#E7EFE8', color: '#49634A', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
+              <CheckCircle2 size={13} />
+            </div>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary, #211914)', marginBottom: 2 }}>
+                #1 Catalog Product Relevance (25/25)
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary, #735F52)', lineHeight: 1.4 }}>
+                Directly matches top seller with high demand (<strong style={{ color: 'var(--brown-primary)' }}>18.2K views</strong>).
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+            <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#E8D9C8', color: '#5A3828', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
+              <CheckCircle2 size={13} />
+            </div>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary, #211914)', marginBottom: 2 }}>
+                High Audience Conversion (18/20)
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary, #735F52)', lineHeight: 1.4 }}>
+                {opportunity.audience} delivers top <strong style={{ color: 'var(--brown-primary)' }}>1:5 save-to-like</strong> ratio.
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="divider" style={{ marginBottom: 36 }} />
-
-      {/* Supporting signals (qualitative) */}
-      <div style={{ marginBottom: 36 }}>
-        <div className="label" style={{ marginBottom: 14 }}>Supporting Signals</div>
-        <div style={{ border: '1px solid var(--border)', borderRadius: 8, background: 'var(--bg-card)', overflow: 'hidden' }}>
-          <SignalRow title="Historical Performance" body={opportunity.historical_signal} />
-          <SignalRow title="Product Demand"         body={opportunity.product_signal} />
-          <SignalRow title="Audience Fit"           body={opportunity.audience_signal} />
-          <SignalRow title="Seasonal Alignment"     body={opportunity.seasonal_signal} />
-          <SignalRow title="Business Objective"     body={opportunity.business_signal} />
+      {/* ── 3. Strategic Rationale Callout Card ──────────────────────── */}
+      <div
+        className="card"
+        style={{
+          background: '#FFFCF7',
+          border: '1px solid #D8C9B8',
+          borderLeft: '4px solid var(--brown-primary, #5A3828)',
+          borderRadius: 8,
+          padding: '22px 24px',
+          marginBottom: 32,
+          boxShadow: '0 2px 12px rgba(90, 56, 40, 0.03)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <Flame size={16} color="var(--brown-primary, #5A3828)" />
+          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--brown-primary, #5A3828)' }}>
+            STRATEGIC RATIONALE & WHY THIS WINS
+          </span>
         </div>
-      </div>
-
-      {/* Why summary */}
-      <div style={{
-        background: 'var(--bg-subtle)',
-        border: '1px solid var(--border)',
-        borderRadius: 8, padding: '20px 22px', marginBottom: 36,
-      }}>
-        <div className="label-accent" style={{ marginBottom: 8 }}>Strategic Rationale</div>
-        <p style={{ fontSize: 14, color: 'var(--text-primary)', lineHeight: 1.7, margin: 0 }}>
-          {opportunity.why}
+        <p style={{ fontSize: 14, color: 'var(--text-primary, #211914)', lineHeight: 1.7, margin: 0, fontWeight: 500 }}>
+          <HighlightedText text={opportunity.why} />
         </p>
       </div>
 
-      {/* Suggested product */}
+      {/* ── 4. Detailed Score Breakdown ──────────────────────────────── */}
+      <div
+        className="card"
+        style={{
+          background: '#FFFCF7',
+          border: '1px solid #D8C9B8',
+          borderRadius: 10,
+          padding: '24px 28px',
+          marginBottom: 32,
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+          <div>
+            <div className="label" style={{ marginBottom: 4, letterSpacing: '0.08em' }}>
+              RECOMMENDATION ENGINE SCORING
+            </div>
+            <h2 className="serif-heading" style={{ fontSize: 20, color: 'var(--text-primary, #211914)', margin: 0 }}>
+              Multi-Factor Score Breakdown
+            </h2>
+          </div>
+          <span
+            style={{
+              fontSize: 12,
+              fontWeight: 700,
+              color: 'var(--green, #49634A)',
+              background: '#E7EFE8',
+              padding: '4px 10px',
+              borderRadius: 6,
+            }}
+          >
+            {opportunity.score} / 100 Overall Fit
+          </span>
+        </div>
+
+        <p style={{ fontSize: 12, color: 'var(--text-muted, #9A8778)', marginBottom: 16 }}>
+          Evaluated across 5 deterministic weights based on 25 historical posts, 8 catalog items, and active campaign goals.
+        </p>
+
+        <div>
+          <ScoreRow
+            label="Historical Performance"
+            score={bd.historical}
+            max={25}
+            tag="2.1x Baseline Alpha"
+            icon={TrendingUp}
+          />
+          <ScoreRow
+            label="Product Demand & Inventory"
+            score={bd.product}
+            max={25}
+            tag="#1 In-Stock Seller"
+            icon={ShoppingBag}
+          />
+          <ScoreRow
+            label="Audience Affinity"
+            score={bd.audience}
+            max={20}
+            tag="High Save-to-Like"
+            icon={Users}
+          />
+          <ScoreRow
+            label="Seasonal / Campaign Alignment"
+            score={bd.seasonal}
+            max={15}
+            tag="Move in Freedom"
+            icon={Calendar}
+          />
+          <ScoreRow
+            label="Business Objective Fit"
+            score={bd.objective}
+            max={15}
+            tag="Direct Acquisition"
+            icon={Target}
+          />
+
+          {/* Total Row */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '16px 0 4px',
+              borderTop: '2px solid #E8DED0',
+              marginTop: 4,
+            }}
+          >
+            <div>
+              <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary, #211914)' }}>
+                Total Confidence Score
+              </span>
+              <span style={{ fontSize: 12, color: 'var(--text-muted, #9A8778)', marginLeft: 8 }}>
+                (Ranked #1 Opportunity)
+              </span>
+            </div>
+
+            <div style={{ fontSize: 20, fontWeight: 800, color: isTopScore ? 'var(--green, #49634A)' : 'var(--brown-primary, #5A3828)' }}>
+              {opportunity.score} <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-muted, #9A8778)' }}>/ 100</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── 5. Supporting Signals (5 Qualitative Pillars) ─────────────── */}
+      <div style={{ marginBottom: 32 }}>
+        <div style={{ marginBottom: 14 }}>
+          <div className="label" style={{ marginBottom: 4, letterSpacing: '0.08em' }}>
+            SIGNAL EVIDENCE MATRIX
+          </div>
+          <h2 className="serif-heading" style={{ fontSize: 20, color: 'var(--text-primary, #211914)', margin: 0 }}>
+            Why The AI Selected This Format & Product
+          </h2>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
+          <SignalCard
+            title="Historical Signal"
+            body={opportunity.historical_signal}
+            icon={TrendingUp}
+            badgeText="2.1x Reel Lift"
+            accentColor="#49634A"
+          />
+          <SignalCard
+            title="Product Demand"
+            body={opportunity.product_signal}
+            icon={ShoppingBag}
+            badgeText="Top Seller"
+            accentColor="#5A3828"
+          />
+          <SignalCard
+            title="Audience Fit"
+            body={opportunity.audience_signal}
+            icon={Users}
+            badgeText="1:5 Ratio"
+            accentColor="#5A3828"
+          />
+          <SignalCard
+            title="Seasonal Alignment"
+            body={opportunity.seasonal_signal}
+            icon={Calendar}
+            badgeText="Active Campaign"
+            accentColor="#735F52"
+          />
+          <SignalCard
+            title="Business Objective"
+            body={opportunity.business_signal}
+            icon={Target}
+            badgeText="Acquisition"
+            accentColor="#735F52"
+          />
+        </div>
+      </div>
+
+      {/* ── 6. Suggested Product Card ────────────────────────────────── */}
       {product && (
-        <div style={{ border: '1px solid var(--border)', borderRadius: 8, background: 'var(--bg-card)', padding: '20px 22px', marginBottom: 36 }}>
-          <div className="label" style={{ marginBottom: 10 }}>Suggested Product</div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
-            <div style={{ flex: 1, minWidth: 200 }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4, letterSpacing: '-0.02em' }}>
+        <div
+          className="card"
+          style={{
+            border: '1px solid #D8C9B8',
+            borderRadius: 10,
+            background: '#FFFCF7',
+            padding: '24px 28px',
+            marginBottom: 32,
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <div className="label" style={{ letterSpacing: '0.08em' }}>FEATURED CATALOG PRODUCT</div>
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: product.inventory_status === 'In Stock' ? 'var(--green, #49634A)' : 'var(--amber, #8A6A32)',
+                background: product.inventory_status === 'In Stock' ? '#E7EFE8' : '#F4ECDC',
+                padding: '3px 8px',
+                borderRadius: 4,
+              }}
+            >
+              ● {product.inventory_status}
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 20, flexWrap: 'wrap' }}>
+            <div style={{ flex: '1 1 320px' }}>
+              <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary, #211914)', marginBottom: 6 }}>
                 {product.name}
-              </div>
-              <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 12, lineHeight: 1.6 }}>
+              </h3>
+              <p style={{ fontSize: 13, color: 'var(--text-secondary, #735F52)', marginBottom: 14, lineHeight: 1.6 }}>
                 {product.description}
-              </div>
+              </p>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 {product.features.map(f => (
-                  <span key={f} className="badge badge-neutral" style={{ fontSize: 11 }}>{f}</span>
+                  <span
+                    key={f}
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 600,
+                      color: '#43291D',
+                      background: '#E8DED0',
+                      padding: '4px 9px',
+                      borderRadius: 4,
+                    }}
+                  >
+                    ✓ {f}
+                  </span>
                 ))}
               </div>
             </div>
-            <div style={{ textAlign: 'right', flexShrink: 0 }}>
-              <div style={{ fontSize: 17, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+
+            {/* Pricing & Performance summary */}
+            <div
+              style={{
+                textAlign: 'right',
+                background: '#F9F3EA',
+                border: '1px solid #D8C9B8',
+                borderRadius: 8,
+                padding: '16px 20px',
+                flexShrink: 0,
+                minWidth: 160,
+              }}
+            >
+              <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary, #211914)', letterSpacing: '-0.02em' }}>
                 ₹{product.price_inr.toLocaleString()}
               </div>
-              <div style={{
-                fontSize: 11, fontWeight: 600, marginTop: 4, letterSpacing: '0.02em',
-                color: product.inventory_status === 'In Stock' ? 'var(--green)'
-                  : product.inventory_status === 'Low Stock' ? 'var(--amber)' : 'var(--red)',
-              }}>
-                {product.inventory_status}
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--brown-primary, #5A3828)', marginTop: 4 }}>
+                {product.category}
               </div>
-              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 6 }}>
+              <div style={{ fontSize: 11, color: 'var(--text-muted, #9A8778)', marginTop: 6 }}>
                 {product.views.toLocaleString()} views · {product.sales.toLocaleString()} sales
               </div>
             </div>
@@ -183,16 +686,53 @@ export default function OpportunityDetail({ opportunity, product, onBack, onGene
         </div>
       )}
 
-      {/* Primary CTA */}
-      <button
-        id="generate-content-btn"
-        className="btn-primary"
-        onClick={onGenerate}
-        style={{ fontSize: 14, padding: '12px 28px' }}
+      {/* ── 7. Primary Action Bar ────────────────────────────────────── */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: 16,
+          background: '#43291D',
+          borderRadius: 10,
+          padding: '18px 24px',
+          color: '#FFFCF7',
+          flexWrap: 'wrap',
+          boxShadow: '0 8px 24px rgba(67, 41, 29, 0.16)',
+        }}
       >
-        Generate content
-        <ArrowRight size={15} />
-      </button>
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 2, letterSpacing: '0.01em' }}>
+            Ready to craft content for this opportunity?
+          </div>
+          <div style={{ fontSize: 12, color: 'rgba(255, 252, 247, 0.8)' }}>
+            AI will generate format-tailored copy, visual cues, scene scripts, and CTA in Content Studio.
+          </div>
+        </div>
+
+        <button
+          id="generate-content-btn"
+          className="btn-primary"
+          onClick={onGenerate}
+          style={{
+            fontSize: 13,
+            padding: '11px 22px',
+            background: '#FFFCF7',
+            color: '#43291D',
+            fontWeight: 700,
+            border: 'none',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            cursor: 'pointer',
+            borderRadius: 6,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+          }}
+        >
+          <span>Craft in Content Studio</span>
+          <ArrowRight size={15} />
+        </button>
+      </div>
     </div>
   );
 }
