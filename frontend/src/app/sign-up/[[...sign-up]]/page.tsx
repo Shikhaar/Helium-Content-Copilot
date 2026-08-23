@@ -30,61 +30,17 @@ export default function SignUpPage() {
       >
         <div
           style={{
-            display: 'flex',
+            display: 'inline-flex',
             alignItems: 'center',
-            gap: 10,
-            marginBottom: 8,
+            justifyContent: 'center',
+            marginBottom: 6,
           }}
         >
-          <div
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: 6,
-              background: 'var(--brown-dark)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <span
-              style={{
-                fontFamily: 'var(--font-sans)',
-                fontSize: 16,
-                fontWeight: 800,
-                color: 'var(--surface)',
-                letterSpacing: '-0.04em',
-              }}
-            >
-              B
-            </span>
-          </div>
-          <div style={{ textAlign: 'left' }}>
-            <div
-              style={{
-                fontSize: 13,
-                fontWeight: 800,
-                color: 'var(--brown-dark)',
-                letterSpacing: '0.08em',
-                lineHeight: 1.15,
-                textTransform: 'uppercase',
-              }}
-            >
-              BrandBrew
-            </div>
-            <div
-              style={{
-                fontSize: 10,
-                fontWeight: 600,
-                color: 'var(--text-muted)',
-                letterSpacing: '0.08em',
-                textTransform: 'uppercase',
-                marginTop: 1,
-              }}
-            >
-              Content Copilot
-            </div>
-          </div>
+          <img
+            src="/brandbrew-logo.png"
+            alt="BrandBrew"
+            style={{ height: 38, width: 'auto', objectFit: 'contain' }}
+          />
         </div>
 
         <h1

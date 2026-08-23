@@ -226,7 +226,6 @@ export default function Sidebar({
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 9,
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
@@ -235,85 +234,41 @@ export default function Sidebar({
                 }}
                 title="BrandBrew Home"
               >
-                <div
+                <img
+                  src="/brandbrew-logo.png"
+                  alt="BrandBrew — Content Intelligence"
                   style={{
-                    width: 28,
-                    height: 28,
-                    borderRadius: 7,
-                    background: 'var(--brown-dark)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                    boxShadow: '0 2px 6px rgba(44, 24, 16, 0.18)',
+                    height: 32,
+                    width: 'auto',
+                    objectFit: 'contain',
+                    display: 'block',
                   }}
-                >
-                  <span
-                    style={{
-                      fontSize: 13,
-                      fontWeight: 800,
-                      color: 'var(--surface)',
-                      fontFamily: 'var(--font-sans)',
-                      letterSpacing: '-0.03em',
-                    }}
-                  >
-                    B
-                  </span>
-                </div>
-                <div>
-                  <div
-                    style={{
-                      fontSize: 13,
-                      fontWeight: 800,
-                      letterSpacing: '0.07em',
-                      color: 'var(--brown-dark)',
-                      fontFamily: 'var(--font-sans)',
-                      lineHeight: 1.1,
-                    }}
-                  >
-                    BRANDBREW
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 10,
-                      color: 'var(--text-muted)',
-                      letterSpacing: '0.02em',
-                      lineHeight: 1.1,
-                      marginTop: 2,
-                    }}
-                  >
-                    Content Intelligence
-                  </div>
-                </div>
+                />
               </button>
             ) : (
               <button
                 onClick={handleHomeClick}
                 style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 8,
-                  background: 'var(--brown-dark)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  background: 'none',
                   border: 'none',
                   cursor: 'pointer',
                   padding: 0,
-                  boxShadow: '0 2px 6px rgba(44, 24, 16, 0.18)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
                 title="BrandBrew — Go to Home"
               >
-                <span
+                <img
+                  src="/brandbrew-icon.png"
+                  alt="BrandBrew"
                   style={{
-                    fontSize: 14,
-                    fontWeight: 800,
-                    color: 'var(--surface)',
-                    fontFamily: 'var(--font-sans)',
+                    height: 28,
+                    width: 'auto',
+                    objectFit: 'contain',
+                    display: 'block',
                   }}
-                >
-                  B
-                </span>
+                />
               </button>
             )}
 

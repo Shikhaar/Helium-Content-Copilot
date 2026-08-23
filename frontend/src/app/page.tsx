@@ -542,22 +542,11 @@ export default function Home() {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div
-            style={{
-              width: 28,
-              height: 28,
-              borderRadius: 6,
-              background: 'var(--brown-dark)',
-              color: 'var(--surface)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: 800,
-              fontSize: 14,
-            }}
-          >
-            B
-          </div>
+          <img
+            src="/brandbrew-icon.png"
+            alt="BrandBrew"
+            style={{ width: 28, height: 'auto', objectFit: 'contain' }}
+          />
           <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>
             Loading BrandBrew workspace...
           </span>
@@ -625,16 +614,11 @@ export default function Home() {
                 background: 'none', border: 'none', padding: 0, cursor: 'pointer',
               }}
             >
-              <div style={{
-                width: 24, height: 24, borderRadius: 5,
-                background: 'var(--brown-dark)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--surface)' }}>B</span>
-              </div>
-              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--brown-dark)', letterSpacing: '0.08em' }}>
-                BRANDBREW
-              </span>
+              <img
+                src="/brandbrew-logo.png"
+                alt="BrandBrew"
+                style={{ height: 26, width: 'auto', objectFit: 'contain' }}
+              />
             </button>
           </div>
 
