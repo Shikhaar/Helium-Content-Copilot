@@ -544,6 +544,37 @@ async def schedule_draft(
     return await svc.schedule_draft(draft_id, req)
 
 
+@router.get("/brands/{brand_id}/drafts", response_model=list[ContentDraft])
+@router.get("/content/drafts", response_model=list[ContentDraft])
+async def list_drafts(
+    brand_id: str | None = None,
+    db: aiosqlite.Connection = Depends(get_db_conn),
+    user: UserContext = Depends(get_current_user),
+):
+    """List all content drafts for authorized brand."""
+    effective_brand_id = brand_id or "snitch"
+    await verify_brand_access(effective_brand_id, user, BrandRepository(db))
+    return await ContentRepository(db).list_all(brand_id=effective_brand_id)
+
+
+@router.delete("/content/{draft_id}", response_model=ApiResponse)
+async def delete_draft(
+    draft_id: str,
+    db: aiosqlite.Connection = Depends(get_db_conn),
+    user: UserContext = Depends(get_current_user),
+):
+    """Delete a draft (and its linked calendar entry if any)."""
+    draft = await ContentRepository(db).get_by_id(draft_id)
+    if not draft:
+        raise HTTPException(status_code=404, detail="Draft not found")
+    await verify_brand_access(draft.brand_id, user, BrandRepository(db))
+    deleted = await ContentRepository(db).delete(draft_id)
+    if not deleted:
+        raise HTTPException(status_code=500, detail="Failed to delete draft")
+    logger.info("Deleted draft id=%s brand_id=%s", draft_id, draft.brand_id)
+    return ApiResponse(status="ok", message=f"Draft {draft_id} deleted")
+
+
 # ── Editorial Calendar ────────────────────────────────────────────────────────
 
 @router.get("/brands/{brand_id}/calendar", response_model=list[CalendarEntry])

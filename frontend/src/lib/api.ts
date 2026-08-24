@@ -153,6 +153,8 @@ export const api = {
     }),
 
   getDraft: (id: string) => request<ContentDraft>(`/content/${id}`),
+  listDrafts: (brandId?: string) =>
+    brandId ? request<ContentDraft[]>(`/brands/${brandId}/drafts`) : request<ContentDraft[]>('/content/drafts'),
 
   updateDraft: (id: string, updates: Partial<Pick<ContentDraft, 'slides' | 'caption' | 'cta' | 'hashtags'>>) =>
     request<ContentDraft>(`/content/${id}`, {
@@ -162,6 +164,9 @@ export const api = {
 
   approveDraft: (id: string) =>
     request<ContentDraft>(`/content/${id}/approve`, { method: 'POST' }),
+
+  deleteDraft: (id: string) =>
+    request<{ status: string; message: string }>(`/content/${id}`, { method: 'DELETE' }),
 
   scheduleDraft: (id: string, body: ScheduleRequest) =>
     request<ContentDraft>(`/content/${id}/schedule`, {

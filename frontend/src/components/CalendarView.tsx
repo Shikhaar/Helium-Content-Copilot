@@ -9,14 +9,19 @@ import {
   Check,
   X,
   Plus,
+  CalendarClock,
+  FileText,
 } from 'lucide-react';
-import type { CalendarEntry } from '../lib/types';
+import type { CalendarEntry, ContentDraft } from '../lib/types';
 
 interface CalendarViewProps {
   entries: CalendarEntry[];
+  unscheduledDrafts?: ContentDraft[];
   onDeleteEntry?: (id: string) => void;
   onSelectDraft?: (draftId: string) => void;
+  onDeleteDraft?: (draftId: string) => Promise<void> | void;
   onRescheduleEntry?: (entryId: string, draftId: string, newDate: string, newTime?: string) => Promise<any> | void;
+  onScheduleDraft?: (draftId: string, date: string, time?: string) => Promise<any> | void;
 }
 
 const DAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
@@ -45,9 +50,12 @@ function getCalendarDays(year: number, month: number) {
 
 export default function CalendarView({
   entries,
+  unscheduledDrafts = [],
   onDeleteEntry,
   onSelectDraft,
+  onDeleteDraft,
   onRescheduleEntry,
+  onScheduleDraft,
 }: CalendarViewProps) {
   const today = new Date();
   const [year, setYear] = React.useState(today.getFullYear());
@@ -62,13 +70,25 @@ export default function CalendarView({
   // Expanded Day Popover (for days with +X more posts)
   const [expandedDate, setExpandedDate] = React.useState<string | null>(null);
 
-  // Quick Time/Date Edit Modal State
+  // Quick Time/Date Edit Modal State (for Rescheduling an existing entry)
   const [editingEntry, setEditingEntry] = React.useState<{
     entry: CalendarEntry;
     date: string;
     time: string;
   } | null>(null);
   const [isUpdating, setIsUpdating] = React.useState(false);
+
+  // Delete confirmation state for unscheduled draft cards
+  const [confirmDeleteDraftId, setConfirmDeleteDraftId] = React.useState<string | null>(null);
+  const [isDeletingDraftId, setIsDeletingDraftId] = React.useState<string | null>(null);
+
+  // Quick Schedule Modal State (for Unscheduled Drafts)
+  const [schedulingDraft, setSchedulingDraft] = React.useState<{
+    draft: ContentDraft;
+    date: string;
+    time: string;
+  } | null>(null);
+  const [isSchedulingDraft, setIsSchedulingDraft] = React.useState(false);
 
   const days = getCalendarDays(year, month);
 
@@ -113,10 +133,22 @@ export default function CalendarView({
     if (!entry.draft_id || !onRescheduleEntry) return;
     setDraggedEntry(entry);
     e.dataTransfer.setData('text/plain', JSON.stringify({
+      type: 'scheduled_entry',
       id: entry.id,
       draft_id: entry.draft_id,
       title: entry.title,
       scheduled_datetime: entry.scheduled_datetime,
+    }));
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDraftDragStart = (draft: ContentDraft, e: React.DragEvent) => {
+    e.dataTransfer.setData('text/plain', JSON.stringify({
+      type: 'unscheduled_draft',
+      draft_id: draft.id,
+      caption: draft.caption,
+      format: draft.format,
+      platform: draft.platform,
     }));
     e.dataTransfer.effectAllowed = 'move';
   };
@@ -138,6 +170,27 @@ export default function CalendarView({
     e.preventDefault();
     setDragOverDate(null);
 
+    // 1. Check if dropped item is an unscheduled draft
+    try {
+      const raw = e.dataTransfer.getData('text/plain');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed.type === 'unscheduled_draft' && parsed.draft_id) {
+          if (onScheduleDraft) {
+            await onScheduleDraft(parsed.draft_id, targetDateStr, '19:00');
+            const [, m, d] = targetDateStr.split('-');
+            const monthLabel = MONTHS[parseInt(m, 10) - 1] || m;
+            setRescheduleToast(`Scheduled draft to ${monthLabel} ${parseInt(d, 10)} at 19:00`);
+            setTimeout(() => setRescheduleToast(null), 3000);
+          }
+          return;
+        }
+      }
+    } catch {
+      // fallback to standard move
+    }
+
+    // 2. Existing scheduled entry drag/reschedule
     let entryToMove = draggedEntry;
     if (!entryToMove) {
       try {
@@ -171,7 +224,7 @@ export default function CalendarView({
     }
   };
 
-  // Quick Modal Submit
+  // Quick Modal Submit for Rescheduling
   const handleQuickRescheduleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingEntry || !onRescheduleEntry || !editingEntry.entry.draft_id) return;
@@ -192,6 +245,29 @@ export default function CalendarView({
       console.error('Reschedule failed:', err);
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  // Quick Modal Submit for Scheduling an Unscheduled Draft
+  const handleQuickScheduleDraftSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!schedulingDraft || !onScheduleDraft) return;
+    setIsSchedulingDraft(true);
+    try {
+      await onScheduleDraft(
+        schedulingDraft.draft.id,
+        schedulingDraft.date,
+        schedulingDraft.time,
+      );
+      const [, m, d] = schedulingDraft.date.split('-');
+      const monthLabel = MONTHS[parseInt(m, 10) - 1] || m;
+      setRescheduleToast(`Scheduled to ${monthLabel} ${parseInt(d, 10)} at ${schedulingDraft.time}`);
+      setTimeout(() => setRescheduleToast(null), 3000);
+      setSchedulingDraft(null);
+    } catch (err) {
+      console.error('Schedule draft failed:', err);
+    } finally {
+      setIsSchedulingDraft(false);
     }
   };
 
@@ -578,6 +654,197 @@ export default function CalendarView({
           </div>
         </div>
       </div>
+
+      {/* ── UNSCHEDULED DRAFTS TRAY ────────────────────────────────── */}
+      {unscheduledDrafts && unscheduledDrafts.length > 0 && (
+        <div style={{ marginTop: 24, marginBottom: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <div>
+              <div className="label" style={{ marginBottom: 3, letterSpacing: '0.08em', fontSize: 11 }}>
+                UNSCHEDULED DRAFTS ({unscheduledDrafts.length})
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--text-secondary, #6F665D)' }}>
+                Saved post drafts waiting to be scheduled. Drag any card onto a calendar date above, or click Schedule.
+              </div>
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))',
+              gap: 14,
+            }}
+          >
+            {unscheduledDrafts.map((draft) => {
+              const headline = draft.slides?.[0]?.headline || draft.caption?.split('\n')[0] || 'Saved Draft';
+              const captionPreview = draft.caption || draft.slides?.[0]?.body || 'Draft ready in Content Studio.';
+              return (
+                <div
+                  key={draft.id}
+                  draggable={true}
+                  onDragStart={(e) => handleDraftDragStart(draft, e)}
+                  onClick={() => onSelectDraft?.(draft.id)}
+                  style={{
+                    background: '#FFFCF7',
+                    border: '1px solid #DDD3C5',
+                    borderRadius: 8,
+                    padding: '14px 16px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    gap: 10,
+                    cursor: 'grab',
+                    transition: 'all 0.15s ease',
+                    boxShadow: '0 2px 6px rgba(33, 25, 20, 0.02)',
+                  }}
+                  onMouseEnter={e => {
+                    (e.currentTarget as HTMLElement).style.borderColor = 'var(--brown-primary, #5A3828)';
+                    (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 16px rgba(33, 25, 20, 0.06)';
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLElement).style.borderColor = '#DDD3C5';
+                    (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 6px rgba(33, 25, 20, 0.02)';
+                  }}
+                >
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                      <span
+                        className="badge badge-accent"
+                        style={{ fontSize: 10, padding: '3px 8px', background: '#E8D9C8', color: '#5A3828' }}
+                      >
+                        {draft.format} · {draft.platform}
+                      </span>
+                      <span style={{ fontSize: 10, color: 'var(--text-muted, #8F8275)', display: 'flex', alignItems: 'center', gap: 3 }}>
+                        <GripVertical size={13} /> Drag to date
+                      </span>
+                    </div>
+
+                    <h4
+                      className="serif-heading"
+                      style={{
+                        fontSize: 15,
+                        fontWeight: 600,
+                        color: 'var(--text-primary, #171513)',
+                        marginBottom: 4,
+                        lineHeight: 1.3,
+                      }}
+                    >
+                      {headline}
+                    </h4>
+
+                    <p
+                      style={{
+                        fontSize: 12,
+                        color: 'var(--text-secondary, #6F665D)',
+                        lineHeight: 1.45,
+                        margin: 0,
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      {captionPreview}
+                    </p>
+                  </div>
+
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      borderTop: '1px solid #EFE8DE',
+                      paddingTop: 10,
+                      marginTop: 4,
+                      gap: 6,
+                    }}
+                    onClick={e => e.stopPropagation()}
+                  >
+                    {/* Left: Edit + Delete */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <button
+                        type="button"
+                        className="btn-ghost"
+                        onClick={() => onSelectDraft?.(draft.id)}
+                        style={{ fontSize: 11, padding: '4px 8px', color: 'var(--text-primary, #171513)', fontWeight: 600 }}
+                      >
+                        Edit
+                      </button>
+
+                      {confirmDeleteDraftId === draft.id ? (
+                        /* Confirmation row */
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <span style={{ fontSize: 11, color: '#B44E2A', fontWeight: 600 }}>Delete?</span>
+                          <button
+                            type="button"
+                            disabled={isDeletingDraftId === draft.id}
+                            onClick={async () => {
+                              setIsDeletingDraftId(draft.id);
+                              try {
+                                await onDeleteDraft?.(draft.id);
+                              } finally {
+                                setIsDeletingDraftId(null);
+                                setConfirmDeleteDraftId(null);
+                              }
+                            }}
+                            style={{
+                              fontSize: 11, padding: '3px 8px',
+                              background: '#B44E2A', color: '#fff',
+                              border: 'none', borderRadius: 5, cursor: 'pointer', fontWeight: 600,
+                            }}
+                          >
+                            {isDeletingDraftId === draft.id ? '...' : 'Yes'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setConfirmDeleteDraftId(null)}
+                            style={{
+                              fontSize: 11, padding: '3px 8px',
+                              background: 'transparent', color: 'var(--text-secondary, #6F665D)',
+                              border: '1px solid #DDD3C5', borderRadius: 5, cursor: 'pointer',
+                            }}
+                          >
+                            No
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          className="btn-ghost"
+                          onClick={() => setConfirmDeleteDraftId(draft.id)}
+                          title="Delete draft"
+                          style={{ fontSize: 11, padding: '4px 6px', color: '#8F8275' }}
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Right: Schedule */}
+                    <button
+                      type="button"
+                      className="btn-primary"
+                      onClick={() => {
+                        const tomorrow = new Date();
+                        tomorrow.setDate(tomorrow.getDate() + 1);
+                        setSchedulingDraft({
+                          draft,
+                          date: tomorrow.toISOString().split('T')[0],
+                          time: '19:00',
+                        });
+                      }}
+                      style={{ fontSize: 11, padding: '6px 12px', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                    >
+                      <CalendarClock size={12} /> Schedule
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* ── SCHEDULED POSTS AGENDA / LIST VIEW ──────────────────────── */}
       {sortedEntries.length > 0 && (
@@ -992,6 +1259,148 @@ export default function CalendarView({
                   style={{ fontSize: 12, padding: '8px 18px' }}
                 >
                   {isUpdating ? 'Updating...' : 'Confirm Reschedule'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── QUICK SCHEDULE MODAL (FOR UNSCHEDULED DRAFTS) ─────────── */}
+      {schedulingDraft && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 1000,
+            background: 'rgba(23, 21, 19, 0.45)',
+            backdropFilter: 'blur(3px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 20,
+          }}
+          onClick={() => setSchedulingDraft(null)}
+        >
+          <div
+            className="card fade-up"
+            style={{
+              maxWidth: 440,
+              width: '100%',
+              background: '#FFFCF7',
+              padding: '24px 26px',
+              borderRadius: 10,
+              border: '1px solid #DDD3C5',
+              boxShadow: '0 20px 40px rgba(33, 25, 20, 0.2)',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+              <div>
+                <div className="label" style={{ marginBottom: 4 }}>SCHEDULE DRAFT</div>
+                <h3 className="serif-heading" style={{ fontSize: 18, color: '#171513' }}>
+                  Pick Publication Date & Time
+                </h3>
+              </div>
+              <button
+                type="button"
+                className="btn-ghost"
+                onClick={() => setSchedulingDraft(null)}
+                style={{ padding: 4 }}
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <p style={{ fontSize: 12, color: '#6F665D', marginBottom: 18, lineHeight: 1.4 }}>
+              {schedulingDraft.draft.slides?.[0]?.headline || schedulingDraft.draft.caption?.slice(0, 70) || 'Saved Draft'}
+            </p>
+
+            <form onSubmit={handleQuickScheduleDraftSubmit}>
+              {/* Date Input */}
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ fontSize: 11, fontWeight: 600, color: '#6F665D', display: 'block', marginBottom: 6 }}>
+                  Date
+                </label>
+                <input
+                  type="date"
+                  value={schedulingDraft.date}
+                  onChange={e => setSchedulingDraft({ ...schedulingDraft, date: e.target.value })}
+                  required
+                  className="input-field"
+                  style={{ width: '100%' }}
+                />
+              </div>
+
+              {/* Preset Time Pills */}
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ fontSize: 11, fontWeight: 600, color: '#6F665D', display: 'block', marginBottom: 6 }}>
+                  Optimal D2C Posting Times
+                </label>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
+                  {PRESET_TIMES.map(preset => {
+                    const isSelected = schedulingDraft.time === preset.time;
+                    return (
+                      <button
+                        type="button"
+                        key={preset.time}
+                        onClick={() => setSchedulingDraft({ ...schedulingDraft, time: preset.time })}
+                        style={{
+                          padding: '8px 10px',
+                          borderRadius: 6,
+                          border: isSelected ? '1px solid #5A3021' : '1px solid #DDD3C5',
+                          background: isSelected ? '#5A3021' : '#E8DCCB',
+                          color: isSelected ? '#FFFCF7' : '#171513',
+                          fontSize: 11,
+                          fontWeight: 600,
+                          textAlign: 'left',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          transition: 'all 0.15s ease',
+                        }}
+                      >
+                        <span>{preset.label}</span>
+                        <span style={{ opacity: isSelected ? 0.9 : 0.6 }}>{preset.time}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Custom Time */}
+              <div style={{ marginBottom: 22 }}>
+                <label style={{ fontSize: 11, fontWeight: 600, color: '#6F665D', display: 'block', marginBottom: 6 }}>
+                  Custom Time (IST)
+                </label>
+                <input
+                  type="time"
+                  value={schedulingDraft.time}
+                  onChange={e => setSchedulingDraft({ ...schedulingDraft, time: e.target.value })}
+                  required
+                  className="input-field"
+                  style={{ width: '100%' }}
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => setSchedulingDraft(null)}
+                  style={{ fontSize: 12, padding: '8px 16px' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSchedulingDraft || !schedulingDraft.date || !schedulingDraft.time}
+                  className="btn-primary"
+                  style={{ fontSize: 12, padding: '8px 18px' }}
+                >
+                  {isSchedulingDraft ? 'Scheduling...' : 'Confirm & Add to Calendar'}
                 </button>
               </div>
             </form>

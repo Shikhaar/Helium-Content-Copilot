@@ -53,6 +53,7 @@ export default function Home() {
   const [performance, setPerformance] = React.useState<PerformanceSummary | null>(null);
   const [analyzeResult, setAnalyzeResult] = React.useState<AnalyzeResponse | null>(null);
   const [calendarEntries, setCalendarEntries] = React.useState<CalendarEntry[]>([]);
+  const [drafts, setDrafts] = React.useState<ContentDraft[]>([]);
 
   // Loading state
   const [analyzingBrandId, setAnalyzingBrandId] = React.useState<string | null>(null);
@@ -81,16 +82,29 @@ export default function Home() {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }, [screen]);
 
+  // Refresh calendar + drafts whenever the Calendar screen is opened,
+  // regardless of navigation path (tab click, handleSchedule redirect, etc.)
+  React.useEffect(() => {
+    if (screen.name !== 'calendar' || !selectedBrandId) return;
+    api.getCalendar(selectedBrandId)
+      .then(cal => setCalendarEntries(cal))
+      .catch(() => {});
+    api.listDrafts(selectedBrandId)
+      .then(d => setDrafts(d))
+      .catch(() => {});
+  }, [screen.name, selectedBrandId]);
+
   // Function to load all data for a specific brand
   const loadBrandData = React.useCallback(async (brandId: string) => {
     try {
       setError(null);
-      const [b, p, perf, cal, opps] = await Promise.all([
+      const [b, p, perf, cal, opps, drfts] = await Promise.all([
         api.getBrand(brandId),
         api.getProducts(brandId),
         api.getPerformance(brandId),
         api.getCalendar(brandId),
         api.getOpportunities(brandId),
+        api.listDrafts(brandId).catch(() => []),
       ]);
 
       // Only apply state if this brand is still the active one
@@ -99,6 +113,7 @@ export default function Home() {
         setProducts(p);
         setPerformance(perf);
         setCalendarEntries(cal);
+        setDrafts(drfts || []);
 
         if (opps.length > 0) {
           setAnalyzeResult({
@@ -199,9 +214,12 @@ export default function Home() {
       }
     } else if (tab === 'calendar') {
       setScreen({ name: 'calendar' });
-      // Refresh calendar entries so newly scheduled posts appear
+      // Refresh calendar entries & drafts so newly scheduled posts and saved drafts appear
       api.getCalendar(selectedBrandId)
         .then(cal => setCalendarEntries(cal))
+        .catch(() => {/* non-fatal */});
+      api.listDrafts(selectedBrandId)
+        .then(d => setDrafts(d))
         .catch(() => {/* non-fatal */});
     } else if (tab === 'brand') {
       setScreen({ name: 'brand' });
@@ -262,6 +280,7 @@ export default function Home() {
     try {
       const draft = await api.generateContent(req);
       setCurrentDraft(draft);
+      api.listDrafts(selectedBrandId).then(d => setDrafts(d)).catch(() => {});
     } catch (e: any) {
       setError(e.message || 'Content generation failed.');
     } finally {
@@ -276,6 +295,7 @@ export default function Home() {
     try {
       const draft = await api.regenerateContent(generateRequest);
       setCurrentDraft(draft);
+      api.listDrafts(selectedBrandId).then(d => setDrafts(d)).catch(() => {});
     } catch (e: any) {
       setError(e.message || 'Regeneration failed.');
     } finally {
@@ -289,6 +309,7 @@ export default function Home() {
     try {
       const updated = await api.approveDraft(currentDraft.id);
       setCurrentDraft(updated);
+      api.listDrafts(selectedBrandId).then(d => setDrafts(d)).catch(() => {});
       return updated;
     } catch (e: any) {
       setError(e.message || 'Approval failed.');
@@ -302,13 +323,39 @@ export default function Home() {
     try {
       const updated = await api.scheduleDraft(currentDraft.id, req);
       setCurrentDraft(updated);
-      const cal = await api.getCalendar(selectedBrandId);
+      const [cal, drfts] = await Promise.all([
+        api.getCalendar(selectedBrandId),
+        api.listDrafts(selectedBrandId).catch(() => []),
+      ]);
       setCalendarEntries(cal);
+      setDrafts(drfts || []);
       // Navigate to calendar so the user sees the scheduled post
       navigate({ name: 'calendar' });
       return updated;
     } catch (e: any) {
       setError(e.message || 'Scheduling failed.');
+      throw e;
+    }
+  };
+
+  // Schedule Unscheduled Draft directly from Calendar
+  const handleScheduleUnscheduledDraft = async (draftId: string, date: string, time: string = '19:00') => {
+    try {
+      const targetDraft = drafts.find(d => d.id === draftId) || await api.getDraft(draftId);
+      const updated = await api.scheduleDraft(draftId, {
+        scheduled_date: date,
+        scheduled_time: time,
+        platform: (targetDraft?.platform as Platform) || 'Instagram',
+      });
+      const [cal, drfts] = await Promise.all([
+        api.getCalendar(selectedBrandId),
+        api.listDrafts(selectedBrandId).catch(() => []),
+      ]);
+      setCalendarEntries(cal);
+      setDrafts(drfts || []);
+      return updated;
+    } catch (e: any) {
+      setError(e.message || 'Failed to schedule draft.');
       throw e;
     }
   };
@@ -319,6 +366,7 @@ export default function Home() {
     try {
       const updated = await api.updateDraft(currentDraft.id, updates);
       setCurrentDraft(updated);
+      api.listDrafts(selectedBrandId).then(d => setDrafts(d)).catch(() => {});
       return updated;
     } catch (e: any) {
       setError(e.message || 'Update failed.');
@@ -378,6 +426,25 @@ export default function Home() {
       }
     } catch (e: any) {
       setError(e.message || 'Failed to load post draft.');
+    }
+  };
+
+  // Delete Draft (from Unscheduled Drafts tray or anywhere)
+  const handleDeleteDraft = async (draftId: string) => {
+    try {
+      await api.deleteDraft(draftId);
+      // Remove from local state immediately for instant UI feedback
+      setDrafts(prev => prev.filter(d => d.id !== draftId));
+      // Also refresh calendar in case it had a linked entry
+      api.getCalendar(selectedBrandId)
+        .then(cal => setCalendarEntries(cal))
+        .catch(() => {});
+      // If user was viewing this draft in Content Studio, clear it
+      if (currentDraft?.id === draftId) {
+        setCurrentDraft(null);
+      }
+    } catch (e: any) {
+      setError(e.message || 'Failed to delete draft.');
     }
   };
 
@@ -509,12 +576,22 @@ export default function Home() {
         );
 
       case 'calendar':
+        // A draft is "unscheduled" if its status is 'draft' or 'approved'
+        // (i.e. not yet 'scheduled'). We use String() to be safe against
+        // enum objects returned from the API.
+        const unscheduledDrafts = drafts.filter(d => {
+          const s = String(d.status).toLowerCase();
+          return s !== 'scheduled';
+        });
         return (
           <CalendarView
             entries={calendarEntries}
+            unscheduledDrafts={unscheduledDrafts}
             onDeleteEntry={handleDeleteCalendarEntry}
             onSelectDraft={handleViewDraft}
+            onDeleteDraft={handleDeleteDraft}
             onRescheduleEntry={handleRescheduleCalendarEntry}
+            onScheduleDraft={handleScheduleUnscheduledDraft}
           />
         );
 

@@ -607,6 +607,19 @@ class ContentRepository(BaseRepository[ContentDraft]):
             is_demo=bool(row["is_demo"]),
         )
 
+    async def delete(self, draft_id: str) -> bool:
+        """Delete a draft and its associated calendar entry. Returns True if deleted."""
+        logger.info("Deleting content draft id=%s", draft_id)
+        # Also remove any linked calendar entry so Calendar stays consistent
+        await self._db.execute(
+            "DELETE FROM calendar_entries WHERE draft_id = ?", (draft_id,)
+        )
+        cursor = await self._db.execute(
+            "DELETE FROM content_drafts WHERE id = ?", (draft_id,)
+        )
+        await self._db.commit()
+        return (cursor.rowcount or 0) > 0
+
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Calendar Repository
