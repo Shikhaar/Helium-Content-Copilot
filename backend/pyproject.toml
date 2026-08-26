@@ -5,6 +5,7 @@ package-mode = false
 name = "brandbrew-content-copilot"
 version = "0.1.0"
 description = "Brew your next winning content idea — AI content strategist for D2C brands"
+license = "Apache-2.0"
 authors = [
     {name = "Shikhar Srivastava"}
 ]

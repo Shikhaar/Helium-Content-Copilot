@@ -280,4 +280,4 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## License
 
-MIT License. Built as an independent prototype for the Helium AI Product Engineer take-home assignment.
+Apache License 2.0. Built as an independent prototype for the Helium AI Product Engineer take-home assignment.
